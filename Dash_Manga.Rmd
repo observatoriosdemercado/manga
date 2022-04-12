@@ -113,7 +113,7 @@ mycolor3 <- "blue"
 mycolor4 <- "red"
 ```
 
-Row {data-height=150}
+Row {data-height=125}
 -----------------------------------------------------------------------
 
 ### Área Plantada com Manga no Brasil em 2020 
@@ -268,7 +268,7 @@ ggplotly(g4) %>%
 VALE DO S. FRANCISCO {data-navmenu="DADOS GERAIS"}
 ======================================================================
 
-Row {data-height=150}
+Row {data-height=125}
 -----------------------------------------------------------------------
 
 ### Área Plantada com Manga no Vale S. Francisco em 2020 
@@ -539,7 +539,7 @@ mycolors2 <- c("orange", "lightblue3")
 
 ```
 
-Row {data-height=150}
+Row {data-height=125}
 -----------------------------------------------------------------------
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2022 
@@ -825,7 +825,7 @@ variacao <- melt(variacao, id.var='Semanas')
 mycolors2 <- c("orange", "lightblue3")
 ```
 
-Row {data-height=150}
+Row {data-height=125}
 -----------------------------------------------------------------------
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2022
@@ -1495,16 +1495,27 @@ checkX13()
 
 options(digits=4)
 
+today <- as.Date("2022-02-01")
+date <- seq(as.Date('2021-01-01'),to=as.Date('2021-12-01'),by='1 month')
+atual <-  as.Date("2022-02-01")
+mes<-2
+
 #Dados de manga por estados
 
-dados3 <- read_excel("ceasas_mi_total22.xlsx", col_names = FALSE)
+dados3 <- read_excel("ceasas_mi_total22fev.xlsx", col_names = FALSE)
 dados3 <- dados3[,-1]
 
 #Transpor a base de dados
 dados3 <- as.data.frame(t(dados3))
-colnames(dados3) <-c ('ano','produto','origem','unidade','quilos')
+colnames(dados3) <-c ('ano','produto','origem','mes','unidade','quilos')
 dados3 <- dados3 %>%
   mutate(quilos=as.numeric(quilos))
+
+dados3a <- dados3 %>% filter(ano<2022)
+dados3b <- dados3 %>% filter(ano==2022 & mes<=2)
+dados3c <- rbind(dados3a, dados3b)
+
+dados3 <- dados3c
 
 #Total de mangas em todos os CEASAS todas as UF
 
@@ -1514,8 +1525,8 @@ manga_anual_all <- manga_anual_all[,-2]
 
 #Total de mangas em todos os CEASAS PE + BA
 
-manga_anual_pe <- dados3 %>% filter(origem=='PE')
-manga_anual_ba <- dados3 %>% filter(origem=='BA')
+manga_anual_pe <- dados3 %>% filter(origem=='PE') %>% group_by(ano) %>% summarise(quilos=sum(quilos))
+manga_anual_ba <- dados3 %>% filter(origem=='BA') %>% group_by(ano) %>% summarise(quilos=sum(quilos))
 
 manga_total_peba <- tibble(manga_anual_pe$quilos + manga_anual_ba$quilos)
 manga_total_peba <- manga_total_peba/1000 #passando o volume para toneladas
@@ -1523,29 +1534,29 @@ colnames(manga_total_peba)[1]<-'pe+ba'
 
 #Juntando as bases de dados Total e PEBA
 manga_anual_all <- tibble(manga_anual_all, manga_total_peba)
-manga_anual_all$ano <- seq(as.Date('2017-01-01'),to=mesatual,by='1 year')
+manga_anual_all$ano <- seq(as.Date('2017-01-01'),to=atual,by='1 year')
 manga_anual_allm <- melt(manga_anual_all, id.var='ano')
 
 # Variação da oferta
 
-dados4 <- read_excel("ceasas_mi_peba_mensal22.xlsx", col_names = FALSE)
-dados4 <- dados4[,-1]
+#dados4 <- read_excel("ceasas_mi_peba_mensal22.xlsx", col_names = FALSE)
+#dados4 <- dados4[,-1]
 
 #Transpor a base de dados
-dados4 <- as.data.frame(t(dados4))
-colnames(dados4) <-c ('ano','mes','produto','origem','unidade','quilos')
-dados4 <- dados4 %>%
-  mutate(quilos=as.numeric(quilos))
+#dados4 <- as.data.frame(t(dados4))
+#colnames(dados4) <-c ('ano','mes','produto','origem','unidade','quilos')
+#dados4 <- dados4 %>%
+#  mutate(quilos=as.numeric(quilos))
 
 # Geração da variável Tommy
-manga_mespe <-  dados4 %>%
+manga_mespe <-  dados3 %>%
   filter(origem == "PE")
 
-manga_mesba <-  dados4 %>%
+manga_mesba <-  dados3 %>%
   filter(origem == "BA")
 
 manga_mespeba <- tibble((manga_mespe$quilos + manga_mesba$quilos)/1000)
-manga_mespeba$mes <- seq(as.Date('2017-01-01'),to=mesatual,by='1 month')
+manga_mespeba$mes <- seq(as.Date('2017-01-01'),to=today,by='1 month')
 manga_mespeba$ano <- manga_mespe$ano
 colnames(manga_mespeba)[1] <-'toneladas'
 
@@ -1555,19 +1566,18 @@ totalpeba_22 <- manga_mespeba %>% filter(ano=='2022')
 
 totalpeba_var20 <- as.matrix(totalpeba_20$toneladas)
 totalpeba_var21 <- as.matrix(totalpeba_21$toneladas)
-totalpeba_var22 <- as.matrix(totalpeba_22$toneladas)
+totalpeba_var22 <- matrix(NA, nrow=12, ncol=1)
+totalpeba_var22a <- as.matrix(totalpeba_22$toneladas)
 
-variacaopeba_2120 <- ((totalpeba_var21-totalpeba_var20)/totalpeba_var20)*100
-variacaopeba_2221a <- as.matrix((totalpeba_var22[1,1]-totalpeba_var21[1,1])/totalpeba_var21[1,1])*100
-
-variacaopeba_2221 <- matrix(NA, nrow=12, ncol=1)
-
-for(i in 1:1){
-  variacaopeba_2221[i,1] = variacaopeba_2221a[i,1]
+for(i in 1:mes){
+  totalpeba_var22[i,1] = totalpeba_var22a[i,1]
 }
 
+variacaopeba_2120 <- ((totalpeba_var21/totalpeba_var20)-1)*100
+variacaopeba_2221 <- ((totalpeba_var22/totalpeba_var21)-1)*100
+
 #meses <- seq(1:12)
-variacao_totalpeba <- data.frame(date2, variacaopeba_2120, variacaopeba_2221)
+variacao_totalpeba <- data.frame(date, variacaopeba_2120, variacaopeba_2221)
 colnames(variacao_totalpeba) = c('Meses', 'Ano 2021', 'Ano 2022')
 
 variacao_totalpebat <- melt(variacao_totalpeba, id.var='Meses')
@@ -1595,10 +1605,10 @@ peba_2021 <- window(manga_mespeba2, end=c(2021,12))
 #seas21<-seasplot(preco_palmer_2021, trend=F, outplot = F)
 #medias21 <- colMeans(seas21$season)
 
-peba_22 <- as.matrix(tail(manga_mespeba2,1)) #ajustar mensalmente
+peba_22 <- as.matrix(tail(manga_mespeba2,mes)) #ajustar mensalmente
 peba_2022 <- matrix(NA, nrow=12, ncol=1)
 
-for(i in 1:1){
+for(i in 1:mes){
   peba_2022[i,1] = peba_22[i,1]
 }
 
@@ -1633,26 +1643,26 @@ mycolors2 <- c("orange", "lightblue3")
 Row {data-height=125}
 -----------------------------------------------------------------------
 
-### Volume Comercializado (CEASAS) em `r strftime(mesatual, format = "%B")` de 2022 
+### Volume Comercializado (CEASAS) em `r strftime(atual, format = "%B")` de 2022 
 ``` {r v1}
-num <- 11.631
+num <- 11.952
 valueBox(
   value = paste0(num, " Toneladas"),
   color = "tomato",
   icon= "fa-arrow-down")
 ```
 
-### Volume Comercializado (CEASAS) em `r strftime(mesatual, format = "%B")` de 2021 
+### Volume Comercializado (CEASAS) em `r strftime(atual, format = "%B")` de 2021 
 ``` {r v2}
-num <- 12.466
+num <- 11.943
 valueBox(
   value = paste0(num, " Toneladas"),
   icon= "fa-pen")
 ```
 
-### Volume Comercializado (CEASAS) em `r strftime(mesatual, format = "%B")` de 2020 
+### Volume Comercializado (CEASAS) em `r strftime(atual, format = "%B")` de 2020 
 ``` {r v3}
-num <- 9.432
+num <- 9.698
 valueBox(
   value = paste0(num, " Toneladas"),
   icon= "fa-pen")
