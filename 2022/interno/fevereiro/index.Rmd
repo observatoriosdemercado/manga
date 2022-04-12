@@ -28,9 +28,10 @@ knitr::opts_chunk$set(
   )
 
 library(lubridate)
-today <- as.Date("2022-01-01")
+today <- as.Date("2022-02-01")
 date <- seq(as.Date('2021-01-01'),to=as.Date('2021-12-01'),by='1 month')
-atual <-  as.Date("2022-01-01")
+atual <-  as.Date("2022-02-01")
+mes<-2
 
 #Linhas precisam de ajuste semanal: 30, 104, 201, 204
 ```
@@ -68,14 +69,20 @@ options(digits=4)
 
 #Dados de manga por estados
 
-dados3 <- read_excel("ceasas_mi_total22.xlsx", col_names = FALSE)
+dados3 <- read_excel("ceasas_mi_total22fev.xlsx", col_names = FALSE)
 dados3 <- dados3[,-1]
 
 #Transpor a base de dados
 dados3 <- as.data.frame(t(dados3))
-colnames(dados3) <-c ('ano','produto','origem','unidade','quilos')
+colnames(dados3) <-c ('ano','produto','origem','mes','unidade','quilos')
 dados3 <- dados3 %>%
   mutate(quilos=as.numeric(quilos))
+
+dados3a <- dados3 %>% filter(ano<2022)
+dados3b <- dados3 %>% filter(ano==2022 & mes<=2)
+dados3c <- rbind(dados3a, dados3b)
+
+dados3 <- dados3c
 
 #Total de mangas em todos os CEASAS todas as UF
 
@@ -85,8 +92,8 @@ manga_anual_all <- manga_anual_all[,-2]
 
 #Total de mangas em todos os CEASAS PE + BA
 
-manga_anual_pe <- dados3 %>% filter(origem=='PE')
-manga_anual_ba <- dados3 %>% filter(origem=='BA')
+manga_anual_pe <- dados3 %>% filter(origem=='PE') %>% group_by(ano) %>% summarise(quilos=sum(quilos))
+manga_anual_ba <- dados3 %>% filter(origem=='BA') %>% group_by(ano) %>% summarise(quilos=sum(quilos))
 
 manga_total_peba <- tibble(manga_anual_pe$quilos + manga_anual_ba$quilos)
 manga_total_peba <- manga_total_peba/1000 #passando o volume para toneladas
@@ -94,25 +101,25 @@ colnames(manga_total_peba)[1]<-'pe+ba'
 
 #Juntando as bases de dados Total e PEBA
 manga_anual_all <- tibble(manga_anual_all, manga_total_peba)
-manga_anual_all$ano <- seq(as.Date('2017-01-01'),to=today,by='1 year')
+manga_anual_all$ano <- seq(as.Date('2017-01-01'),to=atual,by='1 year')
 manga_anual_allm <- melt(manga_anual_all, id.var='ano')
 
 # Variação da oferta
 
-dados4 <- read_excel("ceasas_mi_peba_mensal22.xlsx", col_names = FALSE)
-dados4 <- dados4[,-1]
+#dados4 <- read_excel("ceasas_mi_peba_mensal22.xlsx", col_names = FALSE)
+#dados4 <- dados4[,-1]
 
 #Transpor a base de dados
-dados4 <- as.data.frame(t(dados4))
-colnames(dados4) <-c ('ano','mes','produto','origem','unidade','quilos')
-dados4 <- dados4 %>%
-  mutate(quilos=as.numeric(quilos))
+#dados4 <- as.data.frame(t(dados4))
+#colnames(dados4) <-c ('ano','mes','produto','origem','unidade','quilos')
+#dados4 <- dados4 %>%
+#  mutate(quilos=as.numeric(quilos))
 
 # Geração da variável Tommy
-manga_mespe <-  dados4 %>%
+manga_mespe <-  dados3 %>%
   filter(origem == "PE")
 
-manga_mesba <-  dados4 %>%
+manga_mesba <-  dados3 %>%
   filter(origem == "BA")
 
 manga_mespeba <- tibble((manga_mespe$quilos + manga_mesba$quilos)/1000)
@@ -126,16 +133,15 @@ totalpeba_22 <- manga_mespeba %>% filter(ano=='2022')
 
 totalpeba_var20 <- as.matrix(totalpeba_20$toneladas)
 totalpeba_var21 <- as.matrix(totalpeba_21$toneladas)
-totalpeba_var22 <- as.matrix(totalpeba_22$toneladas)
+totalpeba_var22 <- matrix(NA, nrow=12, ncol=1)
+totalpeba_var22a <- as.matrix(totalpeba_22$toneladas)
 
-variacaopeba_2120 <- ((totalpeba_var21-totalpeba_var20)/totalpeba_var20)*100
-variacaopeba_2221a <- as.matrix((totalpeba_var22[1,1]-totalpeba_var21[1,1])/totalpeba_var21[1,1])*100
-
-variacaopeba_2221 <- matrix(NA, nrow=12, ncol=1)
-
-for(i in 1:1){
-  variacaopeba_2221[i,1] = variacaopeba_2221a[i,1]
+for(i in 1:mes){
+  totalpeba_var22[i,1] = totalpeba_var22a[i,1]
 }
+
+variacaopeba_2120 <- ((totalpeba_var21/totalpeba_var20)-1)*100
+variacaopeba_2221 <- ((totalpeba_var22/totalpeba_var21)-1)*100
 
 #meses <- seq(1:12)
 variacao_totalpeba <- data.frame(date, variacaopeba_2120, variacaopeba_2221)
@@ -166,10 +172,10 @@ peba_2021 <- window(manga_mespeba2, end=c(2021,12))
 #seas21<-seasplot(preco_palmer_2021, trend=F, outplot = F)
 #medias21 <- colMeans(seas21$season)
 
-peba_22 <- as.matrix(tail(manga_mespeba2,1)) #ajustar mensalmente
+peba_22 <- as.matrix(tail(manga_mespeba2,mes)) #ajustar mensalmente
 peba_2022 <- matrix(NA, nrow=12, ncol=1)
 
-for(i in 1:1){
+for(i in 1:mes){
   peba_2022[i,1] = peba_22[i,1]
 }
 
@@ -207,15 +213,15 @@ mycolors2 <- c("orange", "lightblue3")
 
 <br>
 
-Os dados utilizados nesta análise são mensais e disponibilizados pela *CONAB/PROHORT*. São para a oferta de manga comercializados nos CEASAS do Brasil com origem em todos os estados e comparados com o volume de origem Pernambuco e Bahia. O período disponibilizado é de **janeiro de 2017 à janeiro de 2022**;
+Os dados utilizados nesta análise são mensais e disponibilizados pela *CONAB/PROHORT*. São para a oferta de manga comercializados nos CEASAS do Brasil com origem em todos os estados e comparados com o volume de origem Pernambuco e Bahia. O período disponibilizado é de **janeiro de 2017 à fevereiro de 2022**;
 
-Em relação aos *volumes (total e com origem Pernambuco e Bahia)*, em 2017, 54,67% do volume total teve origem PE e BA. Em 2021, este volume passou para 61,88%. No mes de janeiro de 2022 os volumes do Vale do São Francisco são normalmente menores e, com as chuvas, reduziram ainda mais, atingindo os 43,76%;  
+Em relação aos *volumes (total e com origem Pernambuco e Bahia)*, considerando os meses de janeiro e fevereiro de 2022, 47,93\% de toda a manga comercializada nos CEASAS do Brasil, a origem foi Pernambuco e Bahia, um total de 23,6 mil toneladas dentre as 49,2 mil toneladas que passaram pelos CEASAS;  
 
-A informação da variação do volume, comparando janeiro de 2022 com 2021, mostra uma queda de -6,71%, cenário bem diferente do que ocorreu em 2021 com 2020, quando o volume foi 32,18% mais elevado. Contudo, segue a conjuntura de dezembro de 2021, quando o volume já tinha sido 32,42% em relação ao ao anterior;
+A informação da variação do volume, comparando `r strftime(atual, format = "%B de %Y")` com 2021, mostra uma estabilidade (0,07\%), cenário bem diferente do que ocorreu em 2021 com 2020, quando o volume foi 23,16% mais elevado. Assim, possivelmente como efeito das chuvas que ocorreram em Pernambuco e na Bahia, os volumes (até o momento) não conseguiram aumentar na mesma velocidade que cresceram no ano anterior;
 
-A **Tendência** ente 2017 e 2022 não mostra crescimento significativo do volume. A **Sazonalidade** mostra o crescimento da oferta até maio e, depois de uma estabilidade até agosto, se tem um novo crescimento até outubro, quando atinge o pico de oferta;
+A **Tendência** entre 2017 e 2022 não mostra crescimento significativo do volume. A **Sazonalidade** mostra que a partir de março deve existir um crescimento da oferta até maio e, depois de uma estabilidade até agosto, se tem um novo crescimento até outubro, quando atinge o pico de oferta;
 
-A comparação da média, mínimo valor e máximo valor (até 2019) com os valores de 2020, 2021 e 2022 mostra que nos últimos anos os volumes foram maiores do que o que se teve de máximo até 2019. Mostra também que, em 2021, na maior parte dos meses, os volumes superaram muito os valores de 2020 e foram acima da média histórica.
+A comparação da média, mínimo valor e máximo valor (até 2019) com os valores de 2020, 2021 e 2022 mostra que nos últimos anos os volumes foram maiores do que o que se teve de máximo até 2019, ou seja, um grande volume de manga no mercado interno. 
 
 <br>
 
@@ -254,7 +260,7 @@ ggplotly(g1) %>%
                       y=-0.25,
                       title=''))
 ```
-\footnotesize Obs: Dados de 2022 apenas para o mês de janeiro.
+\footnotesize Obs: Dados de 2022 apenas até o mês de `r strftime(atual, format = "%B")`.
 
 <br>
 
@@ -275,7 +281,7 @@ datatable(round(manga_anual_alltab), option = list(
 ```
 Fonte:PROHORT/CONAB reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
-Obs: Dados de 2022 apenas para o mês de janeiro.
+Obs: Dados de 2022 apenas até o mês de `r strftime(atual, format = "%B")`.
 
 <br>
 <br>
