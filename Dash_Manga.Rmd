@@ -3,6 +3,7 @@ title: "DASHBOARD MERCADO DE MANGA"
 #author: "João Ricardo Lima"
 output: 
   flexdashboard::flex_dashboard:
+    favicon: "https://www.embrapa.br/image/layout_set_logo?img_id=1343656&t=1649937608784"
     navbar:
       - {title: "OBSERVATÓRIO DO MERCADO DE MANGA", href: "https://www.embrapa.br/observatorio-da-manga", align: right}
     orientation: rows
