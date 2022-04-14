@@ -3,9 +3,10 @@ title: "DASHBOARD MERCADO DE MANGA"
 #author: "João Ricardo Lima"
 output: 
   flexdashboard::flex_dashboard:
+    logo: "https://raw.githubusercontent.com/observatoriosdemercado/manga/main/branca_peq.png"
     favicon: "https://www.embrapa.br/image/layout_set_logo?img_id=1343656&t=1649937608784"
     navbar:
-      - {title: "Metodologia e Fontes dos Dados", href: "https://www.embrapa.br/observatorio-da-manga", align: right}
+      - {title: "Metodologia e Fontes dos Dados", href: "https://observatoriosdemercado.github.io/manga/fonte/", align: right}
     orientation: rows
     vertical_layout: fill #sem barra de rolagem e scroll com barra
     theme: 
