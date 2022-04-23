@@ -56,8 +56,8 @@ library(lubridate)
 anterior <-  as.Date("2022-02-01")
 atual <-  as.Date("2022-03-01")
 mesatual <-  as.Date("2022-01-01")
-data <- as.Date("2022-04-15") #ajustar semanalmente
-sem_ano <- 15 #ajustar semanalmente
+data <- as.Date("2022-04-22") #ajustar semanalmente
+sem_ano <- 16 #ajustar semanalmente
 date2 <- seq(as.Date('2021-01-01'),to=as.Date('2021-12-01'),by='1 month')
 mes <- 3
 
@@ -555,7 +555,7 @@ valueBox(
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2021
 ``` {r}
-num <- 3.17
+num <- 1.82
 valueBox(
   value = paste0( "R$", format(round(num,2), decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -564,7 +564,7 @@ valueBox(
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2020
 ``` {r}
-num <- 1.57
+num <- 1.74
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -841,7 +841,7 @@ valueBox(
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2021
 ``` {r}
-num <- 1.10
+num <- 0.84
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -850,7 +850,7 @@ valueBox(
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2020
 ``` {r}
-num <- 1.43
+num <- 2.10
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
