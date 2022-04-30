@@ -2273,10 +2273,10 @@ EMPREGO
 #Direcionado o R para o Diretorio a ser trabalhado
 setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_caged')
 
-anterior <- as.Date("2022-02-01")
-atual <-  as.Date("2022-02-01")
+anterior <- as.Date("2022-03-01")
+atual <-  as.Date("2022-03-01")
 #today <- as.Date("2022-02-11")
-today <- as.Date("2022-03-11")
+today <- as.Date("2022-04-29")
 
 #Inicio do Script
 #Pacotes a serem utilizados 
@@ -2285,7 +2285,7 @@ library(scales)
 library(plotly)
 
 #Entrando dados no R
-dados1 <- read.csv2('fevereiro_2022.csv', header=T, sep=";", dec = ".")
+dados1 <- read.csv2('marco_2022.csv', header=T, sep=";", dec = ".")
 colnames(dados1)[1] <- 'date'
 dados1$date <- seq(as.Date('2021-01-01'),to=anterior,by='1 month')
 dados1a <- dados1 
@@ -2309,29 +2309,29 @@ saldom$mes <- factor(saldom$mes,levels = c("jan", "fev", "mar", "abr", "mai",
 
 #Entrando com o restante dos dados
 
-load("fevereiro_22_caged.RData")
+load("marco_22_caged.RData")
 
 #dados_01_vsf$sexo <- lapply(dados_01_vsf$sexo, factor)
 
-dados_01_vsf$sexo[dados_01_vsf$sexo == 1] <- 0
-dados_01_vsf$sexo[dados_01_vsf$sexo == 3] <- 1
+dados_03_vsf$sexo[dados_03_vsf$sexo == 1] <- 0
+dados_03_vsf$sexo[dados_03_vsf$sexo == 3] <- 1
 
-dados_01_vsf <- mutate(dados_01_vsf,
+dados_03_vsf <- mutate(dados_03_vsf,
                 sexo = factor(sexo, levels = 0:1, labels = c("Masculino", "Feminino")))
 
 # Mantendo apenas 
 
 #Separando as admissoes e as demissoes
-dados_01_vsf_positivos <-dados_01_vsf%>% filter(saldo_movim=="1")
-dados_01_vsf_negativos <-dados_01_vsf%>% filter(saldo_movim=="-1")
+dados_03_vsf_positivos <-dados_03_vsf%>% filter(saldo_movim=="1")
+dados_03_vsf_negativos <-dados_03_vsf%>% filter(saldo_movim=="-1")
 
 #Mantendo apenas o agronegocio
-secao_positivos <-dados_01_vsf_positivos%>% filter(secao=="A")
-secao_negativos <-dados_01_vsf_negativos%>% filter(secao=="A")
+secao_positivos <-dados_03_vsf_positivos%>% filter(secao=="A")
+secao_negativos <-dados_03_vsf_negativos%>% filter(secao=="A")
 
 #Mantendo apenas a manga
-subclasse_positivos <-dados_01_vsf_positivos%>% filter(subclasse=="133410")
-subclasse_negativos <-dados_01_vsf_negativos%>% filter(subclasse=="133410")
+subclasse_positivos <-dados_03_vsf_positivos%>% filter(subclasse=="133410")
+subclasse_negativos <-dados_03_vsf_negativos%>% filter(subclasse=="133410")
 
 subclasse_positivos <- mutate(subclasse_positivos,
                 grau_instrucao = factor(grau_instrucao, levels = 1:13, 
@@ -2355,7 +2355,7 @@ Row {data-height=125}
 
 ### pela mangicultura em `r strftime(atual, format = "%B")` de 2022 
 ``` {r emp1}
-num <- 687
+num <- 1152
 valueBox(
   value = paste0(num, " Contratados"),
   color = "green",
@@ -2364,7 +2364,7 @@ valueBox(
 
 ### pela mangicultura em `r strftime(atual, format = "%B")` de 2022 
 ``` {r emp2}
-num <- 610
+num <- 728
 valueBox(
   value = paste0(num, " Demitidos"),
   color = "tomato",
@@ -2373,7 +2373,7 @@ valueBox(
 
 ### Saldo Gerado pela mangicultura em `r strftime(atual, format = "%B")` de 2022 
 ``` {r emp3}
-num <- 77
+num <- 424
 valueBox(
   value = paste0(num, " Empregos"),
   color = "green",
@@ -2477,7 +2477,7 @@ ggplotly(g3)
 
 g4 <- ggplot(data = subclasse_positivos, aes(x = grau_instrucao, y = ..count..)) +
   geom_bar(fill='#1e4971')+
-    scale_y_continuous(limits=c(0, 300), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
+    scale_y_continuous(limits=c(0, 500), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
 labs(y= "Contratados Manga - VSF", x= "Grau de Instrução", title='Grau de Instrução dos empregos gerados',
        caption = "")+
   theme_minimal() +
