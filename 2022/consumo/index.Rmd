@@ -1,0 +1,339 @@
+---
+title: "OBSERVATÓRIO DO MERCADO DE MANGA DA EMBRAPA SEMIÁRIDO"
+author: "João Ricardo F. de Lima"
+date: "`r format(Sys.Date(), '%d de %B de %Y.')`"
+output:
+  html_document:
+    theme: flatly
+    number_sections: no
+    highlight: textmate
+    toc: true #cria um sumário das sessões do documento
+    toc_float:
+      collapsed: yes
+      smooth_scroll: yes
+    df_print: paged  #ajusta o formato da tabela
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo       = FALSE,
+  warning    = FALSE,
+  message    = FALSE,
+  comment    = NA,
+  fig.width  = 10,
+  fig.height = 6,
+  fig.align  = "center",
+  comment    = "#",
+  size       = "normalsize"
+  )
+
+library(lubridate)
+anterior <- as.Date("2022-03-01")
+atual <-  as.Date("2022-03-01")
+#today <- as.Date("2022-02-11")
+today <- as.Date("2022-04-29")
+
+#Linhas precisam de ajuste semanal: 30, 104, 201, 204
+```
+
+<br>
+
+# CONSUMO DE MANGA COM BASE NOS DADOS DA POF (PESQUISA DE ORÇAMENTO FAMILIAR)/IBGE 
+
+<br>
+
+Os dados utilizados são da POF (Pesquisa de Orçamentos Familiares) do IBGE e se referem as pesquisas de 2002, 2008 e 2018 relativos ao consumo domiciliar per capita anual com manga. Em 2002 a média de consumo nacional era de 880 gramas de manga per capita, passando para 1,188 quilos em 2018.Isto representa um aumento de 22,47% no consumo, em 10 anos.
+
+A região Sul é a que mais consumiu manga em 2018 (1,49 kg), superando a região Sudeste (1,44 kg) que historicamente era a região maior consumidora desta fruta. Estas duas regiões possuem consumo superior a média nacional. No Nordeste o consumo está sem crescimento, é praticamente o mesmo em 2018 na comparação com as duas pesquisadores anteriores. O Centro-Oeste possui a maior taxa de crescimento no consumo, passado de 469 gramas para 813 gramas entre 2008 e 2018, um aumento de 73,35\%.
+
+Na questão dos estados, Santa Catarina (1,92 kg), Sergipe (1,78 kg), São Paulo (1,70 kg), Paraná (1,65) e o Distrito Federal (1,558) são os que consomem mais mangas.  Roraima (0 gramas), Tocantins (130 gramas), Amapá (148 gramas), Pará (314 gramas) e o Amazonas (316 gramas) são os estados que menos consomem manga no Brasil.
+
+Na questão do consumo baseados nas faixas de renda, em todas as regiões quem tem mais renda consome mais manga. No Sul, o estrato de renda mais alto se aproxima de quase 4 quilos de manga per capita, praticamente o triplo da média nacional. Chama a atenção os dados da região Nordeste, como é diferente o consumo das pessoas do estrato mais alto em relação aos demais. Eles consomem quase 10 vezes mais do que a maior parte das outras faixas de renda da região. 
+
+<br>
+
+## 1. EVOLUÇÃO DA AQUISIÇÃO DOMICILIAR PER CAPITA ANUAL DE MANGA NO BRASIL E REGIÕES {.tabset .tabset-fade}
+
+### GRÁFICO
+
+<br>
+
+```{r consumo_manga1}
+#Direcionado o R para o Diretorio a ser trabalhado
+setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
+
+#Inicio do Script
+#Pacotes a serem utilizados 
+library(ggplot2)
+library(scales)
+library(plotly)
+library(dplyr)
+library(readxl)
+library(reshape2)
+library(kableExtra)# complex tables
+library(lmtest)
+library(DT)
+library(magrittr)
+
+mycolors2 <- c("darkgreen", "lightblue3", "orange")
+
+#Entrando dados no R
+dados1 <- read_excel('consumo_brasil.xlsx', col_names = TRUE)
+dados1m <- melt(dados1, id.var='Região')
+
+g1 <- ggplot()+
+  geom_col(data=dados1m, aes(x=Região, y=value, fill=variable), lwd=1, position = "dodge")+ scale_fill_manual(values=mycolors2)+
+  labs(y= "Consumo (kg) per capita anual", x= "Brasil e Regiões", title='',
+  caption = "Fonte: POF/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=20)),
+        axis.title.y = element_text(size=12, face = "bold"),
+        axis.title.x = element_text(size=12, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = 0.5, size=12),
+        plot.caption = element_text(hjust = 0, size=12),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g1) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.3, 
+                      y=-0.2,
+                      title=''))
+```
+Fonte: POF/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+### TABELA 
+
+**VISUALIZAÇÃO DOS DADOS EM TABELA**
+
+```{r consumo_manga1a}
+datatable(dados1, option = list(
+  autoWidth = TRUE,
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+
+#kable(round(table,2)) %>%
+#  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
+```
+Fonte: POF/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+## 2. VARIAÇÃO NA AQUISIÇÃO DOMICILIAR PER CAPITA ANUAL DE MANGA NO BRASIL E REGIÕES ENTRE 2088 E 2018 {.tabset .tabset-fade}
+
+### GRÁFICO
+
+``````{r consumo_manga2}
+consumo_var <- dados1[,-2]
+variacao <- ((consumo_var[,3]-consumo_var[,2])/consumo_var[,2])*100
+consumo_vara<-cbind(consumo_var, round(variacao,2))
+consumo_var <- consumo_vara[,-c(2:3)]
+colnames(consumo_var) = c('regiao', 'variacao')
+
+mycolor1 <- "orange"
+
+g2<- ggplot(data=consumo_var) +  #estetica vai valer para todos os geom's
+  geom_col(aes(x = regiao, y=round(variacao,2), fill="Variação no Consumo de Manga (%) per capita anual"), lwd=1)+
+  scale_fill_manual(values=mycolor1)+labs(y= "Variação no Consumo de Manga (%)", x= "Estados", title='',
+       caption = "")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=20)),
+        axis.title.y = element_text(size=12, face = "bold"),
+        axis.title.x = element_text(size=12, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = 0.5, size=12),
+        plot.caption = element_text(hjust = 0, size=12),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g2) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.3, 
+                      y=-0.4,
+                      title=''))
+```
+
+### TABELA 
+
+**VISUALIZAÇÃO DOS DADOS EM TABELA**
+
+```{r consumo_manga2a}
+datatable(consumo_vara,2, option = list(
+  autoWidth = TRUE,
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+
+#kable(round(table,2)) %>%
+#  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
+```
+Fonte: POF/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+
+## 3. EVOLUÇÃO DA AQUISIÇÃO DOMICILIAR PER CAPITA ANUAL DE MANGA POR ESTADOS{.tabset .tabset-fade}
+
+### GRÁFICO
+
+<br>
+
+```{r consumo_manga3}
+#Direcionado o R para o Diretorio a ser trabalhado
+setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
+
+#Inicio do Script
+#Pacotes a serem utilizados 
+library(ggplot2)
+library(scales)
+library(plotly)
+library(dplyr)
+library(readxl)
+
+mycolor1 <- "gold"
+
+#mycolors2 <- c("orange", "lightblue3", "gray44", "gold", "red", "darkgreen")
+
+#Entrando dados no R
+dados2 <- read_excel('consumo_estados.xlsx', col_names = TRUE)
+
+g2 <- ggplot(data=dados2) +  #estetica vai valer para todos os geom's
+  geom_col(aes(x = reorder(regiao, -consumo), y= consumo, fill="Consumo (kg) per capita anual"), lwd=1)+scale_fill_manual(values=mycolor1)+labs(y= "Consumo (kg) per capita anual", x= "Estados", title='',
+       caption = "")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=35, hjust=0.5, size=12, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=20)),
+        axis.title.y = element_text(size=12, face = "bold"),
+        axis.title.x = element_text(size=12, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = 0.5, size=12),
+        plot.caption = element_text(hjust = 0, size=12),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g2) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.3, 
+                      y=-0.4,
+                      title=''))
+```
+Fonte: POF/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+### TABELA 
+
+**VISUALIZAÇÃO DOS DADOS EM TABELA**
+
+```{r consumo_manga3a}
+datatable(dados2, option = list(
+  autoWidth = TRUE,
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+
+#kable(round(table,2)) %>%
+#  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
+```
+Fonte: POF/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+## 4. EVOLUÇÃO DA AQUISIÇÃO DOMICILIAR PER CAPITA ANUAL DE MANGA POR FAIXAS DE RENDA{.tabset .tabset-fade}
+
+### GRÁFICO
+
+<br>
+
+```{r consumo_manga4}
+#Direcionado o R para o Diretorio a ser trabalhado
+setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
+
+#Inicio do Script
+#Pacotes a serem utilizados 
+library(ggplot2)
+library(scales)
+library(plotly)
+library(dplyr)
+library(readxl)
+
+mycolors2 <- c("orange", "lightblue3", "darkblue", "gold", "red", "darkgreen")
+
+#Entrando dados no R
+dados3 <- read_excel('consrenda_brasil.xlsx', col_names = TRUE)
+dados3m <- melt(dados3, id.var='classes')
+
+g3 <- ggplot()+
+  geom_col(data=dados3m, aes(x=variable, y=value, fill=classes), lwd=1, position = "dodge")+ scale_fill_manual(values=mycolors2)+
+  labs(y= "Consumo (kg) per capita anual", x= "Brasil e Regiões", title='',
+  caption = "Fonte: POF/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=20)),
+        axis.title.y = element_text(size=12, face = "bold"),
+        axis.title.x = element_text(size=12, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = 0.5, size=12),
+        plot.caption = element_text(hjust = 0, size=12),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g3) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.07, 
+                      y=-0.2,
+                      title=''))
+```
+### TABELA 
+
+**VISUALIZAÇÃO DOS DADOS EM TABELA**
+
+
+```{r consumo_manga4a}
+datatable(dados3, option = list(
+  autoWidth = TRUE,
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+
+#kable(round(table,2)) %>%
+#  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
+```
+Fonte: POF/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+# INFORMAÇÕES
+<br>
+<br>
+
+<center>![](logo_manga.jpg){width=16cm}</center>
+
+<br>
+<br>
+
+<center> João Ricardo F. de Lima </center>
+<center> Email: joao.ricardo@embrapa.br </center>
+
+<br>
+
+<center> [https://www.embrapa.br/observatorio-da-manga](https://www.embrapa.br/observatorio-da-manga) </center>
+
+<br>
+
+<center> Telefones: </center>
+<center> 87-3866-3667 </center> 
+<center> 87-99961-5799 </center>
+
+<br>
+
+<center>![](logo_embrapa.jpg){width=6cm}</center>
+
+<br>
+<br>
