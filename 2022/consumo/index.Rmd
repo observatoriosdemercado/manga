@@ -126,7 +126,7 @@ Fonte: POF/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
 <br>
 <br>
 
-## 2. VARIAÇÃO NA AQUISIÇÃO DOMICILIAR PER CAPITA ANUAL DE MANGA NO BRASIL E REGIÕES ENTRE 2088 E 2018 {.tabset .tabset-fade}
+## 2. VARIAÇÃO NA AQUISIÇÃO DOMICILIAR PER CAPITA ANUAL DE MANGA NO BRASIL E REGIÕES ENTRE 2008 E 2018 {.tabset .tabset-fade}
 
 ### GRÁFICO
 
@@ -162,6 +162,7 @@ ggplotly(g2) %>%
                       y=-0.4,
                       title=''))
 ```
+Fonte: POF/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
 ### TABELA 
 
@@ -177,8 +178,11 @@ datatable(consumo_vara,2, option = list(
 ```
 Fonte: POF/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
+<br>
 
-## 3. EVOLUÇÃO DA AQUISIÇÃO DOMICILIAR PER CAPITA ANUAL DE MANGA POR ESTADOS{.tabset .tabset-fade}
+## 3. AQUISIÇÃO DOMICILIAR PER CAPITA ANUAL DE MANGA POR ESTADOS - 2018 {.tabset .tabset-fade}
+
+<br>
 
 ### GRÁFICO
 
@@ -247,7 +251,9 @@ Fonte: POF/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
 <br>
 <br>
 
-## 4. EVOLUÇÃO DA AQUISIÇÃO DOMICILIAR PER CAPITA ANUAL DE MANGA POR FAIXAS DE RENDA{.tabset .tabset-fade}
+## 4.AQUISIÇÃO DOMICILIAR PER CAPITA ANUAL DE MANGA POR FAIXAS DE RENDA - 2018{.tabset .tabset-fade}
+
+<br>
 
 ### GRÁFICO
 
@@ -294,6 +300,10 @@ ggplotly(g3) %>%
                       y=-0.2,
                       title=''))
 ```
+Fonte: POF/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+
 ### TABELA 
 
 **VISUALIZAÇÃO DOS DADOS EM TABELA**
@@ -308,6 +318,8 @@ datatable(dados3, option = list(
 #  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
 ```
 Fonte: POF/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
 
 # INFORMAÇÕES
 <br>
