@@ -1037,6 +1037,11 @@ checkX13()
 
 options(digits=4)
 
+anterior <- as.Date("2022-03-01")
+atual <-  as.Date("2022-04-01") #ultimo mes disponibilizado
+today <- as.Date("2022-05-06") #data para o IGPI - ultima semana do preço
+mes <- 4
+
 #Entrando dados no R
 dados1 <- read.csv2('exportacoes_2012_2022.csv', header=T, sep=";", dec = ".")
 dados1 <- dados1/1000
@@ -1262,7 +1267,7 @@ Row {data-height=125}
 
 ### Volume Exportação (Brasil) em `r strftime(atual, format = "%B")` de 2022 
 ``` {r d1}
-num <- 12.241
+num <- 17.914
 valueBox(
   value = paste0(num, " Toneladas"),
   color = "green",
@@ -1271,7 +1276,7 @@ valueBox(
 
 ### Volume Exportação (Brasil) em `r strftime(atual, format = "%B")` de 2021 
 ``` {r d2}
-num <- 10.637
+num <- 18.400
 valueBox(
   value = paste0(num, " Toneladas"),
   icon= "fa-pen")
@@ -1279,7 +1284,7 @@ valueBox(
 
 ### Volume Exportação (Brasil) em `r strftime(atual, format = "%B")` de 2020 
 ``` {r d3}
-num <- 10.458
+num <- 10.660
 valueBox(
   value = paste0(num, " Toneladas"),
   icon= "fa-pen")
@@ -1374,7 +1379,7 @@ g10 <- ggplot(data=dados3) +  #estetica vai valer para todos os geom's
     scale_fill_manual(values=mycolor1) +
   labs(y= "% do Volume Total Exportados", x= "Países", title='Principais Destinos da Manga (Brasil)',
        caption = "")+
-  scale_y_continuous(limits=c(0, 45), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
+  scale_y_continuous(limits=c(0, 50), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
   theme_classic()+ #Definindo tema
   theme(axis.text.x=element_text(angle=45, hjust=0.5, size=8, margin = margin(b=10)),
         axis.text.y=element_text(hjust=1, size=8, margin = margin(l=20)),
@@ -1462,6 +1467,11 @@ library(lubridate)
 checkX13()
 
 options(digits=4)
+
+anterior <- as.Date("2022-03-01")
+atual <-  as.Date("2022-04-01") #ultimo mes disponibilizado
+today <- as.Date("2022-05-06") #data para o IGPI - ultima semana do preço
+mes <- 4
 
 #Entrando dados no R
 dados1 <- read.csv2('exportacoes_2012_2022VSF.csv', header=T, sep=";", dec = ".")
@@ -1684,7 +1694,7 @@ Row {data-height=125}
 
 ### Volume Exportação (VSF) em `r strftime(atual, format = "%B")` de 2022 
 ``` {r d1b}
-num <- 10.009
+num <- 15.859
 valueBox(
   value = paste0(num, " Toneladas"),
   color = "green",
@@ -1693,7 +1703,7 @@ valueBox(
 
 ### Volume Exportação (VSF) em `r strftime(atual, format = "%B")` de 2021 
 ``` {r d2b}
-num <- 9.148
+num <- 16.264
 valueBox(
   value = paste0(num, " Toneladas"),
   icon= "fa-pen")
@@ -1701,7 +1711,7 @@ valueBox(
 
 ### Volume Exportação (VSF) em `r strftime(atual, format = "%B")` de 2020 
 ``` {r d3b}
-num <- 8.502
+num <- 9.326
 valueBox(
   value = paste0(num, " Toneladas"),
   icon= "fa-pen")
@@ -1758,7 +1768,7 @@ g10 <- ggplot(data=dados3) +  #estetica vai valer para todos os geom's
     scale_fill_manual(values=mycolor1) +
   labs(y= "% do Volume Total Exportados", x= "Países", title='Principais Destinos da Manga (VSF)',
        caption = "")+
-  scale_y_continuous(limits=c(0, 45), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
+  scale_y_continuous(limits=c(0, 50), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
   theme_classic()+ #Definindo tema
   theme(axis.text.x=element_text(angle=45, hjust=0.5, size=8, margin = margin(b=10)),
         axis.text.y=element_text(hjust=1, size=8, margin = margin(l=20)),
