@@ -56,8 +56,8 @@ library(lubridate)
 anterior <-  as.Date("2022-02-01")
 atual <-  as.Date("2022-03-01")
 mesatual <-  as.Date("2022-01-01")
-data <- as.Date("2022-05-13") #ajustar semanalmente
-sem_ano <- 19 #ajustar semanalmente
+data <- as.Date("2022-05-20") #ajustar semanalmente
+sem_ano <- 20 #ajustar semanalmente
 date2 <- seq(as.Date('2021-01-01'),to=as.Date('2021-12-01'),by='1 month')
 mes <- 3
 
