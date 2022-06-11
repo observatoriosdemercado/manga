@@ -56,8 +56,8 @@ library(lubridate)
 anterior <-  as.Date("2022-02-01")
 atual <-  as.Date("2022-03-01")
 mesatual <-  as.Date("2022-01-01")
-data <- as.Date("2022-06-03") #ajustar semanalmente
-sem_ano <- 22 #ajustar semanalmente
+data <- as.Date("2022-06-10") #ajustar semanalmente
+sem_ano <- 23 #ajustar semanalmente
 date2 <- seq(as.Date('2021-01-01'),to=as.Date('2021-12-01'),by='1 month')
 mes <- 3
 
@@ -555,7 +555,7 @@ valueBox(
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2021
 ``` {r}
-num <- 0.80
+num <- 0.78
 valueBox(
   value = paste0( "R$", format(round(num,2), decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -564,7 +564,7 @@ valueBox(
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2020
 ``` {r}
-num <- 4.87
+num <- 4.68
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -835,13 +835,13 @@ Row {data-height=125}
 num <- tail(preco_tommy,1)
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
-  color = "tomato",
-  icon= "fa-arrow-down")
+  color = "green",
+  icon= "fa-arrow-up")
 ```
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2021
 ``` {r}
-num <- 1.28
+num <- 1.12
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -850,7 +850,7 @@ valueBox(
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2020
 ``` {r}
-num <- 4.50
+num <- 4.34
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -2496,10 +2496,10 @@ EMPREGO
 #Direcionado o R para o Diretorio a ser trabalhado
 setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_caged')
 
-anterior <- as.Date("2022-03-01")
-atual <-  as.Date("2022-03-01")
+anterior <- as.Date("2022-04-01")
+atual <-  as.Date("2022-04-01")
 #today <- as.Date("2022-02-11")
-today <- as.Date("2022-04-29")
+
 
 #Inicio do Script
 #Pacotes a serem utilizados 
@@ -2508,7 +2508,7 @@ library(scales)
 library(plotly)
 
 #Entrando dados no R
-dados1 <- read.csv2('marco_2022.csv', header=T, sep=";", dec = ".")
+dados1 <- read.csv2('abril_2022.csv', header=T, sep=";", dec = ".")
 colnames(dados1)[1] <- 'date'
 dados1$date <- seq(as.Date('2021-01-01'),to=anterior,by='1 month')
 dados1a <- dados1 
@@ -2532,29 +2532,29 @@ saldom$mes <- factor(saldom$mes,levels = c("jan", "fev", "mar", "abr", "mai",
 
 #Entrando com o restante dos dados
 
-load("marco_22_caged.RData")
+load("abril_22_caged.RData")
 
 #dados_01_vsf$sexo <- lapply(dados_01_vsf$sexo, factor)
 
-dados_03_vsf$sexo[dados_03_vsf$sexo == 1] <- 0
-dados_03_vsf$sexo[dados_03_vsf$sexo == 3] <- 1
+dados_04_vsf$sexo[dados_04_vsf$sexo == 1] <- 0
+dados_04_vsf$sexo[dados_04_vsf$sexo == 3] <- 1
 
-dados_03_vsf <- mutate(dados_03_vsf,
+dados_04_vsf <- mutate(dados_04_vsf,
                 sexo = factor(sexo, levels = 0:1, labels = c("Masculino", "Feminino")))
 
 # Mantendo apenas 
 
 #Separando as admissoes e as demissoes
-dados_03_vsf_positivos <-dados_03_vsf%>% filter(saldo_movim=="1")
-dados_03_vsf_negativos <-dados_03_vsf%>% filter(saldo_movim=="-1")
+dados_04_vsf_positivos <-dados_04_vsf%>% filter(saldo_movim=="1")
+dados_04_vsf_negativos <-dados_04_vsf%>% filter(saldo_movim=="-1")
 
 #Mantendo apenas o agronegocio
-secao_positivos <-dados_03_vsf_positivos%>% filter(secao=="A")
-secao_negativos <-dados_03_vsf_negativos%>% filter(secao=="A")
+secao_positivos <-dados_04_vsf_positivos%>% filter(secao=="A")
+secao_negativos <-dados_04_vsf_negativos%>% filter(secao=="A")
 
 #Mantendo apenas a manga
-subclasse_positivos <-dados_03_vsf_positivos%>% filter(subclasse=="133410")
-subclasse_negativos <-dados_03_vsf_negativos%>% filter(subclasse=="133410")
+subclasse_positivos <-dados_04_vsf_positivos%>% filter(subclasse=="133410")
+subclasse_negativos <-dados_04_vsf_negativos%>% filter(subclasse=="133410")
 
 subclasse_positivos <- mutate(subclasse_positivos,
                 grau_instrucao = factor(grau_instrucao, levels = 1:13, 
@@ -2578,7 +2578,7 @@ Row {data-height=125}
 
 ### pela mangicultura em `r strftime(atual, format = "%B")` de 2022 
 ``` {r emp1}
-num <- 1152
+num <- 749
 valueBox(
   value = paste0(num, " Contratados"),
   color = "green",
@@ -2587,7 +2587,7 @@ valueBox(
 
 ### pela mangicultura em `r strftime(atual, format = "%B")` de 2022 
 ``` {r emp2}
-num <- 728
+num <- 781
 valueBox(
   value = paste0(num, " Demitidos"),
   color = "tomato",
@@ -2596,10 +2596,10 @@ valueBox(
 
 ### Saldo Gerado pela mangicultura em `r strftime(atual, format = "%B")` de 2022 
 ``` {r emp3}
-num <- 424
+num <- -32
 valueBox(
   value = paste0(num, " Empregos"),
-  color = "green",
+  color = "tomato",
   icon= "fa-pen")
 ```
 
