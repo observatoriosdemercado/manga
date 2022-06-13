@@ -42,11 +42,11 @@ atual <-  as.Date("2022-04-01")
 
 Os dados utilizados nesta análise são mensais e disponibilizados pelo CAGED (Cadastro Geral de Empregados e Desempregados) até o mês de `r strftime(atual, format = "%B de %Y")`. As variáveis são saldo de empregos, empregos por gênero, contratados por idade e por escolaridade para a cultura da manga. Considera-se o conjunto de municípios da Bahia (Casa Nova, Curaçá, Juazeiro, Sento Sé, Sobradinho, etc. ) e Pernambuco (Belém do S. Francisco, Lagoa Grande, Orocó, Petrolina, etc. ) que formam o Vale do Submédio São Francisco.
 
-O saldo de empregos na mangicultura em `r strftime(atual, format = "%B de %Y")` no Vale do São Francisco foi de 424 pessoas, ou seja, o total de contratações (1152) foi maior do que o total de demissões (728). Em relação ao mesmo mês do ano passado, se tem uma queda no saldo total (609 em 2021 e 424 em 2022). No trimestre, são 461 empregos líquidos a menos do que no mesmo período de 2021. 
+O saldo de empregos na mangicultura em `r strftime(atual, format = "%B de %Y")` no Vale do São Francisco foi de -32 pessoas, ou seja, o total de contratações (749) foi menor do que o total de demissões (781). Em relação ao mesmo mês do ano passado, se tem uma queda enorme no saldo total (749 em 2021 e -32 em 2022). No quadrimestre, são 909 empregos líquidos a menos do que no mesmo período de 2021. 
 
-Dos contratados, 710 são do sexo masculino e 442 do sexo feminino. Em relação à idade, a grande maioria se concentra abaixo dos 30 anos: 203 até 21 anos, 166 até 24 anos, 127 até 27 anos e 102 até 30 anos. 
+Dos contratados, 570 são do sexo masculino e 179 do sexo feminino. Em relação à idade, a grande maioria se concentra abaixo dos 30 anos: 142 até 21 anos, 109 até 24 anos, 93 até 27 anos e 65 até 30 anos. 
 
-Em relação ao nivel de escolaridade, a maioria das admissões é de pessoas com ensino médio completo (494). Do total de contratados, 42,88% possuem este nível de escolaridade. Este grau de estudo junto com 6 ao 9 ano do ensino fundamental (200) e médio incompleto (193) representa a grande parte dos contratados na mangicultura no Vale do São Francisco em `r strftime(atual, format = "%B de %Y")`. 
+Em relação ao nivel de escolaridade, a maioria das admissões é de pessoas com ensino médio completo (297). Do total de contratados, 39,65% possuem este nível de escolaridade. Este grau de estudo junto com 6 ao 9 ano do ensino fundamental (136) e médio incompleto (144) representa a grande parte dos contratados na mangicultura no Vale do São Francisco em `r strftime(atual, format = "%B de %Y")`. 
 
 <br>
 
