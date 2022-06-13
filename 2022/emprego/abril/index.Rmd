@@ -318,7 +318,7 @@ ggplotly(g4)
 <br>
 
 <center> [https://www.embrapa.br/observatorio-da-manga](https://www.embrapa.br/observatorio-da-manga) </center>
-<center> Dashboard Mercado de Manga [https://bit.ly/3KTVLkJ](Dashboard Mercado de Manga) </center>
+<center> [Dashboard Mercado de Manga](https://bit.ly/3KTVLkJ) </center>
 
 <br>
 
