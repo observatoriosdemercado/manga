@@ -56,8 +56,8 @@ library(lubridate)
 anterior <-  as.Date("2022-02-01")
 atual <-  as.Date("2022-03-01")
 mesatual <-  as.Date("2022-01-01")
-data <- as.Date("2022-06-17") #ajustar semanalmente
-sem_ano <- 24 #ajustar semanalmente
+data <- as.Date("2022-06-24") #ajustar semanalmente
+sem_ano <- 25 #ajustar semanalmente
 date2 <- seq(as.Date('2021-01-01'),to=as.Date('2021-12-01'),by='1 month')
 mes <- 3
 
@@ -549,13 +549,13 @@ Row {data-height=125}
 num <- tail(preco_palmer,1)
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
-  color = "green",
-  icon= "fa-arrow-up")
+  color = "tomato",
+  icon= "fa-arrow-down")
 ```
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2021
 ``` {r}
-num <- 0.80
+num <- 0.98
 valueBox(
   value = paste0( "R$", format(round(num,2), decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -564,7 +564,7 @@ valueBox(
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2020
 ``` {r}
-num <- 4.34
+num <- 3.57
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -605,7 +605,7 @@ g1 <- ggplot()+
 ggplotly(g1) %>%
   layout(legend = list(
                       orientation = "h", 
-                      x=0.35, 
+                      x=0.20, 
                       y=-0.3,
                       title=''))
 ```
@@ -636,7 +636,7 @@ g2 <- ggplot()+
 ggplotly(g2) %>%
   layout(legend = list(
                       orientation = "h", 
-                      x=0.45, 
+                      x=0.35, 
                       y=-0.2,
                       title=''))
 ```
@@ -662,7 +662,7 @@ g3 <- ggplot(data=dadosp, aes(x=date)) +  #estetica vai valer para todos os geom
   scale_x_date(date_breaks = "6 months",
                labels = date_format("%b-%Y"))+
   theme_classic()+ #Definindo tema
-  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=8, margin = margin(b=10)),
+  theme(axis.text.x=element_text(angle=35, hjust=0.5, size=8, margin = margin(b=10)),
         axis.text.y=element_text(hjust=1, size=8, margin = margin(l=10)),
         axis.title.x = element_text(size=8, face = "bold", margin = margin(b=10)),
         axis.title.y = element_text(size=8, face = "bold", margin = margin(l=10)),
@@ -675,8 +675,8 @@ g3 <- ggplot(data=dadosp, aes(x=date)) +  #estetica vai valer para todos os geom
 ggplotly(g3) %>%
   layout(legend = list(
                       orientation = "h", 
-                      x=0.45, 
-                      y=-0.2,
+                      x=0.35, 
+                      y=-0.25,
                       title=''))
 ```
 
@@ -835,13 +835,13 @@ Row {data-height=125}
 num <- tail(preco_tommy,1)
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
-  color = "green",
-  icon= "fa-arrow-up")
+  color = "tomato",
+  icon= "fa-arrow-down")
 ```
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2021
 ``` {r}
-num <- 1.17
+num <- 1.21
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -850,7 +850,7 @@ valueBox(
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2020
 ``` {r}
-num <- 3.89
+num <- 2.97
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -891,7 +891,7 @@ g5 <- ggplot()+
 ggplotly(g5) %>%
   layout(legend = list(
                       orientation = "h", 
-                      x=0.35, 
+                      x=0.20, 
                       y=-0.3,
                       title=''))
 ```
@@ -922,7 +922,7 @@ g6 <- ggplot()+
 ggplotly(g6) %>%
   layout(legend = list(
                       orientation = "h", 
-                      x=0.45, 
+                      x=0.35, 
                       y=-0.2,
                       title=''))
 ```
@@ -948,7 +948,7 @@ g7 <- ggplot(data=dadosp, aes(x=date)) +  #estetica vai valer para todos os geom
     scale_x_date(date_breaks = "6 months",
                  labels = date_format("%b-%Y"))+
     theme_classic()+ #Definindo tema
-    theme(axis.text.x=element_text(angle=0, hjust=0.5, size=8, margin = margin(b=10)),
+    theme(axis.text.x=element_text(angle=35, hjust=0.5, size=8, margin = margin(b=10)),
           axis.text.y=element_text(hjust=1, size=8, margin = margin(l=10)),
           axis.title.x = element_text(size=8, face = "bold", margin = margin(b=10)),
           axis.title.y = element_text(size=8, face = "bold", margin = margin(l=10)),
@@ -961,8 +961,8 @@ g7 <- ggplot(data=dadosp, aes(x=date)) +  #estetica vai valer para todos os geom
 ggplotly(g7) %>%
   layout(legend = list(
                       orientation = "h", 
-                      x=0.45, 
-                      y=-0.2,
+                      x=0.35, 
+                      y=-0.25,
                       title=''))
 ```
 
