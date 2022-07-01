@@ -42,7 +42,7 @@ atual <-  as.Date("2022-05-01")
 
 Os dados utilizados nesta análise são mensais e disponibilizados pelo CAGED (Cadastro Geral de Empregados e Desempregados) até o mês de `r strftime(atual, format = "%B de %Y")`. As variáveis são saldo de empregos, empregos por gênero, contratados por idade e por escolaridade para a cultura da manga. Considera-se o conjunto de municípios da Bahia (Casa Nova, Curaçá, Juazeiro, Sento Sé, Sobradinho, etc. ) e Pernambuco (Belém do S. Francisco, Lagoa Grande, Orocó, Petrolina, etc. ) que formam o Vale do Submédio São Francisco.
 
-O saldo de empregos na mangicultura em `r strftime(atual, format = "%B de %Y")` no Vale do São Francisco foi de 165 pessoas, ou seja, o total de contratações (841) foi maior do que o total de demissões (676). Em relação ao mesmo mês do ano passado, se tem uma grande redução no saldo total (355 em 2021 e 165 em 2022). Nos cinco meses, são 1099 empregos líquidos a menos do que no mesmo período de 2021. 
+O saldo de empregos na mangicultura em `r strftime(atual, format = "%B de %Y")` no Vale do São Francisco foi de 165 pessoas, ou seja, o total de contratações (841) foi maior do que o total de demissões (676). Em relação ao mesmo mês do ano passado, se tem uma grande redução no saldo total (355 em 2021 e 165 em 2022). Nos cinco meses, são 1.099 empregos líquidos a menos do que no mesmo período de 2021. 
 
 Dos contratados no mês, 564 são do sexo masculino e 277 do sexo feminino. Em relação à idade, aproximadamente a metade se concentra abaixo dos 30 anos: 140 até 21 anos, 117 até 24 anos, 85 até 27 anos e 68 até 30 anos. 
 
