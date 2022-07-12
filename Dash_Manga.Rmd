@@ -1037,10 +1037,10 @@ checkX13()
 
 options(digits=4)
 
-anterior <- as.Date("2022-04-01")
-atual <-  as.Date("2022-05-01") #ultimo mes disponibilizado
-today <- as.Date("2022-06-10") #data para o IGPI - ultima semana do preço
-mes <- 5
+anterior <- as.Date("2022-05-01")
+atual <-  as.Date("2022-06-01") #ultimo mes disponibilizado
+today <- as.Date("2022-07-08") #data para o IGPI - ultima semana do preço
+mes <- 6
 
 #Entrando dados no R
 dados1 <- read.csv2('exportacoes_2012_2022.csv', header=T, sep=";", dec = ".")
@@ -1267,7 +1267,7 @@ Row {data-height=125}
 
 ### Volume Exportação (Brasil) em `r strftime(atual, format = "%B")` de 2022 
 ``` {r d1}
-num <- 8.057
+num <- 12.095
 valueBox(
   value = paste0(num, " Toneladas"),
   color = "green",
@@ -1276,7 +1276,7 @@ valueBox(
 
 ### Volume Exportação (Brasil) em `r strftime(atual, format = "%B")` de 2021 
 ``` {r d2}
-num <- 18.080
+num <- 17.247
 valueBox(
   value = paste0(num, " Toneladas"),
   icon= "fa-pen")
@@ -1284,7 +1284,7 @@ valueBox(
 
 ### Volume Exportação (Brasil) em `r strftime(atual, format = "%B")` de 2020 
 ``` {r d3}
-num <- 8.808
+num <- 9.850
 valueBox(
   value = paste0(num, " Toneladas"),
   icon= "fa-pen")
@@ -1468,10 +1468,10 @@ checkX13()
 
 options(digits=4)
 
-anterior <- as.Date("2022-04-01")
-atual <-  as.Date("2022-05-01") #ultimo mes disponibilizado
-today <- as.Date("2022-06-10") #data para o IGPI - ultima semana do preço
-mes <- 5
+anterior <- as.Date("2022-05-01")
+atual <-  as.Date("2022-06-01") #ultimo mes disponibilizado
+today <- as.Date("2022-07-08") #data para o IGPI - ultima semana do preço
+mes <- 6
 
 #Entrando dados no R
 dados1 <- read.csv2('exportacoes_2012_2022VSF.csv', header=T, sep=";", dec = ".")
@@ -1694,7 +1694,7 @@ Row {data-height=125}
 
 ### Volume Exportação (VSF) em `r strftime(atual, format = "%B")` de 2022 
 ``` {r d1b}
-num <- 7.775
+num <- 11.349
 valueBox(
   value = paste0(num, " Toneladas"),
   color = "green",
@@ -1703,7 +1703,7 @@ valueBox(
 
 ### Volume Exportação (VSF) em `r strftime(atual, format = "%B")` de 2021 
 ``` {r d2b}
-num <- 16.473
+num <- 16.195
 valueBox(
   value = paste0(num, " Toneladas"),
   icon= "fa-pen")
@@ -1711,7 +1711,7 @@ valueBox(
 
 ### Volume Exportação (VSF) em `r strftime(atual, format = "%B")` de 2020 
 ``` {r d3b}
-num <- 8.079
+num <- 8.935
 valueBox(
   value = paste0(num, " Toneladas"),
   icon= "fa-pen")
