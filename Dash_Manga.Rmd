@@ -56,8 +56,8 @@ library(lubridate)
 anterior <-  as.Date("2022-02-01")
 atual <-  as.Date("2022-03-01")
 mesatual <-  as.Date("2022-01-01")
-data <- as.Date("2022-07-08") #ajustar semanalmente
-sem_ano <- 27 #ajustar semanalmente
+data <- as.Date("2022-07-15") #ajustar semanalmente
+sem_ano <- 28 #ajustar semanalmente
 date2 <- seq(as.Date('2021-01-01'),to=as.Date('2021-12-01'),by='1 month')
 mes <- 3
 
@@ -549,13 +549,13 @@ Row {data-height=125}
 num <- tail(preco_palmer,1)
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
-  color = "green",
-  icon= "fa-arrow-up")
+  color = "tomato",
+  icon= "fa-arrow-down")
 ```
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2021
 ``` {r}
-num <- 1.35
+num <- 1.27
 valueBox(
   value = paste0( "R$", format(round(num,2), decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -564,7 +564,7 @@ valueBox(
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2020
 ``` {r}
-num <- 3.72
+num <- 3.70
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -835,13 +835,13 @@ Row {data-height=125}
 num <- tail(preco_tommy,1)
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
-  color = "green",
-  icon= "fa-arrow-up")
+  color = "tomato",
+  icon= "fa-arrow-down")
 ```
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2021
 ``` {r}
-num <- 1.39
+num <- 1.53
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -850,7 +850,7 @@ valueBox(
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2020
 ``` {r}
-num <- 2.78
+num <- 3.18
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1888,6 +1888,113 @@ ggplotly(g9) %>%
                       orientation = "h", 
                       x=0.25, 
                       y=-0.2,
+                      title=''))
+```
+
+MERCADO AMERICANO {data-navmenu="EXPORTAÇÕES"}
+======================================================================
+
+```{r database_am1}
+# Direcionar para a pasta correta
+setwd("C:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga/mangoboard")
+
+#Pacotes
+library(tidyverse)
+
+#Importar a base de dados
+#dados <- read.csv2('export_volume.csv', header=T, sep=";", dec=",", stringsAsFactors = FALSE)
+#colnames(dados) <- c("commodity", "origem", "data", "peso", "caixas")
+#dados <- dados %>%
+#  mutate(data = as.Date(data, "%m/%d/%Y"))
+
+dados <- read.csv2('export_volume.csv', header=T, sep=";", dec=",")
+colnames(dados) <- c("commodity", "origem", "data", "peso", "caixas")
+
+# Usando o pacote lubridate
+library(lubridate)
+dados$data <- mdy(dados$data)
+
+dados$semana <- week(dados$data)
+dados$ano <- year(dados$data)
+
+#Alterando de CHR para num
+library(readr)
+dados$caixas <- parse_number(dados$caixas)
+
+#Selecionar Volumes do Brasil
+brasil <-  filter(dados, origem == "BRAZIL")
+equador <- filter(dados, origem == "ECUADOR")
+mexico <- filter(dados, origem == "MEXICO")
+peru <- filter(dados, origem == "PERU")
+guatemala <- filter(dados, origem == "GUATEMALA")
+
+# Gráficos com o GGPLOT
+library(ggplot2)
+library(plotly)
+
+brasil2 <- select(brasil, ano, semana, caixas)
+
+brasil2016 <- filter(brasil2, semana >= 32, ano==2016)
+brasil2017 <- filter(brasil2, semana >= 32, ano==2017)
+brasil2018 <- filter(brasil2, semana >= 32, ano==2018)
+brasil2019 <- filter(brasil2, semana >= 32, ano==2019)
+brasil2020 <- filter(brasil2, semana >= 32, ano==2020)
+brasil2021 <- filter(brasil2, semana >= 32, ano==2021)
+
+brasil2016 <- brasil2016 %>% group_by(semana) %>% summarise(caixas=sum(caixas))
+brasil2017 <- brasil2017 %>% group_by(semana) %>% summarise(caixas=sum(caixas))
+brasil2018 <- brasil2018 %>% group_by(semana) %>% summarise(caixas=sum(caixas))
+brasil2019 <- brasil2019 %>% group_by(semana) %>% summarise(caixas=sum(caixas))
+brasil2020 <- brasil2020 %>% group_by(semana) %>% summarise(caixas=sum(caixas))
+brasil2021 <- brasil2021 %>% group_by(semana) %>% summarise(caixas=sum(caixas))
+
+#brasil2016$ano <- as.Date("2016-01-01")
+#brasil2017$ano <- as.Date("2017-01-01")
+#brasil2018$ano <- as.Date("2018-01-01")
+#brasil2019$ano <- as.Date("2019-01-01")
+#brasil2020$ano <- as.Date("2020-01-01")
+#brasil2021$ano <- as.Date("2021-01-01")
+
+brasil2016$ano <- 2016
+brasil2017$ano <- 2017
+brasil2018$ano <- 2018
+brasil2019$ano <- 2019
+brasil2020$ano <- 2020
+brasil2021$ano <- 2021
+
+library(dplyr)
+brasil_graph <- bind_rows(brasil2016, brasil2017, brasil2018, brasil2019, brasil2020, brasil2021)
+brasil_graph <- select(brasil_graph, ano, semana, caixas)
+brasil_graph$semana <- as.integer(brasil_graph$semana)
+brasil_graph$ano <- factor(brasil_graph$ano)
+```
+
+### Evolução semana das exportações para os Estados Unidos {.no-title}
+
+```{r database_am2}
+mycolors1 <- c("orange", "darkgreen", "red", "blue", "#42257C", "#09C7C1")
+g2 <- ggplot()+
+  geom_col(data=brasil_graph, aes(x=semana, y=caixas, fill=ano), size=2, width = 0.8, position = "dodge")+
+  scale_fill_manual(values=mycolors1)+
+  scale_y_continuous(limits=c(0, 4000000), n.breaks = 10)+
+  scale_x_continuous(breaks = seq(32, 52, by = 1))+
+  labs(y= "Caixas de 4Kg", x= "Semanas do Ano", title='Evolução das Exportações de Manga do Brasil para os Estados Unidos: 2016-2021',
+       caption = "Fonte: Observatório de Mercado de Manga da Embrapa")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=10)),
+        axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=10)),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0, size=8),
+        plot.title = element_text(hjust = 0.5, size=12),
+        legend.position = "right", legend.title = element_blank(),
+        legend.text=element_text(size=10)) # Definindo posição da legenda)
+
+ggplotly(g2) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.40, 
+                      y=-0.1,
                       title=''))
 ```
 
