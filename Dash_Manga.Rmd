@@ -56,8 +56,8 @@ library(lubridate)
 anterior <-  as.Date("2022-02-01")
 atual <-  as.Date("2022-03-01")
 mesatual <-  as.Date("2022-01-01")
-data <- as.Date("2022-07-15") #ajustar semanalmente
-sem_ano <- 28 #ajustar semanalmente
+data <- as.Date("2022-07-22") #ajustar semanalmente
+sem_ano <- 29 #ajustar semanalmente
 date2 <- seq(as.Date('2021-01-01'),to=as.Date('2021-12-01'),by='1 month')
 mes <- 3
 
@@ -69,7 +69,8 @@ BRASIL {data-navmenu="DADOS GERAIS"}
 
 ```{r database5}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
+#setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
 #Inicio do Script
 #Pacotes a serem utilizados
@@ -427,7 +428,8 @@ PALMER {data-navmenu="PREÇOS AO PRODUTOR"}
 
 ``` {r database1}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
+#setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
 #Entrando dados no R
 dados <- read.csv2('dados_manga_palmer_semana.csv', header=T, sep=";", dec=".")
@@ -555,7 +557,7 @@ valueBox(
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2021
 ``` {r}
-num <- 1.27
+num <- 1.10
 valueBox(
   value = paste0( "R$", format(round(num,2), decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -564,7 +566,7 @@ valueBox(
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2020
 ``` {r}
-num <- 3.70
+num <- 3.78
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -717,7 +719,8 @@ TOMMY {data-navmenu="PREÇOS AO PRODUTOR"}
 
 ``` {r database2}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
+#setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
 #Entrando dados no R
 dados <- read.csv2('dados_manga_tommy_semana.csv', header=T, sep=";", dec=".")
@@ -841,7 +844,7 @@ valueBox(
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2021
 ``` {r}
-num <- 1.53
+num <- 1.26
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -850,7 +853,7 @@ valueBox(
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2020
 ``` {r}
-num <- 3.18
+num <- 3.46
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1003,7 +1006,8 @@ BRASIL {data-navmenu="EXPORTAÇÕES"}
 
 ```{r database3}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
+#setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
 #Inicio do Script
 #Pacotes a serem utilizados 
@@ -1434,7 +1438,8 @@ VALE DO S. FRANCISCO {data-navmenu="EXPORTAÇÕES"}
 
 ```{r database3b}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
+#setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
 #Inicio do Script
 #Pacotes a serem utilizados 
@@ -1896,7 +1901,8 @@ MERCADO AMERICANO {data-navmenu="EXPORTAÇÕES"}
 
 ```{r database_am1}
 # Direcionar para a pasta correta
-setwd("C:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga/mangoboard")
+#setwd("C:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga/mangoboard")
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/mangoboard')
 
 #Pacotes
 library(tidyverse)
@@ -2004,7 +2010,8 @@ VOLUME CEASAS {data-navmenu="MERCADO INTERNO"}
 
 ```{r database4}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
+#setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
 #Inicio do Script
 #Pacotes a serem utilizados
@@ -2425,7 +2432,8 @@ Row
 
 ```{r consumo_manga1}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
+#setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
 #Inicio do Script
 #Pacotes a serem utilizados 
@@ -2512,7 +2520,8 @@ Row
 
 ```{r consumo_manga3}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
+#setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
 #Inicio do Script
 #Pacotes a serem utilizados 
@@ -2556,7 +2565,8 @@ ggplotly(g3) %>%
 
 ```{r consumo_manga4}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
+#setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
 #Inicio do Script
 #Pacotes a serem utilizados 
@@ -2601,7 +2611,8 @@ EMPREGO
 
 ```{r database6}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_caged')
+#setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_caged')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_caged')
 
 anterior <- as.Date("2022-05-01")
 atual <-  as.Date("2022-05-01")
