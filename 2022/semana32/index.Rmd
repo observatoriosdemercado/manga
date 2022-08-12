@@ -561,7 +561,7 @@ g7 <- ggplot()+
         panel.grid.minor = element_blank(),
         plot.caption = element_text(hjust = 0, size=14),
         legend.position = "bottom", legend.title = element_blank(),
-        legend.text=element_text(size=10)) # Definindo posição da legenda
+        legend.text=element_text(size=8)) # Definindo posição da legenda
 
 ggplotly(g7) %>%
   layout(legend = list(
