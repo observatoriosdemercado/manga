@@ -13,8 +13,8 @@ output:
       version: 4
       bootswatch: bootstrap
       navbar-bg: "#183b8c"
-      bg:        "#183b8c"
-      fg:        "#ffffff"
+      fg:        "#183b8c"
+      bg:        "#ffffff"
 #runtime: shiny    
 ---
 
@@ -56,8 +56,8 @@ library(lubridate)
 anterior <-  as.Date("2022-02-01")
 atual <-  as.Date("2022-03-01")
 mesatual <-  as.Date("2022-01-01")
-data <- as.Date("2022-08-12") #ajustar semanalmente
-sem_ano <- 32 #ajustar semanalmente
+data <- as.Date("2022-08-19") #ajustar semanalmente
+sem_ano <- 33 #ajustar semanalmente
 date2 <- seq(as.Date('2021-01-01'),to=as.Date('2021-12-01'),by='1 month')
 mes <- 3
 
@@ -551,13 +551,13 @@ Row {data-height=125}
 num <- tail(preco_palmer,1)
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
-  color = "tomato",
+#  color = "tomato",
   icon= "fa-arrow-down")
 ```
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2021
 ``` {r}
-num <- 0.78
+num <- 0.63
 valueBox(
   value = paste0( "R$", format(round(num,2), decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -566,7 +566,7 @@ valueBox(
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2020
 ``` {r}
-num <- 3.01
+num <- 2.75
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -838,13 +838,13 @@ Row {data-height=125}
 num <- tail(preco_tommy,1)
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
-  color = "tomato",
+#  color = "tomato",
   icon= "fa-arrow-down")
 ```
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2021
 ``` {r}
-num <- 0.74
+num <- 0.96
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -853,7 +853,7 @@ valueBox(
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2020
 ``` {r}
-num <- 2.65
+num <- 2.44
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1194,7 +1194,7 @@ Row {data-height=125}
 num <- 11.952
 valueBox(
   value = paste0(num, " Toneladas"),
-  color = "tomato",
+#  color = "tomato",
   icon= "fa-arrow-down")
 ```
 
@@ -1399,7 +1399,7 @@ Row {data-height=125}
 num <- 1.188
 valueBox(
   value = paste0(format(num, decimal.mark =  ","), " Kg de Consumo"),
-  color = "green",
+#  color = "green",
   icon= "fa-arrow-up")
 ```
 
@@ -1408,7 +1408,7 @@ valueBox(
 num <- 1.440
 valueBox(
   value = paste0(format(num, decimal.mark =  ","), " Kg de Consumo"),
-  color = "green",
+#  color = "green",
   icon= "fa-arrow-up")
 ```
 
@@ -1418,7 +1418,7 @@ valueBox(
 num <- 73.35
 valueBox(
   value = paste0(format(num, decimal.mark =  ","), " % de Crescimento"),
-  color = "green",
+#  color = "green",
   icon= "fa-pen")
 ```
 
@@ -1699,7 +1699,7 @@ Row {data-height=125}
 num <- 683
 valueBox(
   value = paste0(num, " Contratados"),
-  color = "green",
+#  color = "green",
   icon= "fa-arrow-up")
 ```
 
@@ -1708,7 +1708,7 @@ valueBox(
 num <- 738
 valueBox(
   value = paste0(num, " Demitidos"),
-  color = "tomato",
+#  color = "tomato",
   icon= "fa-arrow-down")
 ```
 
@@ -1717,7 +1717,7 @@ valueBox(
 num <- -55
 valueBox(
   value = paste0(num, " Empregos"),
-  color = "tomato",
+#  color = "tomato",
   icon= "fa-pen")
 ```
 
