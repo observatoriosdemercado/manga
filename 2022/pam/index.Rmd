@@ -1,0 +1,1107 @@
+---
+title: "OBSERVATÓRIO DO MERCADO DE MANGA DA EMBRAPA SEMIÁRIDO"
+author: "João Ricardo F. de Lima"
+date: "`r format(Sys.Date(), '%d de %B de %Y.')`"
+output:
+  html_document:
+    theme: flatly
+    number_sections: no
+    highlight: textmate
+    toc: true #cria um sumário das sessões do documento
+    toc_float:
+      collapsed: yes
+      smooth_scroll: yes
+    df_print: paged  #ajusta o formato da tabela
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo       = FALSE,
+  warning    = FALSE,
+  message    = FALSE,
+  comment    = NA,
+  fig.width  = 8,
+  fig.height = 5,
+  fig.align  = "center",
+  comment    = "#",
+  size       = "normalsize"
+  )
+
+library(lubridate)
+today <- today <- as.Date("2022-01-01")
+date <- seq(as.Date('2022-01-01'),to=as.Date('2022-12-01'),by='1 month')
+
+#Linhas precisam de ajuste semanal: 30, 104, 201, 204
+```
+
+<br>
+
+# ATUALIZAÇÃO DADOS SOBRE A CULTURA MANGA COM DADOS DA PAM/IBGE ATÉ 2021.
+
+<br>
+
+Os dados utilizados são da Pesquisa Agrícola Municipal (PAM) do IBGE e são anuais relativos ao período de 2015 a 2021. Em 2021, a área plantada no Brasil foi de aproximadamente 76,9 mil hectares (ha). As duas regiões que concentram a produção nacional sáo a Nordeste 57,8 mil ha (75,2% do total) e a Sudeste 18 mil ha (23,4% do total). Os estados da Bahia (31,1 mil ha); Pernambuco (15,9 mil ha); São Paulo (10,9 mil ha), Minas Gerais (5,8 mil ha), Ceará (4,25 mil ha ) e Rio Grande do Norte (2,74 mil ha) representam, respectivamente, 40,48%, 20,74%, 14,2%, 7,53% e 5,52% e 3,57% do total nacional. O Vale do São Francisco mantém sua trajetória de crescimento de área, saindo de 15,9 mil ha em 2015 para 34,4 mil ha em 2021, segundo o IBGE (2022), um aumento de 115,67%.
+
+Em termos de volumes, o Brasil colheu cerca de 1,5 milhões de toneladas (t), com o Nordeste participando com aproximadamente 80% de todo este volume. As quatro cidades com maiores volumes de produção são, respectivamente, Juazeiro (BA) com 322 mil t, Petrolina (PE) com 285 mil t, Casa Nova (BA) com 104,7 mil t e Belém do São Francisco (PE) com 100,8 mil t. Os volumes somados representam quase dois terços de toda a produção do Nordeste. O Vale do São Francisco ultrapassou a marca de 924 mil toneladas, um crescimento de 163% em relação ao volume de 2015. 
+
+Sobre a produtividade, a média da região Nordeste (21.1 t/ha) é maior do que a média nacional (19,8 t/ha). Segundo o IBGE, o estado de Pernambuco possui a maior produtividade média (28.6 t/ha), seguido da Bahia (20.3 t/ha) e Minas Gerais (17.6 t/ha). O Vale do São Francisco possui uma produtividade superior a média regional, superando as 27 t/ha, na média. No ano de 2015, a produtividade nesta região foi de 22 t/ha. Assim, a explicação para o grande crescimento do volume de mangas no Vale do São Francisco tem dois fatores, o crescimento da área e o crescimento da produtividade por área. 
+
+A manga gera quase 2 bilhões de reais em valor da produção no Brasil, sendo que mais da metade deste total 1,2 bilhões de reais é no Vale do São Francisco. 
+
+<br>
+
+# 1. ATUALIZAÇÃO DADOS SOBRE ÁREA DA CULTURA DA MANGA.
+
+## 1.1 ÁREA NO BRASIL E PRINCIPAIS REGIÕES PRODUTORAS{.tabset .tabset-fade}
+
+### GRÁFICO
+
+<br>
+
+```{r ibge_manga1}
+#Direcionado o R para o Diretorio a ser trabalhado
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2022')
+
+#Inicio do Script
+#Pacotes a serem utilizados 
+library(ggplot2)
+library(ggthemes)
+library(dplyr)
+library(tidyverse)
+library(scales)
+library(kableExtra)# complex tables
+library(magrittr)# pipe operations
+library(readxl)
+library(reshape2)
+library(plotly)
+library(DT)
+
+mycolors2 <- c("darkgray", "lightblue3", "orange", "darkblue", "red", "darkgreen", "gold")
+mycolors3 <- c("darkblue", "orange")
+
+#Entrando dados no R
+dados1 <- read_excel("area_regioes.xlsx", col_names = TRUE)
+#dados1 <- dados1[c(1,3,4),]
+dados1m <- melt(dados1, id.var='regiao')
+
+g1 <- ggplot()+
+  geom_col(data=dados1m, aes(x=reorder(regiao, -value), y=value/1000, fill=variable), lwd=1, position = "dodge")+ scale_fill_manual(values=mycolors2)+
+  labs(y= "Área Plantada de Manga (1000 ha)", x= "Brasil e Regiões", title='',
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=20)),
+        axis.title.y = element_text(size=12, face = "bold"),
+        axis.title.x = element_text(size=12, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = 0.5, size=12),
+        plot.caption = element_text(hjust = 0, size=12),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g1) %>%
+  layout(legend = list(
+    orientation = "h",
+    x=0.1,
+    y=-0.2,
+    title=''))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+### TABELA 
+
+**VISUALIZAÇÃO DOS DADOS EM TABELA**
+
+```{r ibge_manga1a}
+datatable(dados1, option = list(
+  autoWidth = TRUE,
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+
+#kable(round(table,2)) %>%
+#  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+## 1.2 ÁREA NOS PRINCIPAIS ESTADOS PRODUTORES{.tabset .tabset-fade}
+
+### GRÁFICO
+
+<br>
+
+```{r ibge_manga2}
+#Direcionado o R para o Diretorio a ser trabalhado
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2022')
+
+#Entrando dados no R
+dados2 <- read_excel("area_estados.xlsx", col_names = TRUE)
+dados2 <- dados2[c(1:6),]
+dados2m <- melt(dados2, id.var='estados')
+
+g2 <- ggplot()+
+  geom_col(data=dados2m, aes(x=reorder(estados, -value), y=value/1000, fill=variable), lwd=1, position = "dodge")+ scale_fill_manual(values=mycolors2)+
+  labs(y= "Área Plantada de Manga (1000 ha)", x= "Estados do Brasil", title='',
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=20)),
+        axis.title.y = element_text(size=10, face = "bold"),
+        axis.title.x = element_text(size=10, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = 0.5, size=12),
+        plot.caption = element_text(hjust = 0, size=12),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g2) %>%
+  layout(legend = list(
+    orientation = "h",
+    x=0.1,
+    y=-0.2,
+    title=''))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+### TABELA 
+
+**VISUALIZAÇÃO DOS DADOS EM TABELA**
+
+```{r ibge_manga2a}
+datatable(dados2, option = list(
+  autoWidth = TRUE,
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+
+#kable(round(table,2)) %>%
+#  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+## 1.3 ÁREA NAS PRINCIPAIS CIDADES PRODUTORAS{.tabset .tabset-fade}
+
+### GRÁFICO
+
+<br>
+
+```{r ibge_manga3}
+#Direcionado o R para o Diretorio a ser trabalhado
+#Entrando dados no R
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2022')
+
+dados3 <- read_excel("area_cidades.xlsx", col_names = TRUE)
+dados3 <- dados3[c(1:14),c(1,7:8)]
+dados3m <- melt(dados3, id.var='cidades')
+
+g3 <- ggplot()+
+  geom_col(data=dados3m, aes(x=reorder(cidades, -value), y=value, fill=variable), lwd=1, position = "dodge")+ scale_fill_manual(values=mycolors3)+
+  labs(y= "Área Plantada de Manga (ha)", x= "Cidades do Brasil", title='',
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=20, hjust=0.5, size=8, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=8, margin = margin(l=20)),
+        axis.title.y = element_text(size=10, face = "bold"),
+        axis.title.x = element_text(size=10, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = 0.5, size=12),
+        plot.caption = element_text(hjust = 0, size=12),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g3) %>%
+  layout(legend = list(
+    orientation = "h",
+    x=0.35,
+    y=-0.35,
+    title=''))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+### TABELA 
+
+**VISUALIZAÇÃO DOS DADOS EM TABELA**
+
+```{r ibge_manga3a}
+datatable(dados3, option = list(
+  autoWidth = TRUE,
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+
+#kable(round(table,2)) %>%
+#  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+## 1.4 ÁREA NO VALE DO S. FRANCISCO {.tabset .tabset-fade}
+
+### GRÁFICO
+
+<br>
+
+```{r ibge_manga4}
+#Direcionado o R para o Diretorio a ser trabalhado
+#Entrando dados no R
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2022')
+
+dados4 <- read_excel("area_vale.xlsx", col_names = TRUE)
+dados4m <- melt(dados4, id.var='cidades')
+mycolors4 <- "blue"
+
+g4 <- ggplot()+
+  geom_col(data=dados4m, aes(x=variable, y=value/1000, fill="Area Manga (Hectares)"), lwd=1)+
+  scale_fill_manual(values=mycolors4)+
+  labs(y= "Área Plantada de Manga (mil ha)", x= "Vale do São Francisco", title='',
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=20)),
+        axis.title.y = element_text(size=12, face = "bold"),
+        axis.title.x = element_text(size=12, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = 0.5, size=12),
+        plot.caption = element_text(hjust = 0, size=12),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g4) %>%
+  layout(legend = list(
+    orientation = "h",
+    x=0.3,
+    y=-0.2,
+    title=''))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+### TABELA 
+
+**VISUALIZAÇÃO DOS DADOS EM TABELA**
+
+```{r ibge_manga4a}
+datatable(dados4, option = list(
+  autoWidth = TRUE,
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+
+#kable(round(table,2)) %>%
+#  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+
+# 2. ATUALIZAÇÃO DADOS SOBRE PRODUÇÃO DA CULTURA DA MANGA.
+
+## 2.1 QUANTIDADE NO BRASIL E PRINCIPAIS REGIÕES PRODUTORAS{.tabset .tabset-fade}
+
+### GRÁFICO
+
+<br>
+
+```{r ibge_manga5}
+#Direcionado o R para o Diretorio a ser trabalhado
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2022')
+
+#Entrando dados no R
+dados1 <- read_excel("quanti_regioes.xlsx", col_names = TRUE)
+#dados1 <- dados1[c(1,3,4),]
+dados1m <- melt(dados1, id.var='regiao')
+
+g1 <- ggplot()+
+  geom_col(data=dados1m, aes(x=reorder(regiao, -value), y=value/1000, fill=variable), lwd=1, position = "dodge")+ scale_fill_manual(values=mycolors2)+
+  labs(y= "Quantidade Produzida de Manga (Mil t)", x= "Brasil e Regiões", title='',
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=20)),
+        axis.title.y = element_text(size=12, face = "bold"),
+        axis.title.x = element_text(size=12, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = 0.5, size=12),
+        plot.caption = element_text(hjust = 0, size=12),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g1) %>%
+  layout(legend = list(
+    orientation = "h",
+    x=0.1,
+    y=-0.2,
+    title=''))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+### TABELA 
+
+**VISUALIZAÇÃO DOS DADOS EM TABELA**
+
+```{r ibge_manga5a}
+datatable(dados1, option = list(
+  autoWidth = TRUE,
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+
+#kable(round(table,2)) %>%
+#  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+## 2.2 QUANTIDADE NOS PRINCIPAIS ESTADOS PRODUTORES{.tabset .tabset-fade}
+
+### GRÁFICO
+
+<br>
+
+```{r ibge_manga6}
+#Direcionado o R para o Diretorio a ser trabalhado
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2022')
+
+#Entrando dados no R
+dados2 <- read_excel("quanti_estados.xlsx", col_names = TRUE)
+dados2 <- dados2[c(1:6),]
+dados2m <- melt(dados2, id.var='estados')
+
+g2 <- ggplot()+
+  geom_col(data=dados2m, aes(x=reorder(estados, -value), y=value/1000, fill=variable), lwd=1, position = "dodge")+ scale_fill_manual(values=mycolors2)+
+  labs(y= "Quantidade Produzida de Manga (Mil t)", x= "Estados do Brasil", title='',
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=20)),
+        axis.title.y = element_text(size=10, face = "bold"),
+        axis.title.x = element_text(size=10, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = 0.5, size=12),
+        plot.caption = element_text(hjust = 0, size=12),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g2) %>%
+  layout(legend = list(
+    orientation = "h",
+    x=0.1,
+    y=-0.2,
+    title=''))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+### TABELA 
+
+**VISUALIZAÇÃO DOS DADOS EM TABELA**
+
+```{r ibge_manga6a}
+datatable(dados2, option = list(
+  autoWidth = TRUE,
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+
+#kable(round(table,2)) %>%
+#  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+## 2.3 QUANTIDADE NAS PRINCIPAIS CIDADES PRODUTORAS{.tabset .tabset-fade}
+
+### GRÁFICO
+
+<br>
+
+```{r ibge_manga7}
+#Direcionado o R para o Diretorio a ser trabalhado
+#Entrando dados no R
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2022')
+
+dados3 <- read_excel("quanti_cidades.xlsx", col_names = TRUE)
+dados3 <- dados3[c(1:16),c(1,7:8)]
+dados3m <- melt(dados3, id.var='cidades')
+
+g3 <- ggplot()+
+  geom_col(data=dados3m, aes(x=reorder(cidades, -value), y=value/1000, fill=variable), lwd=1, position = "dodge")+ scale_fill_manual(values=mycolors3)+
+  labs(y= "Quantidade Produzida de Manga (Mil t)", x= "Cidades do Brasil", title='',
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=20, hjust=0.5, size=8, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=8, margin = margin(l=20)),
+        axis.title.y = element_text(size=10, face = "bold"),
+        axis.title.x = element_text(size=10, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = 0.5, size=12),
+        plot.caption = element_text(hjust = 0, size=12),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g3) %>%
+  layout(legend = list(
+    orientation = "h",
+    x=0.35,
+    y=-0.35,
+    title=''))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+### TABELA 
+
+**VISUALIZAÇÃO DOS DADOS EM TABELA**
+
+```{r ibge_manga7a}
+datatable(dados3, option = list(
+  autoWidth = TRUE,
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+
+#kable(round(table,2)) %>%
+#  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+## 2.4 QUANTIDADE NO VALE DO S. FRANCISCO {.tabset .tabset-fade}
+
+### GRÁFICO
+
+<br>
+
+```{r ibge_manga8}
+#Direcionado o R para o Diretorio a ser trabalhado
+#Entrando dados no R
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2022')
+
+dados4 <- read_excel("quanti_vale.xlsx", col_names = TRUE)
+dados4m <- melt(dados4, id.var='cidades')
+mycolors4 <- "blue"
+
+g4 <- ggplot()+
+  geom_col(data=dados4m, aes(x=variable, y=value/1000, fill="Quantidade Manga (1000 Toneladas)"), lwd=1)+
+  scale_fill_manual(values=mycolors4)+
+  labs(y= "Quantidade Produzida de Manga (Mil t)", x= "Vale do São Francisco", title='',
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=20)),
+        axis.title.y = element_text(size=12, face = "bold"),
+        axis.title.x = element_text(size=12, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = 0.5, size=12),
+        plot.caption = element_text(hjust = 0, size=12),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g4) %>%
+  layout(legend = list(
+    orientation = "h",
+    x=0.3,
+    y=-0.2,
+    title=''))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+### TABELA 
+
+**VISUALIZAÇÃO DOS DADOS EM TABELA**
+
+```{r ibge_manga8a}
+datatable(dados4, option = list(
+  autoWidth = TRUE,
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+
+#kable(round(table,2)) %>%
+#  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+# 3. ATUALIZAÇÃO DADOS SOBRE PRODUTIVIDADE DA CULTURA DA MANGA.
+
+## 3.1 PRODUTIDADE NO BRASIL E PRINCIPAIS REGIÕES PRODUTORAS{.tabset .tabset-fade}
+
+### GRÁFICO
+
+<br>
+
+```{r ibge_manga9}
+#Direcionado o R para o Diretorio a ser trabalhado
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2022')
+
+#Entrando dados no R
+dados1 <- read_excel("produti_regioes.xlsx", col_names = TRUE)
+#dados1 <- dados1[c(1,3,4),]
+dados1m <- melt(dados1, id.var='regiao')
+dados1m$value <- round(dados1m$value/1000,0)
+
+g1 <- ggplot()+
+  geom_col(data=dados1m, aes(x=regiao, y=value, fill=variable), lwd=1, position = "dodge")+ scale_fill_manual(values=mycolors2)+
+  labs(y= "Produtividade na Manga (t/ha)", x= "Brasil e Regiões", title='',
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=20)),
+        axis.title.y = element_text(size=12, face = "bold"),
+        axis.title.x = element_text(size=12, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = 0.5, size=12),
+        plot.caption = element_text(hjust = 0, size=12),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g1) %>%
+  layout(legend = list(
+    orientation = "h",
+    x=0.1,
+    y=-0.2,
+    title=''))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+### TABELA 
+
+**VISUALIZAÇÃO DOS DADOS EM TABELA**
+
+```{r ibge_manga9a}
+dados1t <- dados1[,1]
+dados1 <- round(dados1[,c(2:8)]/1000,1)
+dados1 <- cbind(dados1t, dados1)
+
+datatable(dados1, option = list(
+  autoWidth = TRUE,
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+
+#kable(round(table,2)) %>%
+#  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+## 3.2 PRODUTIDADE NOS PRINCIPAIS ESTADOS PRODUTORES{.tabset .tabset-fade}
+
+### GRÁFICO
+
+<br>
+
+```{r ibge_manga10}
+#Direcionado o R para o Diretorio a ser trabalhado
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2022')
+
+#Entrando dados no R
+dados2 <- read_excel("produti_estados.xlsx", col_names = TRUE)
+dados2 <- dados2[c(1:6),]
+dados2m <- melt(dados2, id.var='estados')
+
+g2 <- ggplot()+
+  geom_col(data=dados2m, aes(x=reorder(estados, -value), y=value/1000, fill=variable), lwd=1, position = "dodge")+ scale_fill_manual(values=mycolors2)+
+  labs(y= "Produtividade da Manga (t/ha)", x= "Estados do Brasil", title='',
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=20)),
+        axis.title.y = element_text(size=10, face = "bold"),
+        axis.title.x = element_text(size=10, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = 0.5, size=12),
+        plot.caption = element_text(hjust = 0, size=12),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g2) %>%
+  layout(legend = list(
+    orientation = "h",
+    x=0.1,
+    y=-0.2,
+    title=''))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+### TABELA 
+
+**VISUALIZAÇÃO DOS DADOS EM TABELA**
+
+```{r ibge_manga10a}
+dados2t <- dados2[,1]
+dados2 <- round(dados2[,c(2:8)]/1000,1)
+dados2 <- cbind(dados2t, dados2)
+
+datatable(dados2, option = list(
+  autoWidth = TRUE,
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+
+#kable(round(table,2)) %>%
+#  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+## 3.3 PRODUTIVIDADE NAS PRINCIPAIS CIDADES PRODUTORAS{.tabset .tabset-fade}
+
+### GRÁFICO
+
+<br>
+
+```{r ibge_manga11}
+#Direcionado o R para o Diretorio a ser trabalhado
+#Entrando dados no R
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2022')
+
+dados3 <- read_excel("produti_cidades.xlsx", col_names = TRUE)
+dados3 <- dados3[c(1:25),c(1,7:8)]
+dados3m <- melt(dados3, id.var='cidades')
+
+g3 <- ggplot()+
+  geom_col(data=dados3m, aes(x=reorder(cidades, -value), y=value/1000, fill=variable), lwd=1, position = "dodge")+ scale_fill_manual(values=mycolors3)+
+  labs(y= "Produtividade na Manga (t/ha)", x= "Cidades do Brasil", title='',
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=20, hjust=0.5, size=8, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=8, margin = margin(l=20)),
+        axis.title.y = element_text(size=10, face = "bold"),
+        axis.title.x = element_text(size=10, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = 0.5, size=12),
+        plot.caption = element_text(hjust = 0, size=12),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g3) %>%
+  layout(legend = list(
+    orientation = "h",
+    x=0.35,
+    y=-0.35,
+    title=''))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+### TABELA 
+
+**VISUALIZAÇÃO DOS DADOS EM TABELA**
+
+```{r ibge_manga11a}
+dados3t <- dados3[,1]
+dados3 <- round(dados3[,c(2:3)]/1000,1)
+dados3 <- cbind(dados3t, dados3)
+
+datatable(dados3, option = list(
+  autoWidth = TRUE,
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+
+#kable(round(table,2)) %>%
+#  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+## 3.4 PRODUTIDADE NO VALE DO S. FRANCISCO {.tabset .tabset-fade}
+
+### GRÁFICO
+
+<br>
+
+```{r ibge_manga12}
+#Direcionado o R para o Diretório a ser trabalhado
+#Entrando dados no R
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2022')
+
+dados4 <- read_excel("produti_vale.xlsx", col_names = TRUE)
+dados4m <- melt(dados4, id.var='cidades')
+mycolors4 <- "blue"
+
+g4 <- ggplot()+
+  geom_col(data=dados4m, aes(x=variable, y=value/1000, fill="Produtividade Manga"), lwd=1)+
+  scale_fill_manual(values=mycolors4)+
+  labs(y= "Produtividade da Manga (t/ha)", x= "Vale do São Francisco", title='',
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=20)),
+        axis.title.y = element_text(size=12, face = "bold"),
+        axis.title.x = element_text(size=12, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = 0.5, size=12),
+        plot.caption = element_text(hjust = 0, size=12),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g4) %>%
+  layout(legend = list(
+    orientation = "h",
+    x=0.3,
+    y=-0.2,
+    title=''))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+### TABELA 
+
+**VISUALIZAÇÃO DOS DADOS EM TABELA**
+
+```{r ibge_manga12a}
+dados4t <- dados4[,1]
+dados4 <- round(dados4[,c(2:8)]/1000,1)
+dados4 <- cbind(dados4t, dados4)
+
+datatable(dados4, option = list(
+  autoWidth = TRUE,
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+
+#kable(round(table,2)) %>%
+#  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+# 4. ATUALIZAÇÃO DADOS SOBRE VALOR DA PRODUÇÃO DA CULTURA DA MANGA.
+
+## 4.1 VALOR DA PRODUÇÃO NO BRASIL E PRINCIPAIS REGIÕES PRODUTORAS{.tabset .tabset-fade}
+
+### GRÁFICO
+
+<br>
+
+```{r ibge_manga13}
+#Direcionado o R para o Diretorio a ser trabalhado
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2022')
+
+#Entrando dados no R
+dados1 <- read_excel("valor_regioes.xlsx", col_names = TRUE)
+#dados1 <- dados1[c(1,3,4),]
+dados1m <- melt(dados1, id.var='regiao')
+dados1m$value <- round(dados1m$value/1000,2)
+
+g1 <- ggplot()+
+  geom_col(data=dados1m, aes(x=regiao, y=value, fill=variable), lwd=1, position = "dodge")+ scale_fill_manual(values=mycolors2)+
+  labs(y= "Valor da Produção (R$ milhões)", x= "Brasil e Regiões", title='',
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=20)),
+        axis.title.y = element_text(size=12, face = "bold"),
+        axis.title.x = element_text(size=12, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = 0.5, size=12),
+        plot.caption = element_text(hjust = 0, size=12),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g1) %>%
+  layout(legend = list(
+    orientation = "h",
+    x=0.1,
+    y=-0.2,
+    title=''))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+### TABELA 
+
+**VISUALIZAÇÃO DOS DADOS (R$ MILHÕES) EM TABELA**
+
+```{r ibge_manga13a}
+dados1t <- dados1[,1]
+dados1 <- round(dados1[,c(2:8)]/1000,2)
+dados1 <- cbind(dados1t, dados1)
+
+datatable(dados1, option = list(
+  autoWidth = TRUE,
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+
+#kable(round(table,2)) %>%
+#  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+## 4.2 VALOR DA PRODUÇÃO NOS PRINCIPAIS ESTADOS PRODUTORES{.tabset .tabset-fade}
+
+### GRÁFICO
+
+<br>
+
+```{r ibge_manga14}
+#Direcionado o R para o Diretorio a ser trabalhado
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2022')
+
+#Entrando dados no R
+dados2 <- read_excel("valor_estados.xlsx", col_names = TRUE)
+dados2 <- dados2[c(1:6),]
+dados2m <- melt(dados2, id.var='estados')
+
+g2 <- ggplot()+
+  geom_col(data=dados2m, aes(x=reorder(estados, -value), y=value/1000, fill=variable), lwd=1, position = "dodge")+ scale_fill_manual(values=mycolors2)+
+  labs(y= "Valor da Produção (R$ milhões)", x= "Estados do Brasil", title='',
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=20)),
+        axis.title.y = element_text(size=10, face = "bold"),
+        axis.title.x = element_text(size=10, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = 0.5, size=12),
+        plot.caption = element_text(hjust = 0, size=12),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g2) %>%
+  layout(legend = list(
+    orientation = "h",
+    x=0.1,
+    y=-0.2,
+    title=''))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+### TABELA 
+
+**VISUALIZAÇÃO DOS DADOS (R$ MILHÕES) EM TABELA**
+
+```{r ibge_manga14a}
+
+dados2t <- dados2[,1]
+dados2 <- round(dados2[,c(2:8)]/1000,2)
+dados2 <- cbind(dados2t, dados2)
+
+datatable(dados2, option = list(
+  autoWidth = TRUE,
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+
+#kable(round(table,2)) %>%
+#  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+## 4.3 VALOR DA PRODUÇÃO NAS PRINCIPAIS CIDADES PRODUTORAS{.tabset .tabset-fade}
+
+### GRÁFICO
+
+<br>
+
+```{r ibge_manga15}
+#Direcionado o R para o Diretorio a ser trabalhado
+#Entrando dados no R
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2022')
+
+dados3 <- read_excel("valor_cidades.xlsx", col_names = TRUE)
+dados3 <- dados3[c(1:20),c(1,7:8)]
+dados3m <- melt(dados3, id.var='cidades')
+
+g3 <- ggplot()+
+  geom_col(data=dados3m, aes(x=reorder(cidades, -value), y=value/1000, fill=variable), lwd=1, position = "dodge")+ scale_fill_manual(values=mycolors3)+
+  labs(y= "Valor da Produção (R$ milhões)", x= "Cidades do Brasil", title='',
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=20, hjust=0.5, size=8, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=8, margin = margin(l=20)),
+        axis.title.y = element_text(size=10, face = "bold"),
+        axis.title.x = element_text(size=10, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = 0.5, size=12),
+        plot.caption = element_text(hjust = 0, size=12),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g3) %>%
+  layout(legend = list(
+    orientation = "h",
+    x=0.35,
+    y=-0.35,
+    title=''))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+### TABELA 
+
+**VISUALIZAÇÃO DOS DADOS (R$ MILHÕES) EM TABELA**
+
+```{r ibge_manga15a}
+
+dados3t <- dados3[,1]
+dados3 <- round(dados3[,c(2:3)]/1000,1)
+dados3 <- cbind(dados3t, dados3)
+
+datatable(dados3, option = list(
+  autoWidth = TRUE,
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+
+#kable(round(table,2)) %>%
+#  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+## 4.4 VALOR DA PRODUÇÃO NO VALE DO S. FRANCISCO {.tabset .tabset-fade}
+
+### GRÁFICO
+
+<br>
+
+```{r ibge_manga16}
+#Direcionado o R para o Diretório a ser trabalhado
+#Entrando dados no R
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2022')
+
+dados4 <- read_excel("valor_vale.xlsx", col_names = TRUE)
+dados4m <- melt(dados4, id.var='cidades')
+mycolors4 <- "blue"
+
+g4 <- ggplot()+
+  geom_col(data=dados4m, aes(x=variable, y=value/1000, fill="Valor da Produção"), lwd=1)+
+  scale_fill_manual(values=mycolors4)+
+  labs(y= "Valor da Produção (R$ milhões)", x= "Vale do São Francisco", title='',
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=20)),
+        axis.title.y = element_text(size=12, face = "bold"),
+        axis.title.x = element_text(size=12, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = 0.5, size=12),
+        plot.caption = element_text(hjust = 0, size=12),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g4) %>%
+  layout(legend = list(
+    orientation = "h",
+    x=0.4,
+    y=-0.2,
+    title=''))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+### TABELA 
+
+**VISUALIZAÇÃO DOS DADOS (R$ MILHÕES) EM TABELA**
+
+```{r ibge_manga16a}
+dados4t <- dados4[,1]
+dados4 <- round(dados4[,c(2:8)]/1000,1)
+dados4 <- cbind(dados4t, dados4)
+
+datatable(dados4, option = list(
+  autoWidth = TRUE,
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+
+#kable(round(table,2)) %>%
+#  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
+```
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+<br>
+
+# INFORMAÇÕES
+<br>
+<br>
+
+<center>![](logo_manga.jpg){width=16cm}</center>
+
+<br>
+<br>
+
+<center> João Ricardo F. de Lima </center>
+<center> Email: joao.ricardo@embrapa.br </center>
+
+<br>
+
+<center> [https://www.embrapa.br/observatorio-da-manga](https://www.embrapa.br/observatorio-da-manga) </center>
+<center> [Dashboard Mercado de Manga](https://bit.ly/3JzWtDZ) </center>
+
+<br>
+
+<center> Telefones: </center>
+<center> 87-3866-3667 </center> 
+<center> 87-99961-5799 </center>
+
+<br>
+
+<center>![](logo_embrapa.jpg){width=6cm}</center>
+
+<br>
+<br>
