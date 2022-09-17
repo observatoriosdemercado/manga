@@ -56,8 +56,8 @@ library(lubridate)
 anterior <-  as.Date("2022-02-01")
 atual <-  as.Date("2022-03-01")
 mesatual <-  as.Date("2022-01-01")
-data <- as.Date("2022-09-09") #ajustar semanalmente
-sem_ano <- 36 #ajustar semanalmente
+data <- as.Date("2022-09-16") #ajustar semanalmente
+sem_ano <- 37 #ajustar semanalmente
 date2 <- seq(as.Date('2021-01-01'),to=as.Date('2021-12-01'),by='1 month')
 mes <- 3
 
@@ -105,7 +105,7 @@ today <- as.Date("2022-01-01")
 date <- seq(as.Date('2021-01-01'),to=as.Date('2021-12-01'),by='1 month')
 
 #Entrando dados no R
-dados <- read_excel("manga_ibge2020.xlsx", col_names = TRUE)
+dados <- read_excel("manga_ibge2021.xlsx", col_names = TRUE)
 dados$produtividade <- round(dados$produtividade,0)
 
 #Gráfico com Ggplot2 Palmer
@@ -119,27 +119,27 @@ mycolor4 <- "red"
 Row {data-height=125}
 -----------------------------------------------------------------------
 
-### Área Plantada com Manga no Brasil em 2020 
+### Área Plantada com Manga no Brasil em 2021 
 ``` {r}
-num <- 72 
+num <- 76.9 
 valueBox(
   value = paste0(num, " Mil Hectares"),
 #  color = "lightblue3",
   icon= "fa-pen")
 ```
 
-### Produtividade média da Manga no Brasil em 2020 
+### Produtividade média da Manga no Brasil em 2021 
 ``` {r}
-num <- 22
+num <- 19.8
 valueBox(
   value = paste0( num, " Toneladas/Hectare"),
 #  color = "lightblue3",
   icon= "fa-pen")
 ```
 
-### Volume com Manga produzida no Brasil em 2020 
+### Volume com Manga produzida no Brasil em 2021 
 ``` {r}
-num <- 1.57
+num <- 1.51
 valueBox(
   value = paste0(format(num, decimal.mark =  ","), " Milhões de Toneladas" ),
 #  color = "lightblue3",
@@ -157,9 +157,10 @@ g1 <- dados %>%
   ggplot() +  #estetica vai valer para todos os geom's
   geom_col(aes(x=ano, y=area, fill="Area Manga (Hectares)"), lwd=1)+
   scale_fill_manual(values=mycolor1)+
-  labs(y= "Hectares", x= "Anos", title='Evolução da Area com Manga no Brasil: 2016-2020',
+  labs(y= "Hectares", x= "Anos", title='Evolução da Área com Manga no Brasil: 2015-2021',
        caption = "Fonte: IBGE (2022)") +
-  scale_y_continuous(limits=c(0, 75000), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
+  scale_y_continuous(limits=c(0, 80000), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
+  scale_x_continuous(breaks = seq(2015, 2021, by = 1))+
   theme_classic()+ #Definindo tema
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=5)),
         axis.text.y=element_text(hjust=1, size=12, margin = margin(l=20)),
@@ -186,9 +187,10 @@ g2 <- dados %>%
   ggplot() +  #estetica vai valer para todos os geom's
   geom_col(aes(x=ano, y=quantidade/1000, fill="Volume (Mil Toneladas)"), lwd=1)+
   scale_fill_manual(values=mycolor2)+
-  labs(y= "Mil Toneladas", x= "Anos", title='Evolução do Volume com Manga no Brasil: 2016-2020',
+  labs(y= "Mil Toneladas", x= "Anos", title='Evolução do Volume com Manga no Brasil: 2015-2021',
        caption = "Fonte: IBGE (2022)") +
   scale_y_continuous(limits=c(0, 1600), n.breaks = 6, expand = expansion(add=c(0,0.5)))+
+  scale_x_continuous(breaks = seq(2015, 2021, by = 1))+
   theme_classic()+ #Definindo tema
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=5)),
         axis.text.y=element_text(hjust=1, size=12, margin = margin(l=20)),
@@ -218,9 +220,10 @@ g3 <- dados %>%
   ggplot() +  #estetica vai valer para todos os geom's
   geom_col(aes(x=ano, y=produtividade, fill="Produtividade (Toneladas/Hectares)"), lwd=1)+
   scale_fill_manual(values=mycolor3)+
-  labs(y= "Produtividade (Ton/Ha)", x= "Anos", title='Evolução da Produtividade com Manga no Brasil: 2016-2020',
+  labs(y= "Produtividade (Ton/Ha)", x= "Anos", title='Evolução da Produtividade com Manga no Brasil: 2015-2021',
        caption = "IBGE (2022)") +
   scale_y_continuous(limits=c(0, 25), n.breaks = 5, expand = expansion(add=c(0,0.5)))+
+  scale_x_continuous(breaks = seq(2015, 2021, by = 1))+
   theme_classic()+ #Definindo tema
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=5)),
         axis.text.y=element_text(hjust=1, size=12, margin = margin(l=20)),
@@ -247,9 +250,10 @@ g4 <- dados %>%
   ggplot() +  #estetica vai valer para todos os geom's
   geom_col(aes(x=ano, y=vbp/1000, fill="Valor Bruto Produção (Mil R$)"), lwd=1)+
   scale_fill_manual(values=mycolor4)+
-  labs(y= "VBP (Mil R$)", x= "Anos", title='Evolução do Valor Bruto da Produção com Manga no Brasil: 2016-2020',
+  labs(y= "VBP (Mil R$)", x= "Anos", title='Evolução do Valor Bruto da Produção com Manga no Brasil: 2015-2021',
        caption = "IBGE (2022)") +
   scale_y_continuous(limits=c(0, 2000), n.breaks = 8, expand = expansion(add=c(0,0.5)))+
+  scale_x_continuous(breaks = seq(2015, 2021, by = 1))+
   theme_classic()+ #Definindo tema
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=5)),
         axis.text.y=element_text(hjust=1, size=12, margin = margin(l=20)),
@@ -276,7 +280,7 @@ Row {data-height=125}
 
 ### Área Plantada com Manga no Vale S. Francisco em 2020 
 ``` {r}
-num <- 29.6 
+num <- 34.4 
 valueBox(
   value = paste0(num, " Mil Hectares"),
 #  color = "lightblue3",
@@ -285,7 +289,7 @@ valueBox(
 
 ### Produtividade média da Manga no Vale S. Francisco em 2020 
 ``` {r}
-num <- 33
+num <- 27.4
 valueBox(
   value = paste0( num, " Toneladas/Hectare"),
 #  color = "lightblue3",
@@ -294,7 +298,7 @@ valueBox(
 
 ### Volume com Manga produzida no Vale S. Francisco em 2020 
 ``` {r}
-num <- 963.1
+num <- 924.5
 valueBox(
   value = paste0(format(num, decimal.mark =  ","), " Mil Toneladas" ),
 #  color = "lightblue3",
@@ -310,11 +314,12 @@ Row
 g1 <- dados %>% 
   filter(abrangencia=='vale') %>% 
   ggplot() + #estetica vai valer para todos os geom's
-  geom_col(aes(x=ano, y=area, fill="Area Manga (Hectares)"), lwd=1)+
+  geom_col(aes(x=ano, y=area, fill="Área Manga (Hectares)"), lwd=1)+
   scale_fill_manual(values=mycolor1)+
-  labs(y= "Hectares", x= "Anos", title='Evolução da Area com Manga no Vale do São Francisco: 2016-2020',
-       caption = "Fonte: IBGE (2021)") +
-  scale_y_continuous(limits=c(0, 30000), n.breaks = 6, expand = expansion(add=c(0,0.5)))+
+  labs(y= "Hectares", x= "Anos", title='Evolução da Area com Manga no Vale do São Francisco: 2015-2021',
+       caption = "Fonte: IBGE (2022)") +
+  scale_y_continuous(limits=c(0, 35000), n.breaks = 6, expand = expansion(add=c(0,0.5)))+
+  scale_x_continuous(breaks = seq(2015, 2021, by = 1))+
   theme_classic()+ #Definindo tema
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=5)),
         axis.text.y=element_text(hjust=1, size=12, margin = margin(l=20)),
@@ -341,9 +346,10 @@ g2 <- dados %>%
   ggplot() + #estetica vai valer para todos os geom's
   geom_col(aes(x=ano, y=quantidade/1000, fill="Volume (Mil Toneladas)"), lwd=1)+
   scale_fill_manual(values=mycolor2)+
-  labs(y= "Mil Toneladas", x= "Anos", title='Evolução do Volume com Manga no Vale do São Francisco: 2016-2020',
-       caption = "Fonte: IBGE (2021)") +
+  labs(y= "Mil Toneladas", x= "Anos", title='Evolução do Volume com Manga no Vale do São Francisco: 2015-2021',
+       caption = "Fonte: IBGE (2022)") +
   scale_y_continuous(limits=c(0, 1000), n.breaks = 6, expand = expansion(add=c(0,0.5)))+
+  scale_x_continuous(breaks = seq(2015, 2021, by = 1))+
   theme_classic()+ #Definindo tema
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=5)),
         axis.text.y=element_text(hjust=1, size=12, margin = margin(l=20)),
@@ -373,9 +379,10 @@ g3 <- dados %>%
   ggplot() + #estetica vai valer para todos os geom's
   geom_col(aes(x=ano, y=produtividade, fill="Produtividade (Toneladas/Hectares)"), lwd=1)+
   scale_fill_manual(values=mycolor3)+
-  labs(y= "Produtividade (Ton/Ha)", x= "Anos", title='Evolução da Produtividade com Manga no Vale do São Francisco: 2016-2020',
+  labs(y= "Produtividade (Ton/Ha)", x= "Anos", title='Evolução da Produtividade com Manga no Vale do São Francisco: 2015-2021',
        caption = "IBGE (2021)") +
   scale_y_continuous(limits=c(0, 35), n.breaks = 5, expand = expansion(add=c(0,0.5)))+
+  scale_x_continuous(breaks = seq(2015, 2021, by = 1))+
   theme_classic()+ #Definindo tema
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=5)),
         axis.text.y=element_text(hjust=1, size=12, margin = margin(l=20)),
@@ -402,9 +409,10 @@ g4 <- dados %>%
   ggplot() + #estetica vai valer para todos os geom's
   geom_col(aes(x=ano, y=vbp/1000, fill="Valor Bruto Produção (Mil R$)"), lwd=1)+
   scale_fill_manual(values=mycolor4)+
-  labs(y= "VBP (Mil R$)", x= "Anos", title='Evolução do Valor Bruto da Produção com Manga no Vale do São Francisco: 2016-2020',
-       caption = "IBGE (2021)") +
+  labs(y= "VBP (Mil R$)", x= "Anos", title='Evolução do Valor Bruto da Produção com Manga no Vale do São Francisco: 2015-2021',
+       caption = "IBGE (2022)") +
   scale_y_continuous(limits=c(0, 1200), n.breaks = 5, expand = expansion(add=c(0,0.5)))+
+  scale_x_continuous(breaks = seq(2015, 2021, by = 1))+
   theme_classic()+ #Definindo tema
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=5)),
         axis.text.y=element_text(hjust=1, size=12, margin = margin(l=20)),
@@ -620,7 +628,7 @@ g2 <- ggplot()+
   geom_col(data=variacao, aes(x=Semanas, y=value, fill=variable), size=2, width = 0.9, position = "dodge")+
   scale_fill_manual(values=mycolors2)+
   scale_y_continuous(labels = number_format(accuracy = 0.01, decimal.mark = ","))+
-  scale_x_continuous(breaks = seq(1, 52, by = 1))+
+  scale_x_continuous(breaks = seq(1, 52, by = 2))+
   labs(y= "Variação Percentual", x= "Semanas do Ano", title='Variação Semanal de preços de Manga Palmer ao produtor',
        caption = "Fonte: Observatório de Mercado de Manga da Embrapa")+
   theme_minimal()+
@@ -691,7 +699,7 @@ g4 <- ggplot(data=sazonal_graph)+
   geom_line(aes(x=semanas, y=sazonalidade), color="cornflowerblue", size=1.2)+
   scale_y_continuous(limits=c(0,1.8), n.breaks = 5, expand = expansion(add=c(0,0.5)), 
                      labels=number_format(accuracy = 0.01, decimal.mark = ","))+
-  scale_x_continuous(breaks = seq(1, 52, by = 1))+
+  scale_x_continuous(breaks = seq(1, 52, by = 2))+
   labs(y= "", x= "Semanas de cada Ano", title='Sazonalidade do preço de Manga Palmer',
        caption = "Fonte: Observatório de Mercado de Manga da Embrapa")+
   theme_classic()+
@@ -907,7 +915,7 @@ g6 <- ggplot()+
     geom_col(data=variacao, aes(x=Semanas, y=value, fill=variable), size=2, width = 0.9, position = "dodge")+
     scale_fill_manual(values=mycolors2)+
     scale_y_continuous(labels = number_format(accuracy = 0.01, decimal.mark = ","))+
-    scale_x_continuous(breaks = seq(1, 52, by = 1))+
+    scale_x_continuous(breaks = seq(1, 52, by = 2))+
     labs(y= "Variação Percentual", x= "Semanas do Ano", title='Variação Semanal de preços de Manga Tommy ao produtor',
          caption = "Fonte: Observatório de Mercado de Manga da Embrapa")+
     theme_minimal()+
@@ -978,7 +986,7 @@ g8 <- ggplot(data=sazonal_graph)+
     geom_line(aes(x=semanas, y=sazonalidade), color="cornflowerblue", size=1.2)+
     scale_y_continuous(limits=c(0,1.8), n.breaks = 5, expand = expansion(add=c(0,0.5)), 
                        labels=number_format(accuracy = 0.01, decimal.mark = ","))+
-    scale_x_continuous(breaks = seq(1, 52, by = 1))+
+    scale_x_continuous(breaks = seq(1, 52, by = 2))+
     labs(y= "", x= "Semanas de cada Ano", title='Sazonalidade do preço de Manga Tommy',
          caption = "Fonte: Observatório de Mercado de Manga da Embrapa")+
     theme_classic()+
@@ -1597,7 +1605,7 @@ g4 <- ggplot()+
         plot.title = element_text(hjust = 0.5, size=10),
         plot.caption = element_text(hjust = 0, size=10),
         legend.position = "bottom", legend.title = element_blank(),
-        legend.text=element_text(size=12)) # Definindo posição da legenda
+        legend.text=element_text(size=10)) # Definindo posição da legenda
 
 ggplotly(g4) %>%
   layout(legend = list(
