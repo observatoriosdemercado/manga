@@ -36,7 +36,7 @@ date <- seq(as.Date('2022-01-01'),to=as.Date('2022-12-01'),by='1 month')
 
 <br>
 
-# ATUALIZAÇÃO DA INFORMAÇÕES SOBRE A CULTURA MANGA COM DADOS DA PAM/IBGE ATÉ 2021.
+# ATUALIZAÇÃO DADOS SOBRE A CULTURA MANGA COM DADOS DA PAM/IBGE ATÉ 2021.
 
 <br>
 
@@ -1102,6 +1102,8 @@ Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
 <br>
 
 <center>![](logo_embrapa.jpg){width=6cm}</center>
+
+<center><a href="https://www.freecounterstat.com" title="free website counter"><img src="https://counter9.stat.ovh/private/freecounterstat.php?c=xmednhskxbt6hj7ejzz37gt4ycszjsap" border="0" title="free website counter" alt="free website counter"></a></center>
 
 <br>
 <br>
