@@ -60,7 +60,7 @@ Na questão do consumo baseados nas faixas de renda, em todas as regiões quem t
 
 ```{r consumo_manga1}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
 #Inicio do Script
 #Pacotes a serem utilizados 
@@ -190,7 +190,7 @@ Fonte: POF/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
 ```{r consumo_manga3}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
 #Inicio do Script
 #Pacotes a serem utilizados 
@@ -261,7 +261,7 @@ Fonte: POF/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
 ```{r consumo_manga4}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
 #Inicio do Script
 #Pacotes a serem utilizados 
@@ -346,6 +346,8 @@ Fonte: POF/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
 <br>
 
 <center>![](logo_embrapa.jpg){width=6cm}</center>
+
+<center>[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fobservatoriosdemercado.github.io%2Fmanga%2F2022%2Fconsumo%2F&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)</center>
 
 <br>
 <br>
