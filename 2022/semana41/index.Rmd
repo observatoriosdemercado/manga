@@ -780,7 +780,7 @@ Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
 <center>![](logo_embrapa.jpg){width=6cm}</center>
 
-<center>[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fobservatoriosdemercado.github.io%2Fmanga%2F2022%2Fsemana41%2F&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)</center>
+<center><center><a href="https://www.freecounterstat.com" title="free website counter"><img src="https://counter9.stat.ovh/private/freecounterstat.php?c=xmednhskxbt6hj7ejzz37gt4ycszjsap" border="0" title="free website counter" alt="free website counter"></a></center></center>
 
 <br>
 <br>
