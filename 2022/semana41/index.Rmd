@@ -45,7 +45,7 @@ O preço médio de Palmer na semana `r strftime(today, format = "%V de %Y")` foi
 
 No caso da Tommy, na semana `r strftime(today, format = "%V de %Y")` os preços médios foram de R\$1,13, variando entre R\$1,40 e R\$0,90. Este valor é mais baixo do que a média histórica para esta semana, R\$ 1,19, mas é maior que o preço deflacionado de 2020 (R\$0,85) e é maior que o preço de 2021 (R\$0,50). Em relação à semana anterior os preços tiveram um aumento de 3,67%.
 
-Nos dados de exportação, os preços médios de manga Palmer na semana `r strftime(today, format = "%V de %Y")` foram R\$1,61 variando entre R\$1,70 e R\$1,50, aumento de 7% em relaçao à semana anterior. A manga Tommy para os Estados Unidos foi cotada na médias de R\$1,64, variando entre R\$ 1,80 e R\$1,50, aumento de 3%. A Kent foi cotada a R\$2,20 na média, variando entre R\$2,30 e R\$2,10 
+Nos dados de exportação, os preços médios de manga Palmer na semana `r strftime(today, format = "%V de %Y")` foram R\$1,61 variando entre R\$1,70 e R\$1,50, aumento de 7% em relaçao à semana anterior. A manga Tommy para os Estados Unidos foi cotada na médias de R\$1,64, variando entre R\$ 1,80 e R\$1,50, aumento de 3%. A Kent foi cotada a R\$2,20 na média, variando entre R\$2,30 e R\$2,10. 
 
 <br>
 
@@ -779,6 +779,8 @@ Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa
 <br>
 
 <center>![](logo_embrapa.jpg){width=6cm}</center>
+
+<center>[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fobservatoriosdemercado.github.io%2Fmanga%2F2022%2Fsemana41%2F&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)</center>
 
 <br>
 <br>
