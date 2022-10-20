@@ -917,7 +917,7 @@ ggplotly(g4) %>%
                       title=''))
 ```
 
-EMPREGO
+MERCADO TRABALHO {data-navmenu="MERCADO INTERNO"}
 ======================================================================
 
 ```{r database6}
