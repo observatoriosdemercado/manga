@@ -1891,45 +1891,6 @@ mycolor3 <- "blue"
 mycolor4 <- "red"
 ```
 
-Row {data-height=125}
------------------------------------------------------------------------
-
-### Crescimento Custo de de Oper. Mecanizadas
-``` {r}
-num <- 93.83 
-valueBox(
-  value = paste0(format(num, decimal.mark =  ","), " %"),
-#  color = "lightblue3",
-  icon= "fa-arrow-up")
-```
-
-### Crescimento Custo de Oper. Manuais
-``` {r}
-num <- 25.87
-valueBox(
-  value = paste0(format(num, decimal.mark =  ","), " %"),
-#  color = "lightblue3",
-  icon= "fa-arrow-up")
-```
-
-### Crescimento Custo de Insumos
-``` {r}
-num <- 148.35
-valueBox(
-  value = paste0(format(num, decimal.mark =  ","), " %"),
-#  color = "lightblue3",
-  icon= "fa-arrow-up")
-```
-
-### Crescimento Custo da Formação
-``` {r}
-num <- 72
-valueBox(
-  value = paste0(format(num, decimal.mark =  ","), " %"),
-#  color = "lightblue3",
-  icon= "fa-arrow-up")
-```
-
 Row
 -----------------------------------------------------------------------
 
@@ -1941,10 +1902,10 @@ g1 <- dados %>%
   ggplot() +  #estetica vai valer para todos os geom's
   geom_col(aes(x=ano, y=Op_Mecanizadas, fill="Custo (R$) com Operações Mecanizadas"), lwd=1)+
   scale_fill_manual(values=mycolor1)+
-  labs(y= "R$", x= "Anos", title='Evolução do Custo (R$) com Operações Mecanizadas: 2016-2021',
+  labs(y= "R$", x= "Anos", title='Evolução do Custo (R$) com Operações Mecanizadas: 2012-2021',
        caption = "Fonte: Agrianual (2017:2022)") +
   scale_y_continuous(limits=c(0, 18000), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
-  scale_x_continuous(breaks = seq(2016, 2021, by = 1))+
+  scale_x_continuous(breaks = seq(2012, 2021, by = 1))+
   theme_classic()+ #Definindo tema
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=5)),
         axis.text.y=element_text(hjust=1, size=12, margin = margin(l=20)),
@@ -1971,10 +1932,10 @@ g2 <- dados %>%
   ggplot() +  #estetica vai valer para todos os geom's
   geom_col(aes(x=ano, y=Op_Manuais, fill="Custo (R$) com Operações Manuais"), lwd=1)+
   scale_fill_manual(values=mycolor2)+
-  labs(y= "R$", x= "Anos", title='Evolução do Custo (R$) com Operações Manuais: 2016-2021',
+  labs(y= "R$", x= "Anos", title='Evolução do Custo (R$) com Operações Manuais: 2012-2021',
        caption = "Fonte: Agrianual (2017:2022)") +
-  scale_y_continuous(limits=c(0, 6000), n.breaks = 6, expand = expansion(add=c(0,0.5)))+
-  scale_x_continuous(breaks = seq(2016, 2021, by = 1))+
+  scale_y_continuous(limits=c(0, 9000), n.breaks = 6, expand = expansion(add=c(0,0.5)))+
+  scale_x_continuous(breaks = seq(2012, 2021, by = 1))+
   theme_classic()+ #Definindo tema
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=5)),
         axis.text.y=element_text(hjust=1, size=12, margin = margin(l=20)),
@@ -2004,10 +1965,10 @@ g3 <- dados %>%
   ggplot() +  #estetica vai valer para todos os geom's
   geom_col(aes(x=ano, y=Insumos, fill="Custo (R$) com Insumos"), lwd=1)+
   scale_fill_manual(values=mycolor3)+
-  labs(y= "R$", x= "Anos", title='Evolução do Custo (R$) com Insumos: 2016-2021',
+  labs(y= "R$", x= "Anos", title='Evolução do Custo (R$) com Insumos: 2012-2021',
        caption = "Fonte: Agrianual (2017:2022)") +
-  scale_y_continuous(limits=c(0, 8000), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
-  scale_x_continuous(breaks = seq(2016, 2021, by = 1))+
+  scale_y_continuous(limits=c(0, 14000), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
+  scale_x_continuous(breaks = seq(2012, 2021, by = 1))+
   theme_classic()+ #Definindo tema
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=5)),
         axis.text.y=element_text(hjust=1, size=12, margin = margin(l=20)),
@@ -2034,10 +1995,10 @@ g4 <- dados %>%
   ggplot() +  #estetica vai valer para todos os geom's
   geom_col(aes(x=ano, y=Custo_Total, fill="Custo Total de formação (R$)"), lwd=1)+
   scale_fill_manual(values=mycolor4)+
-  labs(y= "R$", x= "Anos", title='Evolução do Custo (R$) com formação: 2016-2021',
+  labs(y= "R$", x= "Anos", title='Evolução do Custo (R$) com formação: 2012-2021',
        caption = "Fonte: Agrianual (2017:2022)") +
   scale_y_continuous(limits=c(0, 50000), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
-  scale_x_continuous(breaks = seq(2016, 2021, by = 1))+
+  scale_x_continuous(breaks = seq(2012, 2021, by = 1))+
   theme_classic()+ #Definindo tema
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=5)),
         axis.text.y=element_text(hjust=1, size=12, margin = margin(l=20)),
@@ -2116,10 +2077,10 @@ g1 <- dados %>%
   ggplot() +  #estetica vai valer para todos os geom's
   geom_col(aes(x=ano, y=Op_Mecanizadas, fill="Custo (R$) com Operações Mecanizadas"), lwd=1)+
   scale_fill_manual(values=mycolor1)+
-  labs(y= "R$", x= "Anos", title='Evolução do Custo (R$) com Operações Mecanizadas: 2016-2021',
+  labs(y= "R$", x= "Anos", title='Evolução do Custo (R$) com Operações Mecanizadas: 2012-2021',
        caption = "Fonte: Agrianual (2017:2022)") +
   scale_y_continuous(limits=c(0, 8000), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
-  scale_x_continuous(breaks = seq(2016, 2021, by = 1))+
+  scale_x_continuous(breaks = seq(2012, 2021, by = 1))+
   theme_classic()+ #Definindo tema
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=5)),
         axis.text.y=element_text(hjust=1, size=10, margin = margin(l=20)),
@@ -2146,10 +2107,10 @@ g2 <- dados %>%
   ggplot() +  #estetica vai valer para todos os geom's
   geom_col(aes(x=ano, y=Op_Manuais, fill="Custo (R$) com Operações Manuais"), lwd=1)+
   scale_fill_manual(values=mycolor2)+
-  labs(y= "R$", x= "Anos", title='Evolução do Custo (R$) com Operações Manuais: 2016-2021',
+  labs(y= "R$", x= "Anos", title='Evolução do Custo (R$) com Operações Manuais: 2012-2021',
        caption = "Fonte: Agrianual (2017:2022)") +
-  scale_y_continuous(limits=c(0, 3000), n.breaks = 6, expand = expansion(add=c(0,0.5)))+
-  scale_x_continuous(breaks = seq(2016, 2021, by = 1))+
+  scale_y_continuous(limits=c(0, 4000), n.breaks = 6, expand = expansion(add=c(0,0.5)))+
+  scale_x_continuous(breaks = seq(2012, 2021, by = 1))+
   theme_classic()+ #Definindo tema
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=5)),
         axis.text.y=element_text(hjust=1, size=10, margin = margin(l=20)),
@@ -2176,10 +2137,10 @@ g2 <- dados %>%
   ggplot() +  #estetica vai valer para todos os geom's
   geom_col(aes(x=ano, y=Insumos, fill="Custo (R$) com Insumos"), lwd=1)+
   scale_fill_manual(values=mycolor5)+
-  labs(y= "R$", x= "Anos", title='Evolução do Custo (R$) com Insumos: 2016-2021',
+  labs(y= "R$", x= "Anos", title='Evolução do Custo (R$) com Insumos: 2012-2021',
        caption = "Fonte: Agrianual (2017:2022)") +
   scale_y_continuous(limits=c(0, 12000), n.breaks = 6, expand = expansion(add=c(0,0.5)))+
-  scale_x_continuous(breaks = seq(2016, 2021, by = 1))+
+  scale_x_continuous(breaks = seq(2012, 2021, by = 1))+
   theme_classic()+ #Definindo tema
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=5)),
         axis.text.y=element_text(hjust=1, size=10, margin = margin(l=20)),
@@ -2209,10 +2170,10 @@ g3 <- dados %>%
   ggplot() +  #estetica vai valer para todos os geom's
   geom_col(aes(x=ano, y=Administracao, fill="Custos (R$) com Administrativo"), lwd=1)+
   scale_fill_manual(values=mycolor3)+
-  labs(y= "R$", x= "Anos", title='Evolução do Custo (R$) com Administrativo: 2016-2021',
+  labs(y= "R$", x= "Anos", title='Evolução do Custo (R$) com Administrativo: 2012-2021',
        caption = "Fonte: Agrianual (2017:2022)") +
-  scale_y_continuous(limits=c(0, 6000), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
-  scale_x_continuous(breaks = seq(2016, 2021, by = 1))+
+  scale_y_continuous(limits=c(0, 10000), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
+  scale_x_continuous(breaks = seq(2012, 2021, by = 1))+
   theme_classic()+ #Definindo tema
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=5)),
         axis.text.y=element_text(hjust=1, size=10, margin = margin(l=20)),
@@ -2239,9 +2200,10 @@ g4 <- dados %>%
   ggplot() +  #estetica vai valer para todos os geom's
   geom_col(aes(x=ano, y=Custo_Total, fill="Custo Total por Quilo (R$)"), lwd=1)+
   scale_fill_manual(values=mycolor4)+
-  labs(y= "R$", x= "Anos", title='Evolução do Custo (R$) por Quilo: 2016-2021',
+  labs(y= "R$", x= "Anos", title='Evolução do Custo (R$) por Quilo: 2012-2021',
        caption = "Fonte: Agrianual (2017:2022)") +
-  scale_x_continuous(breaks = seq(2016, 2021, by = 1))+
+  scale_y_continuous(limits=c(0, 28000), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
+  scale_x_continuous(breaks = seq(2012, 2021, by = 1))+
   theme_classic()+ #Definindo tema
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=5)),
         axis.text.y=element_text(hjust=1, size=10, margin = margin(l=20)),
@@ -2268,10 +2230,10 @@ g4 <- dados %>%
   ggplot() +  #estetica vai valer para todos os geom's
   geom_col(aes(x=ano, y=Beneficio_Custo, fill="Relação Benefício/Custo"), lwd=1)+
   scale_fill_manual(values=mycolor6)+
-  labs(y= "Beneficio/Custo", x= "Anos", title='Evolução da Relação Benefício/Custo: 2016-2021',
+  labs(y= "Beneficio/Custo", x= "Anos", title='Evolução da Relação Benefício/Custo: 2012-2021',
        caption = "Fonte: Agrianual (2017:2022)") +
   scale_y_continuous(limits=c(0, 3), n.breaks = 6, expand = expansion(add=c(0,0.5)))+
-  scale_x_continuous(breaks = seq(2016, 2021, by = 1))+
+  scale_x_continuous(breaks = seq(2012, 2021, by = 1))+
   theme_classic()+ #Definindo tema
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=5)),
         axis.text.y=element_text(hjust=1, size=10, margin = margin(l=20)),
