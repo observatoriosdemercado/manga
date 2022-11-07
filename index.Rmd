@@ -56,8 +56,8 @@ library(lubridate)
 anterior <-  as.Date("2022-02-01")
 atual <-  as.Date("2022-03-01")
 mesatual <-  as.Date("2022-01-01")
-data <- as.Date("2022-10-28") #ajustar semanalmente
-sem_ano <- 43 #ajustar semanalmente
+data <- as.Date("2022-11-04") #ajustar semanalmente
+sem_ano <- 44 #ajustar semanalmente
 date2 <- seq(as.Date('2021-01-01'),to=as.Date('2021-12-01'),by='1 month')
 mes <- 3
 
@@ -1154,7 +1154,7 @@ PALMER {data-navmenu="PREÇOS AO PRODUTOR"}
 #setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
 setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
-data <- as.Date("2022-10-28") #ajustar semanalmente
+data <- as.Date("2022-11-04") #ajustar semanalmente
 
 #Entrando dados no R
 dados <- read.csv2('dados_manga_palmer_semana.csv', header=T, sep=";", dec=".")
@@ -1282,7 +1282,7 @@ valueBox(
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2021
 ``` {r}
-num <- 1.13
+num <- 1.06
 valueBox(
   value = paste0( "R$", format(round(num,2), decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1291,7 +1291,7 @@ valueBox(
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2020
 ``` {r}
-num <- 1.49
+num <- 1.36
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1569,7 +1569,7 @@ valueBox(
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2021
 ``` {r}
-num <- 0.97
+num <- 1.08
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1578,7 +1578,7 @@ valueBox(
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2020
 ``` {r}
-num <- 0.94
+num <- 0.81
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
