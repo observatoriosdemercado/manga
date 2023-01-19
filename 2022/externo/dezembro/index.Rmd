@@ -283,7 +283,6 @@ dados6 <- get_market_expectations("monthly", "Câmbio", start_date = "2023-01-01
 dados6 <- dados6 %>% filter (baseCalculo == 0) 
 dates <- dados6$Data[dados6$DataReferencia=='12/2023']
 cambio_esperado <- dados6$Media[dados6$DataReferencia=='12/2023']
-cambio_esperado <- round(cambio_esperado,2)
 dados6 <- data.frame(dates=dates, cambio=cambio_esperado)
 ```
 
@@ -974,7 +973,7 @@ Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
 <br>
 <br>
 
-# 8. Evolução da Taxa de Câmbio Esperada para Dezembro de 2022 {.tabset .tabset-fade}
+# 8. Evolução da Taxa de Câmbio Esperada para Dezembro de 2023 {.tabset .tabset-fade}
 
 <br>
 <br>
@@ -982,12 +981,19 @@ Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
 ## GRÁFICO
 
 ```{r exporta21}
+dados6 <- dados6 %>%
+     mutate(dates = floor_date(dates, unit = "week")) %>%
+     group_by(dates) %>%
+     summarise(
+         cambio = mean(cambio))
+dados6$dates <- dados6$dates + 1
+dados6$cambio <- round(dados6$cambio,2)
 
 g13 <- ggplot(data=dados6)+
   geom_line(aes(x=dates, y=cambio), color="blue", size=1.5)+
-    scale_x_date(date_breaks = "3 weeks",
+    scale_x_date(date_breaks = "1 week",
                labels = date_format("%d-%b"))+
-  labs(y= "Câmbio Esperado para Dezembro/2022", x= "Semanas do Ano", title='',
+  labs(y= "Câmbio Esperado para Dezembro/2023", x= "Semanas do Ano", title='',
        caption = "")+
   theme_classic()+
   theme(axis.text.x=element_text(angle=35, hjust=0.5, size=11, margin = margin(b=20)),
