@@ -53,13 +53,8 @@ knitr::opts_chunk$set(
   )
 
 library(lubridate)
-anterior <-  as.Date("2022-02-01")
-atual <-  as.Date("2022-03-01")
-mesatual <-  as.Date("2022-01-01")
-data <- as.Date("2022-12-16") #ajustar semanalmente
-sem_ano <- 50 #ajustar semanalmente
-date2 <- seq(as.Date('2021-01-01'),to=as.Date('2021-12-01'),by='1 month')
-mes <- 3
+data <- as.Date("2023-01-20") #ajustar semanalmente
+sem_ano <- 3 #ajustar semanalmente
 
 # Linhas que precisam de ajuste: 71, 104, 107
 ```
@@ -101,7 +96,7 @@ library(patchwork)
 checkX13()
 
 options(digits=4)
-today <- as.Date("2022-01-01")
+#today <- as.Date("2022-01-01")
 date <- seq(as.Date('2021-01-01'),to=as.Date('2021-12-01'),by='1 month')
 
 #Entrando dados no R
@@ -1154,7 +1149,7 @@ PALMER {data-navmenu="PREÇOS AO PRODUTOR"}
 #setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
 setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
-data <- as.Date("2022-12-16") #ajustar semanalmente
+data <- as.Date("2023-01-20") #ajustar semanalmente
 
 #Entrando dados no R
 dados <- read.csv2('dados_manga_palmer_semana.csv', header=T, sep=";", dec=".")
@@ -1177,11 +1172,13 @@ dadosp$preco_def <- dadosp[,3]*(tail(dadosp[,4],1)/dadosp[,4])
 #dadosp<-dadosp[,-2]
 
 #Criando uma variável com as datas semanais
-dadosp$date <- seq(as.Date('2012-01-14'),to=data, by='1 week') 
+dadosp$date <- seq(as.Date('2012-01-14'),to=data,by='1 week') 
 dadosp$date[dadosp$date == "2016-01-02"] <- "2015-12-31" #ajustando algumas datas
 dadosp$date[dadosp$date == "2015-01-03"] <- "2014-12-31"
 dadosp$date[dadosp$date == "2014-01-04"] <- "2013-12-31"
 dadosp$date[dadosp$date == "2013-01-05"] <- "2012-12-31"
+dadosp$date[dadosp$date == "2022-01-01"] <- "2022-01-03"
+dadosp$date[dadosp$date == "2022-12-31"] <- "2023-01-01"
 
 #Analise de Serie Temporal
 preco_palmer <- dadosp[,5]
@@ -1202,40 +1199,42 @@ sazonal_graph <- tibble(cbind(semanas, sazonalidade))
 
 #Parte 3
 #Analise das comparações entre as médias
-preco_palmer_2019 <- window(preco_palmer, end=c(2019,52))
-seas19<-seasplot(preco_palmer_2019, trend=F, outplot = F)
-medias19 <- colMeans(seas19$season)
 
 preco_palmer_2020 <- window(preco_palmer, end=c(2020,52))
+seas20<-seasplot(preco_palmer_2020, trend=F, outplot = F)
+medias20 <- colMeans(seas20$season)
 
 preco_palmer_2021 <- window(preco_palmer, end=c(2021,52))
+
+preco_palmer_2022 <- window(preco_palmer, end=c(2022,52))
 #seas21<-seasplot(preco_palmer_2021, trend=F, outplot = F)
 #medias21 <- colMeans(seas21$season)
 
-preco_palmer_22 <- as.matrix(tail(dadosp$preco_def,sem_ano))  
-preco_palmer_2022 <- matrix(NA, nrow=52, ncol=1)
+preco_palmer_23 <- as.matrix(tail(dadosp$preco_def,sem_ano)) 
+preco_palmer_2023 <- matrix(NA, nrow=52, ncol=1)
 
-for(i in 1:sem_ano){                                          
-  preco_palmer_2022[i,1] = preco_palmer_22[i,1]
+for(i in 1:sem_ano){
+  preco_palmer_2023[i,1] = preco_palmer_23[i,1]
 }
   
 
 #Como só se tem até a semana 52
-medias19 <- medias19[1:52]
+medias20 <- medias20[1:52]
 #medias21 <- medias21[1:52]
 
 matrix = matrix(NA, nrow=52, ncol=2)
 
 for(i in 1:52){
-  matrix[i,1] = min(seas19$season[,i])
-  matrix[i,2] = max(seas19$season[,i])
+  matrix[i,1] = min(seas20$season[,i])
+  matrix[i,2] = max(seas20$season[,i])
 }
 
 time <- seq(1:52)
-table <- data.frame(time, matrix[,1], round(medias19,2), matrix[,2], round(tail(preco_palmer_2020,52),2),
-                    round(tail(preco_palmer_2021,52),2), preco_palmer_2022[,1])
-colnames(table) = c('Semanas', 'Mínimo', 'Média', 'Máximo', '2020', '2021', 
-                    '2022')
+table <- data.frame(time, matrix[,1], round(medias20,2), matrix[,2], round(tail(preco_palmer_2021,52),2),
+                    round(tail(preco_palmer_2022,52),2), preco_palmer_2023[,1])
+colnames(table) = c('Semanas', 'Mínimo', 'Média', 'Máximo', 'Ano 2021', 'Ano 2022', 
+                    'Ano 2023')
+
 tablea <- table[,-c(5:7)]
 tableb <- table[,-c(2,3,4)]
 
@@ -1243,21 +1242,25 @@ tablea2 <- melt(tablea, id.var='Semanas')
 tableb2 <- melt(tableb, id.var='Semanas')
 mycolors <- c("lightblue3", "gray44", "gold")
 
-table_db <- data.frame(matrix[,1], round(medias19,2), matrix[,2], round(tail(preco_palmer_2020,52),2),
-                    round(tail(preco_palmer_2021,52),2), preco_palmer_2022[,1])
-colnames(table_db) = c('Mínimo', 'Média', 'Máximo', '2020', '2021', '2022')
+table_db <- data.frame(matrix[,1], round(medias20,2), matrix[,2], round(tail(preco_palmer_2021,52),2),
+                    round(tail(preco_palmer_2022,52),2), preco_palmer_2023[,1])
+colnames(table_db) = c('Mínimo', 'Média', 'Máximo', '2021', '2022', '2023')
 
 #Parte 4
 
-preco_palmer_21 <- dadosp %>% filter(ano=='2021')
-preco_palmer_2021 <- as.matrix(preco_palmer_21$preco_def)
-variacao_21 <- (preco_palmer_2021/lag(preco_palmer_2021, 1) - 1)*100
-
+preco_palmer_22 <- dadosp %>% filter(ano=='2022')
+preco_palmer_2022 <- as.matrix(preco_palmer_22$preco_def)
 variacao_22 <- (preco_palmer_2022/lag(preco_palmer_2022, 1) - 1)*100
 
+variacao_23 <- (preco_palmer_2023/lag(preco_palmer_2023, 1) - 1)*100
+
 semanas <- seq(1:52)
-variacao <- data.frame(semanas, variacao_21[,1], variacao_22[,1])
-colnames(variacao) = c('Semanas', 'Ano_2021', 'Ano_2022')
+variacao <- data.frame(semanas, variacao_22[,1], variacao_23[,1])
+colnames(variacao) = c('Semanas', 'Ano 2022', 'Ano 2023')
+
+#Ajuste para a Tabela da Variação
+variacaot <- variacao[,-1]
+colnames(variacaot) = c('Variação em 2022', 'Variação em 2023')
 
 variacao <- melt(variacao, id.var='Semanas')
 
@@ -1271,27 +1274,27 @@ mycolors2 <- c("orange", "lightblue3")
 Row {data-height=125}
 -----------------------------------------------------------------------
 
-### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2022 
+### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2023 
 ``` {r}
 num <- tail(preco_palmer,1)
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "tomato",
-  icon= "fa-arrow-down")
+  icon= "fa-arrow-up")
 ```
 
-### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2021
+### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2022
 ``` {r}
-num <- 2.24
+num <- 1.40
 valueBox(
   value = paste0( "R$", format(round(num,2), decimal.mark =  ",")),
 #  color = "#edc40c",
   icon= "fa-pen")
 ```
 
-### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2020
+### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2021
 ``` {r}
-num <- 0.78
+num <- 1.43
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1315,7 +1318,7 @@ g1 <- ggplot()+
   scale_y_continuous(limits = c(0, 8), n.breaks = 8, labels = number_format(accuracy = 0.01,
                                                        decimal.mark = ","))+
   scale_x_continuous(breaks = seq(1, 52, by = 1))+
-  labs(y= "Preço R$", x= "Semanas de cada Ano", title='Mínimo, Máximo, Média e preços de 2020 a 2022 de Manga Palmer ao produtor',
+  labs(y= "Preço R$", x= "Semanas de cada Ano", title='Mínimo, Máximo, Média e preços de 2020 a 2023 de Manga Palmer ao produtor',
        caption = "Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
   theme_minimal()+
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=8, margin = margin(b=10)),
@@ -1468,11 +1471,12 @@ dadosp$preco_def <- dadosp[,3]*(tail(dadosp[,4],1)/dadosp[,4])
 #dadosp<-dadosp[,-2]
 
 #Criando uma variável com as datas semanais
-dadosp$date <- seq(as.Date('2012-01-14'),to=data,by='1 week')  
+dadosp$date <- seq(as.Date('2012-01-14'),to=data,by='1 week') 
 dadosp$date[dadosp$date == "2016-01-02"] <- "2015-12-31" #ajustando algumas datas
 dadosp$date[dadosp$date == "2015-01-03"] <- "2014-12-31"
 dadosp$date[dadosp$date == "2014-01-04"] <- "2013-12-31"
 dadosp$date[dadosp$date == "2013-01-05"] <- "2012-12-31"
+dadosp$date[dadosp$date == "2022-12-31"] <- "2023-01-01"
 
 #Analise de Serie Temporal
 preco_tommy <- dadosp[,5]
@@ -1493,40 +1497,40 @@ sazonal_graph <- tibble(cbind(semanas, sazonalidade))
 
 #Parte 3
 #Analise das comparações entre as médias
-preco_tommy_2019 <- window(preco_tommy, end=c(2019,52))
-seas19<-seasplot(preco_tommy_2019, trend=F, outplot = F)
-medias19 <- colMeans(seas19$season)
-
 preco_tommy_2020 <- window(preco_tommy, end=c(2020,52))
+seas20<-seasplot(preco_tommy_2020, trend=F, outplot = F)
+medias20 <- colMeans(seas20$season)
 
 preco_tommy_2021 <- window(preco_tommy, end=c(2021,52))
+
+preco_tommy_2022 <- window(preco_tommy, end=c(2022,52))
 #seas21<-seasplot(preco_tommy_2021, trend=F, outplot = F)
 #medias21 <- colMeans(seas21$season)
 
-preco_tommy_22 <- as.matrix(tail(dadosp$preco_def,sem_ano))  
-preco_tommy_2022 <- matrix(NA, nrow=52, ncol=1)
+preco_tommy_23 <- as.matrix(tail(dadosp$preco_def,sem_ano)) 
+preco_tommy_2023 <- matrix(NA, nrow=52, ncol=1)
 
-for(i in 1:sem_ano){                                         
-  preco_tommy_2022[i,1] = preco_tommy_22[i,1]
+for(i in 1:sem_ano){
+  preco_tommy_2023[i,1] = preco_tommy_23[i,1]
 }
 
-
 #Como só se tem até a semana 52
-medias19 <- medias19[1:52]
+medias20 <- medias20[1:52]
 #medias21 <- medias21[1:52]
 
 matrix = matrix(NA, nrow=52, ncol=2)
 
 for(i in 1:52){
-  matrix[i,1] = min(seas19$season[,i])
-  matrix[i,2] = max(seas19$season[,i])
+  matrix[i,1] = min(seas20$season[,i])
+  matrix[i,2] = max(seas20$season[,i])
 }
 
 time <- seq(1:52)
-table <- data.frame(time, matrix[,1], round(medias19,2), matrix[,2], round(tail(preco_tommy_2020,52),2),
-                    round(tail(preco_tommy_2021,52),2), preco_tommy_2022[,1])
-colnames(table) = c('Semanas', 'Mínimo', 'Média', 'Máximo', '2020', '2021', 
-                    '2022')
+table <- data.frame(time, matrix[,1], round(medias20,2), matrix[,2], round(tail(preco_tommy_2021,52),2),
+                    round(tail(preco_tommy_2022,52),2), preco_tommy_2023[,1])
+colnames(table) = c('Semanas', 'Mínimo', 'Média', 'Máximo', 'Ano 2021', 'Ano 2022', 
+                    'Ano 2023')
+
 tablea <- table[,-c(5:7)]
 tableb <- table[,-c(2,3,4)]
 
@@ -1534,21 +1538,22 @@ tablea2 <- melt(tablea, id.var='Semanas')
 tableb2 <- melt(tableb, id.var='Semanas')
 mycolors <- c("lightblue3", "gray44", "gold")
 
-table_db <- data.frame(matrix[,1], round(medias19,2), matrix[,2], round(tail(preco_tommy_2020,52),2),
-                       round(tail(preco_tommy_2021,52),2), preco_tommy_2022[,1])
-colnames(table_db) = c('Mínimo', 'Média', 'Máximo', '2020', '2021', '2022')
+table_db <- data.frame(time, matrix[,1], round(medias20,2), matrix[,2], round(tail(preco_tommy_2021,52),2),
+                    round(tail(preco_tommy_2022,52),2), preco_tommy_2023[,1])
+colnames(table_db) = c('Semanas', 'Mínimo', 'Média', 'Máximo', 'Ano 2021', 'Ano 2022', 
+                    'Ano 2023')
 
 #Parte 4
 
-preco_tommy_21 <- dadosp %>% filter(ano=='2021')
-preco_tommy_2021 <- as.matrix(preco_tommy_21$preco_def)
-variacao_21 <- (preco_tommy_2021/lag(preco_tommy_2021, 1) - 1)*100
-
+preco_tommy_22 <- dadosp %>% filter(ano=='2022')
+preco_tommy_2022 <- as.matrix(preco_tommy_22$preco_def)
 variacao_22 <- (preco_tommy_2022/lag(preco_tommy_2022, 1) - 1)*100
 
+variacao_23 <- (preco_tommy_2023/lag(preco_tommy_2023, 1) - 1)*100
+
 semanas <- seq(1:52)
-variacao <- data.frame(semanas, variacao_21[,1], variacao_22[,1])
-colnames(variacao) = c('Semanas', '2021', '2022')
+variacao <- data.frame(semanas, variacao_22[,1], variacao_23[,1])
+colnames(variacao) = c('Semanas', 'Ano 2022', 'Ano 2023')
 
 variacao <- melt(variacao, id.var='Semanas')
 
@@ -1558,27 +1563,27 @@ mycolors2 <- c("orange", "lightblue3")
 Row {data-height=125}
 -----------------------------------------------------------------------
 
-### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2022
+### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2023
 ``` {r}
 num <- tail(preco_tommy,1)
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "tomato",
-  icon= "fa-arrow-up")
+  icon= "fa-arrow-down")
 ```
 
-### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2021
+### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2022
 ``` {r}
-num <- 1.30
+num <- 1.41
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
   icon= "fa-pen")
 ```
 
-### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2020
+### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2021
 ``` {r}
-num <- 1.02
+num <- 2.33
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1602,7 +1607,7 @@ g5 <- ggplot()+
     scale_y_continuous(limits = c(0, 8), n.breaks = 8, labels = number_format(accuracy = 0.01,
                                                                               decimal.mark = ","))+
     scale_x_continuous(breaks = seq(1, 52, by = 1))+
-    labs(y= "Preço R$", x= "Semanas de cada Ano", title='Mínimo, Máximo, Média e preços de 2020 a 2022 de Manga Tommy ao produtor',
+    labs(y= "Preço R$", x= "Semanas de cada Ano", title='Mínimo, Máximo, Média e preços de 2020 a 2023 de Manga Tommy ao produtor',
          caption = "Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
     theme_minimal()+
     theme(axis.text.x=element_text(angle=0, hjust=0.5, size=8, margin = margin(b=10)),
