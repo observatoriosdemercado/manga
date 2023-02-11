@@ -43,7 +43,7 @@ Os dados utilizados nesta análise são semanais e disponibilizados pelo **CEPEA
 
 O preço médio de Palmer na semana `r strftime(today, format = "%V de %Y")` foi R\$1,58, variando entre R\$2,00 e R\$1,20. A média histórica dos dados deflacionados, desde 2012 até 2020, para esta semana, é R\$2,54. Em 2021, o preço deflacionado é de R\$2,36 para a semana `r strftime(today, format = "%V")` e, em 2022, o preço é R\$ 1,47. Em relação à semana `r strftime(last, format = "%V")`, os preços aumentaram 11,27%.
 
-No caso da Tommy, na semana `r strftime(today, format = "%V de %Y")` os preços médios foram de R\$1,83, variando entre R\$2,20 e R\$1,30. Este valor é mais baixo do que a média histórica para esta semana, R\$ 2,31, menor que o preço deflacionado de 2021 (R\$2,48) e que o preço de 2022 (R\$1,82). Em relação à semana anterior os preços aumentaram 63,39%.
+No caso da Tommy, na semana `r strftime(today, format = "%V de %Y")` os preços médios foram de R\$1,83, variando entre R\$2,20 e R\$1,30. Este valor é mais baixo do que a média histórica para esta semana, R\$ 2,31, menor que o preço deflacionado de 2021 (R\$2,48) e praticamente o mesmo o preço de 2022 (R\$1,82). Em relação à semana anterior os preços aumentaram 63,39%.
 
 Sobre os preços de exportação, a Palmer foi vendida, na média, por R\$1,93, variando entre R\$2,00 e R\$1,80. Em relação a semana anterior, isto representa uma diminuição de -4,93%.
 
