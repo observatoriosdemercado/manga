@@ -53,8 +53,8 @@ knitr::opts_chunk$set(
   )
 
 library(lubridate)
-data <- as.Date("2023-02-24") #ajustar semanalmente
-sem_ano <- 8 #ajustar semanalmente
+data <- as.Date("2023-03-17") #ajustar semanalmente
+sem_ano <- 11 #ajustar semanalmente
 
 # Linhas que precisam de ajuste: 71, 104, 107
 ```
@@ -667,6 +667,7 @@ ggplotly(g5) %>%
 ```
 
 ### Volume total comercializado de manga variedades: 2017 a 2022 {.no-title}
+
 ```{r mi2}
 g1 <- ggplot()+
   geom_col(data=dados2m, aes(x=Anos, y=value, fill=variable), lwd=1, position = "dodge")+ scale_fill_manual(values=mycolors3)+
@@ -1149,7 +1150,7 @@ PALMER {data-navmenu="PREÇOS AO PRODUTOR"}
 #setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
 setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
-data <- as.Date("2023-02-24") #ajustar semanalmente
+data <- as.Date("2023-03-17") #ajustar semanalmente
 
 #Entrando dados no R
 dados <- read.csv2('dados_manga_palmer_semana.csv', header=T, sep=";", dec=".")
@@ -1280,12 +1281,12 @@ num <- tail(preco_palmer,1)
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "tomato",
-  icon= "fa-arrow-up")
+  icon= "fa-arrow-down")
 ```
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2022
 ``` {r}
-num <- 1.50
+num <- 1.41
 valueBox(
   value = paste0( "R$", format(round(num,2), decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1294,7 +1295,7 @@ valueBox(
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2021
 ``` {r}
-num <- 3.35
+num <- 4.06
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1574,7 +1575,7 @@ valueBox(
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2022
 ``` {r}
-num <- 2.32
+num <- 1.59
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1583,7 +1584,7 @@ valueBox(
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2021
 ``` {r}
-num <- 3.50
+num <- 3.56
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
