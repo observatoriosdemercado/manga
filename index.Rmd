@@ -921,7 +921,7 @@ MERCADO TRABALHO {data-navmenu="MERCADO INTERNO"}
 #setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_caged')
 setwd('/Users/jricardofl/Dropbox/tempecon/dados_caged')
 
-atual <-  as.Date("2022-12-01")
+atual <-  as.Date("2023-01-01")
 #today <- as.Date("2022-02-11")
 
 
@@ -932,53 +932,53 @@ library(scales)
 library(plotly)
 
 #Entrando dados no R
-dados1 <- read.csv2('dezembro_2022.csv', header=T, sep=";", dec = ".")
+dados1 <- read.csv2('janeiro_2023.csv', header=T, sep=";", dec = ".")
 colnames(dados1)[1] <- 'date'
 dados1$date <- seq(as.Date('2021-01-01'),to=atual,by='1 month')
 dados1a <- dados1 
 dados1a$ano <- strftime(dados1a$date, format="%Y") 
 dados1a$mes <- strftime(dados1a$date, format="%b") 
 
-saldo_21 <- dados1a %>% filter(ano=='2021')
-
-saldo_21 <- saldo_21 %>%
-  select(c(ano, mes, Saldo_Manga))
-
 saldo_22 <- dados1a %>% filter(ano=='2022')
 
 saldo_22 <- saldo_22 %>%
   select(c(ano, mes, Saldo_Manga))
 
-saldom <- rbind(saldo_21, saldo_22)
+saldo_23 <- dados1a %>% filter(ano=='2023')
+
+saldo_23 <- saldo_23 %>%
+  select(c(ano, mes, Saldo_Manga))
+
+saldom <- rbind(saldo_22, saldo_23)
 saldom$mes <- factor(saldom$mes,levels = c("Jan", "Fev", "Mar", "Abr", "Mai", 
                                            "Jun", "Jul", "Ago", "Set", "Out",
                                            "Nov", "Dez"))
 
 #Entrando com o restante dos dados
 
-load("dezembro_22_caged.RData")
+load("janeiro_23_caged.RData")
 
 #dados_01_vsf$sexo <- lapply(dados_01_vsf$sexo, factor)
 
-dados_12_vsf$sexo[dados_12_vsf$sexo == 1] <- 0
-dados_12_vsf$sexo[dados_12_vsf$sexo == 3] <- 1
+dados_01_vsf$sexo[dados_01_vsf$sexo == 1] <- 0
+dados_01_vsf$sexo[dados_01_vsf$sexo == 3] <- 1
 
-dados_12_vsf <- mutate(dados_12_vsf,
+dados_01_vsf <- mutate(dados_01_vsf,
                 sexo = factor(sexo, levels = 0:1, labels = c("Masculino", "Feminino")))
 
 # Mantendo apenas 
 
 #Separando as admissoes e as demissoes
-dados_12_vsf_positivos <-dados_12_vsf%>% filter(saldo_movim=="1")
-dados_12_vsf_negativos <-dados_12_vsf%>% filter(saldo_movim=="-1")
+dados_01_vsf_positivos <-dados_01_vsf%>% filter(saldo_movim=="1")
+dados_01_vsf_negativos <-dados_01_vsf%>% filter(saldo_movim=="-1")
 
 #Mantendo apenas o agronegocio
-secao_positivos <-dados_12_vsf_positivos%>% filter(secao=="A")
-secao_negativos <-dados_12_vsf_negativos%>% filter(secao=="A")
+secao_positivos <-dados_01_vsf_positivos%>% filter(secao=="A")
+secao_negativos <-dados_01_vsf_negativos%>% filter(secao=="A")
 
 #Mantendo apenas a manga
-subclasse_positivos <-dados_12_vsf_positivos%>% filter(subclasse=="133410")
-subclasse_negativos <-dados_12_vsf_negativos%>% filter(subclasse=="133410")
+subclasse_positivos <-dados_01_vsf_positivos%>% filter(subclasse=="133410")
+subclasse_negativos <-dados_01_vsf_negativos%>% filter(subclasse=="133410")
 
 subclasse_positivos <- mutate(subclasse_positivos,
                 grau_instrucao = factor(grau_instrucao, levels = 1:13, 
@@ -995,32 +995,37 @@ subclasse_positivos <- mutate(subclasse_positivos,
                                                    "Doutorado",
                                                    "Pós-Graduação completa",
                                                    "Não Identificado")))
+
+# Ajustando a variavel salario
+subclasse_positivos$salario <- as.numeric(sub(',', '.', subclasse_positivos$salario, fixed = TRUE))
+
+subclasse_positivos$salario <- as.integer(subclasse_positivos$salario)
 ```
 
 Row {data-height=125}
 -----------------------------------------------------------------------
 
-### pela mangicultura em `r strftime(atual, format = "%B")` de 2022 
+### pela mangicultura em `r strftime(atual, format = "%B")` de 2023 
 ``` {r emp1}
-num <- 335
+num <- 352
 valueBox(
   value = paste0(num, " Contratados"),
 #  color = "green",
   icon= "fa-arrow-up")
 ```
 
-### pela mangicultura em `r strftime(atual, format = "%B")` de 2022 
+### pela mangicultura em `r strftime(atual, format = "%B")` de 2023 
 ``` {r emp2}
-num <- 2407
+num <- 715
 valueBox(
   value = paste0(num, " Demitidos"),
 #  color = "tomato",
   icon= "fa-arrow-down")
 ```
 
-### Saldo Gerado pela mangicultura em `r strftime(atual, format = "%B")` de 2022 
+### Saldo Gerado pela mangicultura em `r strftime(atual, format = "%B")` de 2023 
 ``` {r emp3}
-num <- -2072
+num <- -363
 valueBox(
   value = paste0(num, " Empregos"),
 #  color = "tomato",
@@ -1041,7 +1046,7 @@ mycolors2 <- c("orange", "lightblue3")
 g1 <- ggplot() +  #estetica vai valer para todos os geom's
   geom_col(data=saldom, aes(x=mes, y=Saldo_Manga, fill=ano), size=2, width = 0.9, position = "dodge")+
     scale_fill_manual(values=mycolors2)+
-    labs(y= "Saldo de Emprego (unidade)", x= "Meses do Ano", title='Saldo mensal de Empregos na Mangicultura: 2021 e 2022',
+    labs(y= "Saldo de Emprego (unidade)", x= "Meses do Ano", title='Saldo mensal de Empregos na Mangicultura: 2022 e 2023',
        caption = "")+
     scale_y_continuous(limits=c(-2100, 1600), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
   theme_minimal()+ #Definindo tema
@@ -1124,7 +1129,7 @@ ggplotly(g3)
 
 g4 <- ggplot(data = subclasse_positivos, aes(x = grau_instrucao, y = ..count..)) +
   geom_bar(fill='#1e4971')+
-    scale_y_continuous(limits=c(0, 150), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
+    scale_y_continuous(limits=c(0, 170), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
 labs(y= "Contratados Manga - VSF", x= "Grau de Instrução", title='Grau de Instrução dos empregos gerados',
        caption = "")+
   theme_minimal() +
