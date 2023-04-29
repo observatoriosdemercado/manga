@@ -53,8 +53,8 @@ knitr::opts_chunk$set(
   )
 
 library(lubridate)
-data <- as.Date("2023-04-21") #ajustar semanalmente
-sem_ano <- 16 #ajustar semanalmente
+data <- as.Date("2023-04-28") #ajustar semanalmente
+sem_ano <- 17 #ajustar semanalmente
 
 # Linhas que precisam de ajuste: 71, 104, 107
 ```
@@ -1155,7 +1155,7 @@ PALMER {data-navmenu="PREÇOS AO PRODUTOR"}
 #setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
 setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
-data <- as.Date("2023-04-21") #ajustar semanalmente
+data <- as.Date("2023-04-28") #ajustar semanalmente
 
 #Entrando dados no R
 dados <- read.csv2('dados_manga_palmer_semana.csv', header=T, sep=";", dec=".")
@@ -1291,7 +1291,7 @@ valueBox(
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2022
 ``` {r}
-num <- 1.53
+num <- 1.77
 valueBox(
   value = paste0( "R$", format(round(num,2), decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1300,7 +1300,7 @@ valueBox(
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2021
 ``` {r}
-num <- 1.82
+num <- 1.33
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1575,12 +1575,12 @@ num <- tail(preco_tommy,1)
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "tomato",
-  icon= "fa-arrow-down")
+  icon= "fa-arrow-up")
 ```
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2022
 ``` {r}
-num <- 1.92
+num <- 2.23
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1589,7 +1589,7 @@ valueBox(
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2021
 ``` {r}
-num <- 0.84
+num <- 0.99
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
