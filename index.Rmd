@@ -1324,7 +1324,7 @@ g1 <- ggplot()+
   scale_y_continuous(limits = c(0, 8), n.breaks = 8, labels = number_format(accuracy = 0.01,
                                                        decimal.mark = ","))+
   scale_x_continuous(breaks = seq(1, 52, by = 1))+
-  labs(y= "Preço R$", x= "Semanas de cada Ano", title='Mínimo, Máximo, Média e preços de 2020 a 2023 de Manga Palmer ao produtor',
+  labs(y= "Preço R$", x= "Semanas de cada Ano", title='Mínimo, Máximo, Média e preços de 2021 a 2023 de Manga Palmer ao produtor',
        caption = "Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
   theme_minimal()+
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=8, margin = margin(b=10)),
@@ -1613,7 +1613,7 @@ g5 <- ggplot()+
     scale_y_continuous(limits = c(0, 8), n.breaks = 8, labels = number_format(accuracy = 0.01,
                                                                               decimal.mark = ","))+
     scale_x_continuous(breaks = seq(1, 52, by = 1))+
-    labs(y= "Preço R$", x= "Semanas de cada Ano", title='Mínimo, Máximo, Média e preços de 2020 a 2023 de Manga Tommy ao produtor',
+    labs(y= "Preço R$", x= "Semanas de cada Ano", title='Mínimo, Máximo, Média e preços de 2021 a 2023 de Manga Tommy ao produtor',
          caption = "Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
     theme_minimal()+
     theme(axis.text.x=element_text(angle=0, hjust=0.5, size=8, margin = margin(b=10)),
