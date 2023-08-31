@@ -28,8 +28,8 @@ knitr::opts_chunk$set(
   )
 
 library(lubridate)
-anterior <- as.Date("2023-05-01")
-atual <-  as.Date("2023-06-01")
+anterior <- as.Date("2023-06-01")
+atual <-  as.Date("2023-07-01")
 
 #Linhas precisam de ajuste semanal: 30, 104, 201, 204
 ```
@@ -42,13 +42,13 @@ atual <-  as.Date("2023-06-01")
 
 Os dados utilizados nesta análise são mensais e disponibilizados pelo CAGED (Cadastro Geral de Empregados e Desempregados) até o mês de `r strftime(atual, format = "%B de %Y")`. As variáveis são saldo de empregos, empregos por gênero, contratados por idade e por escolaridade para a cultura da manga. Considera-se o conjunto de municípios da Bahia (Casa Nova, Curaçá, Juazeiro, Sento Sé, Sobradinho, etc.) e Pernambuco (Belém do S. Francisco, Lagoa Grande, Orocó, Petrolina, etc.) que formam o Vale do Submédio São Francisco.
 
-O saldo de empregos na mangicultura em `r strftime(atual, format = "%B de %Y")` no Vale do São Francisco foi positivo, de 209 pessoas, ou seja, o total de contratações (848) foi maior do que o total de demissões (639). Em relação ao mesmo mês do ano passado, se tem uma melhora no saldo total (-55 em 2022 e 209 em 2023), com mais pessoas conseguindo emprego. Quase se compara os seis meses, o saldo líquido em 2023 é de 510 empregos, bem maior do que o saldo de 353 empregos em 2022. 
+O saldo de empregos na mangicultura em `r strftime(atual, format = "%B de %Y")` no Vale do São Francisco foi positivo, de 484 pessoas, ou seja, o total de contratações (1.103) foi maior do que o total de demissões (619). Em relação ao mesmo mês do ano passado, se tem uma piora no saldo total (629 em 2022 e 484 em 2023), com menos pessoas conseguindo emprego. Quando se compara os sete meses, o saldo líquido em 2023 é de 994 empregos, praticamente o mesmo o saldo de 2022, 982 empregos. 
 
-Dos contratados no mês, 569 são do sexo masculino e 279 do sexo feminino. Em relação à idade, 49,5% se concentra abaixo dos 30 anos: 134 pessoas até 21 anos, 123 até 24 anos, 100 ate 27 anos e 63 até 30 anos. 
+Dos contratados no mês, 752 são do sexo masculino e 351 do sexo feminino. Em relação à idade, 52,4% se concentra abaixo dos 30 anos: 193 pessoas até 21 anos, 170 até 24 anos, 126 ate 27 anos e 89 até 30 anos. 
 
-Sobre o nível de escolaridade, a maioria das admissões é de pessoas com ensino médio completo (402). Do total de contratados, 47,41% possuem este nível de escolaridade. 
+Sobre o nível de escolaridade, a maioria das admissões é de pessoas com ensino médio completo (588). Do total de contratados, 53,31% possuem este nível de escolaridade. 
 
-Com relação aos salários pagos, 59,91% dos contratados foram pelo valor de R\$ 1.354,00, o piso do salário acordado na CCT 2023, acima do salário mínimo nacional. O maior salário foi R\$ 12.091,00. 
+Com relação aos salários pagos, 87,94% dos contratados foram pelo valor de R\$ 1.354,00, o piso do salário acordado na CCT 2023, acima do salário mínimo nacional. O maior salário foi R\$ 11.355,00. 
 
 <br>
 
@@ -66,7 +66,7 @@ library(DT)
 library(tidyverse)
 
 #Entrando dados no R
-dados1 <- read.csv2('junho_2023.csv', header=T, sep=";", dec = ".")
+dados1 <- read.csv2('julho_2023.csv', header=T, sep=";", dec = ".")
 colnames(dados1)[1] <- 'date'
 dados1$date <- seq(as.Date('2021-01-01'),to=atual,by='1 month')
 dados1a <- dados1 
@@ -120,29 +120,29 @@ totalm <- totalm %>%
 
 #Entrando com o restante dos dados
 
-load("junho_23_caged.RData")
+load("julho_23_caged.RData")
 
-#dados_06_vsf$sexo <- lapply(dados_06_vsf$sexo, factor)
+#dados_07_vsf$sexo <- lapply(dados_07_vsf$sexo, factor)
 
-dados_06_vsf$sexo[dados_06_vsf$sexo == 1] <- 0
-dados_06_vsf$sexo[dados_06_vsf$sexo == 3] <- 1
+dados_07_vsf$sexo[dados_07_vsf$sexo == 1] <- 0
+dados_07_vsf$sexo[dados_07_vsf$sexo == 3] <- 1
 
-dados_06_vsf <- mutate(dados_06_vsf,
+dados_07_vsf <- mutate(dados_07_vsf,
                 sexo = factor(sexo, levels = 0:1, labels = c("Masculino", "Feminino")))
 
 # Mantendo apenas 
 
 #Separando as admissoes e as demissoes
-dados_06_vsf_positivos <-dados_06_vsf%>% filter(saldo_movim=="1")
-dados_06_vsf_negativos <-dados_06_vsf%>% filter(saldo_movim=="-1")
+dados_07_vsf_positivos <-dados_07_vsf%>% filter(saldo_movim=="1")
+dados_07_vsf_negativos <-dados_07_vsf%>% filter(saldo_movim=="-1")
 
 #Mantendo apenas o agronegocio
-secao_positivos <-dados_06_vsf_positivos%>% filter(secao=="A")
-secao_negativos <-dados_06_vsf_negativos%>% filter(secao=="A")
+secao_positivos <-dados_07_vsf_positivos%>% filter(secao=="A")
+secao_negativos <-dados_07_vsf_negativos%>% filter(secao=="A")
 
 #Mantendo apenas a manga
-subclasse_positivos <-dados_06_vsf_positivos%>% filter(subclasse=="133410")
-subclasse_negativos <-dados_06_vsf_negativos%>% filter(subclasse=="133410")
+subclasse_positivos <-dados_07_vsf_positivos%>% filter(subclasse=="133410")
+subclasse_negativos <-dados_07_vsf_negativos%>% filter(subclasse=="133410")
 
 #Ajustando o grau de escolaridade
 subclasse_positivos$grau_instrucao[subclasse_positivos$grau_instrucao == 80] <- 12
@@ -296,7 +296,7 @@ ggplotly(g3)
 
 g4 <- ggplot(data = subclasse_positivos, aes(x = grau_instrucao, y = ..count..)) +
   geom_bar(fill='steelblue')+
-    scale_y_continuous(limits=c(0,450), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
+    scale_y_continuous(limits=c(0,600), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
 labs(y= "Contratados", x= "Grau de Instrução", title='',
        caption = "")+
   theme_minimal() +
