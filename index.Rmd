@@ -53,8 +53,8 @@ knitr::opts_chunk$set(
   )
 
 library(lubridate)
-data <- as.Date("2023-08-25") #ajustar semanalmente
-sem_ano <- 34 #ajustar semanalmente
+data <- as.Date("2023-09-01") #ajustar semanalmente
+sem_ano <- 35 #ajustar semanalmente
 
 # Linhas que precisam de ajuste: 71, 104, 107
 ```
@@ -921,7 +921,7 @@ MERCADO TRABALHO {data-navmenu="MERCADO INTERNO"}
 #setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_caged')
 setwd('/Users/jricardofl/Dropbox/tempecon/dados_caged')
 
-atual <-  as.Date("2023-06-01")
+atual <-  as.Date("2023-07-01")
 #today <- as.Date("2022-02-11")
 
 
@@ -932,7 +932,7 @@ library(scales)
 library(plotly)
 
 #Entrando dados no R
-dados1 <- read.csv2('junho_2023.csv', header=T, sep=";", dec = ".")
+dados1 <- read.csv2('julho_2023.csv', header=T, sep=";", dec = ".")
 colnames(dados1)[1] <- 'date'
 dados1$date <- seq(as.Date('2021-01-01'),to=atual,by='1 month')
 dados1a <- dados1 
@@ -956,29 +956,29 @@ saldom$mes <- factor(saldom$mes,levels = c("Jan", "Fev", "Mar", "Abr", "Mai",
 
 #Entrando com o restante dos dados
 
-load("junho_23_caged.RData")
+load("julho_23_caged.RData")
 
 #dados_02_vsf$sexo <- lapply(dados_02_vsf$sexo, factor)
 
-dados_06_vsf$sexo[dados_06_vsf$sexo == 1] <- 0
-dados_06_vsf$sexo[dados_06_vsf$sexo == 3] <- 1
+dados_07_vsf$sexo[dados_07_vsf$sexo == 1] <- 0
+dados_07_vsf$sexo[dados_07_vsf$sexo == 3] <- 1
 
-dados_06_vsf <- mutate(dados_06_vsf,
+dados_07_vsf <- mutate(dados_07_vsf,
                 sexo = factor(sexo, levels = 0:1, labels = c("Masculino", "Feminino")))
 
 # Mantendo apenas 
 
 #Separando as admissoes e as demissoes
-dados_06_vsf_positivos <-dados_06_vsf%>% filter(saldo_movim=="1")
-dados_06_vsf_negativos <-dados_06_vsf%>% filter(saldo_movim=="-1")
+dados_07_vsf_positivos <-dados_07_vsf%>% filter(saldo_movim=="1")
+dados_07_vsf_negativos <-dados_07_vsf%>% filter(saldo_movim=="-1")
 
 #Mantendo apenas o agronegocio
-secao_positivos <-dados_06_vsf_positivos%>% filter(secao=="A")
-secao_negativos <-dados_06_vsf_negativos%>% filter(secao=="A")
+secao_positivos <-dados_07_vsf_positivos%>% filter(secao=="A")
+secao_negativos <-dados_07_vsf_negativos%>% filter(secao=="A")
 
 #Mantendo apenas a manga
-subclasse_positivos <-dados_06_vsf_positivos%>% filter(subclasse=="133410")
-subclasse_negativos <-dados_06_vsf_negativos%>% filter(subclasse=="133410")
+subclasse_positivos <-dados_07_vsf_positivos%>% filter(subclasse=="133410")
+subclasse_negativos <-dados_07_vsf_negativos%>% filter(subclasse=="133410")
 
 subclasse_positivos <- mutate(subclasse_positivos,
                 grau_instrucao = factor(grau_instrucao, levels = 1:13, 
@@ -1007,7 +1007,7 @@ Row {data-height=125}
 
 ### pela mangicultura em `r strftime(atual, format = "%B")` de 2023 
 ``` {r emp1}
-num <- 848
+num <- 1103
 valueBox(
   value = paste0(num, " Contratados"),
 #  color = "green",
@@ -1016,7 +1016,7 @@ valueBox(
 
 ### pela mangicultura em `r strftime(atual, format = "%B")` de 2023 
 ``` {r emp2}
-num <- 639
+num <- 619
 valueBox(
   value = paste0(num, " Demitidos"),
 #  color = "tomato",
@@ -1025,7 +1025,7 @@ valueBox(
 
 ### Saldo Gerado pela mangicultura em `r strftime(atual, format = "%B")` de 2023 
 ``` {r emp3}
-num <- 209
+num <- 484
 valueBox(
   value = paste0(num, " Empregos"),
 #  color = "tomato",
@@ -1129,7 +1129,7 @@ ggplotly(g3)
 
 g4 <- ggplot(data = subclasse_positivos, aes(x = grau_instrucao, y = ..count..)) +
   geom_bar(fill='#1e4971')+
-    scale_y_continuous(limits=c(0, 450), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
+    scale_y_continuous(limits=c(0, 600), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
 labs(y= "Contratados Manga - VSF", x= "Grau de Instrução", title='Grau de Instrução dos empregos gerados',
        caption = "")+
   theme_minimal() +
@@ -1155,7 +1155,7 @@ PALMER {data-navmenu="PREÇOS AO PRODUTOR"}
 #setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
 setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
-data <- as.Date("2023-08-25") #ajustar semanalmente
+data <- as.Date("2023-09-01") #ajustar semanalmente
 
 #Entrando dados no R
 dados <- read.csv2('dados_manga_palmer_semana.csv', header=T, sep=";", dec=".")
@@ -1291,7 +1291,7 @@ valueBox(
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2022
 ``` {r}
-num <- 1.34
+num <- 1.31
 valueBox(
   value = paste0( "R$", format(round(num,2), decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1300,7 +1300,7 @@ valueBox(
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2021
 ``` {r}
-num <- 0.62
+num <- 0.64
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1580,7 +1580,7 @@ valueBox(
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2022
 ``` {r}
-num <- 1.03
+num <- 1.35
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1589,7 +1589,7 @@ valueBox(
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2021
 ``` {r}
-num <- 1.39
+num <- 1.56
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
