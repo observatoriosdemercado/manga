@@ -678,7 +678,7 @@ Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
 <br>
 <br>
 
-## 3.2 PRODUTIDADE NOS PRINCIPAIS ESTADOS PRODUTORES{.tabset .tabset-fade}
+## 3.2 PRODUTIVIDADE NOS PRINCIPAIS ESTADOS PRODUTORES{.tabset .tabset-fade}
   
 ### GRÁFICO
   
