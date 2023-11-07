@@ -1046,7 +1046,7 @@ Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
 <br>
 
 <center> João Ricardo F. de Lima </center>
-<center> Email: joao.ricardo@embrapa.br </center>
+<center> Email Coordenador: joao.ricardo@embrapa.br </center>
 
 <br>
 
@@ -1061,8 +1061,9 @@ Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
 <br>
 
+<center>![](apoio1.png){width=3cm}</center>
+<br>
+
 <center>![](logo_embrapa.jpg){width=6cm}</center>
 
-<br>
-<br>
 
