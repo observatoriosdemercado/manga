@@ -756,6 +756,7 @@ Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa
 <br>
 
 # INFORMAÇÕES
+
 <br>
 <br>
 
@@ -765,13 +766,12 @@ Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa
 <br>
 
 <center> João Ricardo F. de Lima </center>
-<center> Email: joao.ricardo@embrapa.br </center>
+<center> Email Coordenador: joao.ricardo@embrapa.br </center>
 
 <br>
 
 <center> [https://www.embrapa.br/observatorio-da-manga](https://www.embrapa.br/observatorio-da-manga) </center>
-
-<center> [Dashboard Mercado de Manga](https://bit.ly/3KTVLkJ) </center>
+<center> [Dashboard Mercado de Manga](https://bit.ly/3JzWtDZ) </center>
 
 <br>
 
@@ -781,10 +781,7 @@ Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
 <br>
 
+<center>![](apoio1.png){width=3cm}</center>
+<br>
+
 <center>![](logo_embrapa.jpg){width=6cm}</center>
-
-<br>
-<br>
-
-
-
