@@ -53,8 +53,8 @@ knitr::opts_chunk$set(
   )
 
 library(lubridate)
-data <- as.Date("2023-11-03") #ajustar semanalmente
-sem_ano <- 44 #ajustar semanalmente
+data <- as.Date("2023-11-10") #ajustar semanalmente
+sem_ano <- 45 #ajustar semanalmente
 
 # Linhas que precisam de ajuste: 71, 104, 107
 ```
@@ -1173,7 +1173,7 @@ PALMER {data-navmenu="PREÇOS AO PRODUTOR"}
 #setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
 setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
-data <- as.Date("2023-11-03") #ajustar semanalmente
+data <- as.Date("2023-11-10") #ajustar semanalmente
 
 #Entrando dados no R
 dados <- read.csv2('dados_manga_palmer_semana.csv', header=T, sep=";", dec=".")
@@ -1304,12 +1304,12 @@ num <- tail(preco_palmer,1)
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "tomato",
-  icon= "fa-arrow-down")
+  icon= "fa-arrow-up")
 ```
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2022
 ``` {r}
-num <- 1.03
+num <- 1.17
 valueBox(
   value = paste0( "R$", format(round(num,2), decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1318,7 +1318,7 @@ valueBox(
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2021
 ``` {r}
-num <- 1.00
+num <- 1.37
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1593,12 +1593,12 @@ num <- tail(preco_tommy,1)
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "tomato",
-  icon= "fa-arrow-down")
+  icon= "fa-arrow-up")
 ```
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2022
 ``` {r}
-num <- 0.75
+num <- 0.65
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1607,7 +1607,7 @@ valueBox(
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2021
 ``` {r}
-num <- 1.02
+num <- 1.05
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1754,413 +1754,3 @@ ggplotly(g8) %>%
                       y=-0.2,
                       title=''))
 ```
-
-
-FORMAÇÃO {data-navmenu="CUSTO DE PRODUÇÃO"}
-======================================================================
-
-```{r database_custo}
-#Direcionado o R para o Diretorio a ser trabalhado
-#setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
-setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
-
-#Inicio do Script
-#Pacotes a serem utilizados
-library(mFilter)
-library(forecast)
-library(tsutils)
-library(seasonal)
-library(ggplot2)
-library(uroot)
-library(tseries)
-library(ggthemes)
-library(dplyr)
-library(tidyverse)
-library(quantmod)
-library(scales)
-library(kableExtra)# complex tables
-library(lmtest)
-library(FinTS)
-library(magrittr)# pipe operations
-library(readxl)
-library(reshape2)
-library(plotly)
-#library(rmarkdown)
-library(bslib)
-library(gridExtra)# multiple grid-based plots on a page
-library(patchwork)
-
-options(digits=4)
-
-#Entrando dados no R
-dados <- read_excel("custo2021.xlsx", col_names = TRUE)
-
-#Gráfico com Ggplot2 Palmer
-
-mycolor1 <- "gold"
-mycolor2 <- "darkgreen"
-mycolor3 <- "blue"
-mycolor4 <- "red"
-```
-
-Row
------------------------------------------------------------------------
-
-### Operaçoes Mecanizadas{.no-title}
-
-```{r agrianual1}
-g1 <- dados %>% 
-  filter(abrangencia=='formacao') %>% 
-  ggplot() +  #estetica vai valer para todos os geom's
-  geom_col(aes(x=ano, y=Op_Mecanizadas, fill="Custo (R$) com Operações Mecanizadas"), lwd=1)+
-  scale_fill_manual(values=mycolor1)+
-  labs(y= "R$", x= "Anos", title='Evolução do Custo (R$) com Operações Mecanizadas: 2012-2021',
-       caption = "Fonte: Agrianual (2017:2022)") +
-  scale_y_continuous(limits=c(0, 18000), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
-  scale_x_continuous(breaks = seq(2012, 2021, by = 1))+
-  theme_classic()+ #Definindo tema
-  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=5)),
-        axis.text.y=element_text(hjust=1, size=12, margin = margin(l=20)),
-        axis.title.x = element_text(size=12, face = "bold", margin = margin(b=0)),
-        axis.title.y = element_text(size=12, face = "bold", margin = margin(l=20)),
-        plot.title = element_text(hjust = 0.5, size=14),
-        plot.caption = element_text(hjust = 0, size=8),
-        legend.position = "bottom", legend.title = element_blank(),
-        legend.text=element_text(size=12))
-
-ggplotly(g1) %>%
-  layout(legend = list(
-                      orientation = "h", 
-                      x=0.35, 
-                      y=-0.3,
-                      title=''))
-```
-
-### Operaçoes Manuais{.no-title}
-
-```{r agrianual2}
-g2 <- dados %>% 
-  filter(abrangencia=='formacao') %>% 
-  ggplot() +  #estetica vai valer para todos os geom's
-  geom_col(aes(x=ano, y=Op_Manuais, fill="Custo (R$) com Operações Manuais"), lwd=1)+
-  scale_fill_manual(values=mycolor2)+
-  labs(y= "R$", x= "Anos", title='Evolução do Custo (R$) com Operações Manuais: 2012-2021',
-       caption = "Fonte: Agrianual (2017:2022)") +
-  scale_y_continuous(limits=c(0, 9000), n.breaks = 6, expand = expansion(add=c(0,0.5)))+
-  scale_x_continuous(breaks = seq(2012, 2021, by = 1))+
-  theme_classic()+ #Definindo tema
-  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=5)),
-        axis.text.y=element_text(hjust=1, size=12, margin = margin(l=20)),
-        axis.title.x = element_text(size=12, face = "bold", margin = margin(b=0)),
-        axis.title.y = element_text(size=12, face = "bold", margin = margin(l=20)),
-        plot.title = element_text(hjust = 0.5, size=14),
-        plot.caption = element_text(hjust = 0, size=8),
-        legend.position = "bottom", legend.title = element_blank(),
-        legend.text=element_text(size=12)) # Definindo posição da legenda
-
-ggplotly(g2) %>%
-  layout(legend = list(
-                      orientation = "h", 
-                      x=0.35, 
-                      y=-0.3,
-                      title=''))
-```
-
-Row
------------------------------------------------------------------------
-
-### Insumos {.no-title}
-
-```{r agrianual3}
-g3 <- dados %>% 
-  filter(abrangencia=='formacao') %>% 
-  ggplot() +  #estetica vai valer para todos os geom's
-  geom_col(aes(x=ano, y=Insumos, fill="Custo (R$) com Insumos"), lwd=1)+
-  scale_fill_manual(values=mycolor3)+
-  labs(y= "R$", x= "Anos", title='Evolução do Custo (R$) com Insumos: 2012-2021',
-       caption = "Fonte: Agrianual (2017:2022)") +
-  scale_y_continuous(limits=c(0, 14000), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
-  scale_x_continuous(breaks = seq(2012, 2021, by = 1))+
-  theme_classic()+ #Definindo tema
-  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=5)),
-        axis.text.y=element_text(hjust=1, size=12, margin = margin(l=20)),
-        axis.title.x = element_text(size=12, face = "bold", margin = margin(b=0)),
-        axis.title.y = element_text(size=12, face = "bold", margin = margin(l=20)),
-        plot.title = element_text(hjust = 0.5, size=14),
-        plot.caption = element_text(hjust = 0, size=8),
-        legend.position = "bottom", legend.title = element_blank(),
-        legend.text=element_text(size=12)) # Definindo posição da legenda
-
-ggplotly(g3) %>%
-  layout(legend = list(
-                      orientation = "h", 
-                      x=0.35, 
-                      y=-0.3,
-                      title=''))
-```
-
-### Custo Total Formaçao {.no-title}
-
-```{r agrianual4}
-g4 <- dados %>% 
-  filter(abrangencia=='formacao') %>% 
-  ggplot() +  #estetica vai valer para todos os geom's
-  geom_col(aes(x=ano, y=Custo_Total, fill="Custo Total de formação (R$)"), lwd=1)+
-  scale_fill_manual(values=mycolor4)+
-  labs(y= "R$", x= "Anos", title='Evolução do Custo (R$) com formação: 2012-2021',
-       caption = "Fonte: Agrianual (2017:2022)") +
-  scale_y_continuous(limits=c(0, 50000), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
-  scale_x_continuous(breaks = seq(2012, 2021, by = 1))+
-  theme_classic()+ #Definindo tema
-  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=5)),
-        axis.text.y=element_text(hjust=1, size=12, margin = margin(l=20)),
-        axis.title.x = element_text(size=12, face = "bold", margin = margin(b=0)),
-        axis.title.y = element_text(size=12, face = "bold", margin = margin(l=20)),
-        plot.title = element_text(hjust = 0.5, size=14),
-        plot.caption = element_text(hjust = 0, size=8),
-        legend.position = "bottom", legend.title = element_blank(),
-        legend.text=element_text(size=12)) # Definindo posição da legenda
-
-ggplotly(g4) %>%
-  layout(legend = list(
-                      orientation = "h", 
-                      x=0.35, 
-                      y=-0.3,
-                      title=''))
-```
-
-PRODUÇÃO ESTÁVEL {data-navmenu="CUSTO DE PRODUÇÃO"}
-======================================================================
-
-```{r database_custo2}
-#Direcionado o R para o Diretorio a ser trabalhado
-#setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
-setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
-
-#Inicio do Script
-#Pacotes a serem utilizados
-library(mFilter)
-library(forecast)
-library(tsutils)
-library(seasonal)
-library(ggplot2)
-library(uroot)
-library(tseries)
-library(ggthemes)
-library(dplyr)
-library(tidyverse)
-library(quantmod)
-library(scales)
-library(kableExtra)# complex tables
-library(lmtest)
-library(FinTS)
-library(magrittr)# pipe operations
-library(readxl)
-library(reshape2)
-library(plotly)
-#library(rmarkdown)
-library(bslib)
-library(gridExtra)# multiple grid-based plots on a page
-library(patchwork)
-
-options(digits=4)
-
-#Entrando dados no R
-dados <- read_excel("custo2021.xlsx", col_names = TRUE)
-
-#Gráfico com Ggplot2 Palmer
-
-mycolor1 <- "gold"
-mycolor2 <- "darkgreen"
-mycolor3 <- "blue"
-mycolor4 <- "red"
-mycolor5 <- "orange"
-mycolor6 <- "lightblue3"
-```
-
-Row
------------------------------------------------------------------------
-
-### Operaçoes Mecanizadas{.no-title}
-
-```{r agrianual1a}
-g1 <- dados %>% 
-  filter(abrangencia=='estavel') %>% 
-  ggplot() +  #estetica vai valer para todos os geom's
-  geom_col(aes(x=ano, y=Op_Mecanizadas, fill="Custo (R$) com Operações Mecanizadas"), lwd=1)+
-  scale_fill_manual(values=mycolor1)+
-  labs(y= "R$", x= "Anos", title='Evolução do Custo (R$) com Operações Mecanizadas: 2012-2021',
-       caption = "Fonte: Agrianual (2017:2022)") +
-  scale_y_continuous(limits=c(0, 8000), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
-  scale_x_continuous(breaks = seq(2012, 2021, by = 1))+
-  theme_classic()+ #Definindo tema
-  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=5)),
-        axis.text.y=element_text(hjust=1, size=10, margin = margin(l=20)),
-        axis.title.x = element_text(size=10, face = "bold", margin = margin(b=0)),
-        axis.title.y = element_text(size=10, face = "bold", margin = margin(l=20)),
-        plot.title = element_text(hjust = 0.5, size=12),
-        plot.caption = element_text(hjust = 0, size=8),
-        legend.position = "bottom", legend.title = element_blank(),
-        legend.text=element_text(size=10))
-
-ggplotly(g1) %>%
-  layout(legend = list(
-                      orientation = "h", 
-                      x=0.20, 
-                      y=-0.18,
-                      title=''))
-```
-
-### Operaçoes Manuais{.no-title}
-
-```{r agrianual2a}
-g2 <- dados %>% 
-  filter(abrangencia=='estavel') %>% 
-  ggplot() +  #estetica vai valer para todos os geom's
-  geom_col(aes(x=ano, y=Op_Manuais, fill="Custo (R$) com Operações Manuais"), lwd=1)+
-  scale_fill_manual(values=mycolor2)+
-  labs(y= "R$", x= "Anos", title='Evolução do Custo (R$) com Operações Manuais: 2012-2021',
-       caption = "Fonte: Agrianual (2017:2022)") +
-  scale_y_continuous(limits=c(0, 4000), n.breaks = 6, expand = expansion(add=c(0,0.5)))+
-  scale_x_continuous(breaks = seq(2012, 2021, by = 1))+
-  theme_classic()+ #Definindo tema
-  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=5)),
-        axis.text.y=element_text(hjust=1, size=10, margin = margin(l=20)),
-        axis.title.x = element_text(size=10, face = "bold", margin = margin(b=0)),
-        axis.title.y = element_text(size=10, face = "bold", margin = margin(l=20)),
-        plot.title = element_text(hjust = 0.5, size=12),
-        plot.caption = element_text(hjust = 0, size=8),
-        legend.position = "bottom", legend.title = element_blank(),
-        legend.text=element_text(size=10)) # Definindo posição da legenda
-
-ggplotly(g2) %>%
-  layout(legend = list(
-                      orientation = "h", 
-                      x=0.20, 
-                      y=-0.18,
-                      title=''))
-```
-
-### Insumos{.no-title}
-
-```{r agrianual3a}
-g2 <- dados %>% 
-  filter(abrangencia=='estavel') %>% 
-  ggplot() +  #estetica vai valer para todos os geom's
-  geom_col(aes(x=ano, y=Insumos, fill="Custo (R$) com Insumos"), lwd=1)+
-  scale_fill_manual(values=mycolor5)+
-  labs(y= "R$", x= "Anos", title='Evolução do Custo (R$) com Insumos: 2012-2021',
-       caption = "Fonte: Agrianual (2017:2022)") +
-  scale_y_continuous(limits=c(0, 12000), n.breaks = 6, expand = expansion(add=c(0,0.5)))+
-  scale_x_continuous(breaks = seq(2012, 2021, by = 1))+
-  theme_classic()+ #Definindo tema
-  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=5)),
-        axis.text.y=element_text(hjust=1, size=10, margin = margin(l=20)),
-        axis.title.x = element_text(size=10, face = "bold", margin = margin(b=0)),
-        axis.title.y = element_text(size=10, face = "bold", margin = margin(l=20)),
-        plot.title = element_text(hjust = 0.5, size=12),
-        plot.caption = element_text(hjust = 0, size=8),
-        legend.position = "bottom", legend.title = element_blank(),
-        legend.text=element_text(size=10)) # Definindo posição da legenda
-
-ggplotly(g2) %>%
-  layout(legend = list(
-                      orientation = "h", 
-                      x=0.25, 
-                      y=-0.18,
-                      title=''))
-```
-
-Row
------------------------------------------------------------------------
-
-### Administrativos {.no-title}
-
-```{r agrianual4a}
-g3 <- dados %>% 
-  filter(abrangencia=='estavel') %>% 
-  ggplot() +  #estetica vai valer para todos os geom's
-  geom_col(aes(x=ano, y=Administracao, fill="Custos (R$) com Administrativo"), lwd=1)+
-  scale_fill_manual(values=mycolor3)+
-  labs(y= "R$", x= "Anos", title='Evolução do Custo (R$) com Administrativo: 2012-2021',
-       caption = "Fonte: Agrianual (2017:2022)") +
-  scale_y_continuous(limits=c(0, 10000), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
-  scale_x_continuous(breaks = seq(2012, 2021, by = 1))+
-  theme_classic()+ #Definindo tema
-  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=5)),
-        axis.text.y=element_text(hjust=1, size=10, margin = margin(l=20)),
-        axis.title.x = element_text(size=10, face = "bold", margin = margin(b=0)),
-        axis.title.y = element_text(size=10, face = "bold", margin = margin(l=20)),
-        plot.title = element_text(hjust = 0.5, size=12),
-        plot.caption = element_text(hjust = 0, size=8),
-        legend.position = "bottom", legend.title = element_blank(),
-        legend.text=element_text(size=10)) # Definindo posição da legenda
-
-ggplotly(g3) %>%
-  layout(legend = list(
-                      orientation = "h", 
-                      x=0.25, 
-                      y=-0.2,
-                      title=''))
-```
-
-### Custo Total Quilo {.no-title}
-
-```{r agrianual5a}
-g4 <- dados %>% 
-  filter(abrangencia=='estavel') %>% 
-  ggplot() +  #estetica vai valer para todos os geom's
-  geom_col(aes(x=ano, y=Custo_Total, fill="Custo Total por Quilo (R$)"), lwd=1)+
-  scale_fill_manual(values=mycolor4)+
-  labs(y= "R$", x= "Anos", title='Evolução do Custo (R$) por Quilo: 2012-2021',
-       caption = "Fonte: Agrianual (2017:2022)") +
-  scale_y_continuous(limits=c(0, 28000), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
-  scale_x_continuous(breaks = seq(2012, 2021, by = 1))+
-  theme_classic()+ #Definindo tema
-  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=5)),
-        axis.text.y=element_text(hjust=1, size=10, margin = margin(l=20)),
-        axis.title.x = element_text(size=10, face = "bold", margin = margin(b=0)),
-        axis.title.y = element_text(size=10, face = "bold", margin = margin(l=20)),
-        plot.title = element_text(hjust = 0.5, size=12),
-        plot.caption = element_text(hjust = 0, size=8),
-        legend.position = "bottom", legend.title = element_blank(),
-        legend.text=element_text(size=10)) # Definindo posição da legenda
-
-ggplotly(g4) %>%
-  layout(legend = list(
-                      orientation = "h", 
-                      x=0.25, 
-                      y=-0.2,
-                      title=''))
-```
-
-### Beneficio/Custo {.no-title}
-
-```{r agrianual6a}
-g4 <- dados %>% 
-  filter(abrangencia=='estavel') %>% 
-  ggplot() +  #estetica vai valer para todos os geom's
-  geom_col(aes(x=ano, y=Beneficio_Custo, fill="Relação Benefício/Custo"), lwd=1)+
-  scale_fill_manual(values=mycolor6)+
-  labs(y= "Beneficio/Custo", x= "Anos", title='Evolução da Relação Benefício/Custo: 2012-2021',
-       caption = "Fonte: Agrianual (2017:2022)") +
-  scale_y_continuous(limits=c(0, 3), n.breaks = 6, expand = expansion(add=c(0,0.5)))+
-  scale_x_continuous(breaks = seq(2012, 2021, by = 1))+
-  theme_classic()+ #Definindo tema
-  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=5)),
-        axis.text.y=element_text(hjust=1, size=10, margin = margin(l=20)),
-        axis.title.x = element_text(size=10, face = "bold", margin = margin(b=0)),
-        axis.title.y = element_text(size=10, face = "bold", margin = margin(l=20)),
-        plot.title = element_text(hjust = 0.5, size=12),
-        plot.caption = element_text(hjust = 0, size=8),
-        legend.position = "bottom", legend.title = element_blank(),
-        legend.text=element_text(size=10)) # Definindo posição da legenda
-
-ggplotly(g4) %>%
-  layout(legend = list(
-                      orientation = "h", 
-                      x=0.25, 
-                      y=-0.2,
-                      title=''))
-```
-
