@@ -43,13 +43,13 @@ sem_ano <- 3 #ajustar semanalmente
 
 <hr>
 
-Os dados utilizados nesta análise são semanais e disponibilizados pelo **CEPEA (Esalq-USP)** englobando o período de 2012 a 2023, para as variedades de manga *Palmer* e *Tommy Atkins*, ao produtor do Vale do São Francisco.  Os preços até a semana `r strftime(today, format = "%V")` de 2023, deflacionados pelo IGP-DI, são comparados com a média de cada semana entre 2012 e 2020, mínimo para cada semana e máximo. Os preços deflacionados de 2021 e de 2022 também são apresentados para comparação de 2023 com os dois anos anteriores. 
+Os dados utilizados nesta análise são semanais e disponibilizados pelo **CEPEA (Esalq-USP)** englobando o período de 2012 a 2024, para as variedades de manga *Palmer* e *Tommy Atkins*, ao produtor do Vale do São Francisco.  Os preços até a semana `r strftime(today, format = "%V")` de 2024, deflacionados pelo IGP-DI, são comparados com a média de cada semana entre 2012 e 2023, mínimo para cada semana e máximo. Os preços deflacionados de 2022 e de 2023 também são apresentados para comparação de 2024 com os dois anos anteriores.
 
-O preço médio de Palmer na semana `r strftime(today, format = "%V de %Y")` foi R\$3,29 variando entre R\$4,00 e R\$3,00. A média histórica dos dados deflacionados, desde 2012 até 2020, para esta semana, é R\$1,98. Em 2021, o preço deflacionado é de R\$2,50 para a semana `r strftime(today, format = "%V")` e, em 2022, o preço é R\$ 0,73. Em relação à semana `r strftime(last, format = "%V")`, os preços aumentaram 4,11%.
+O preço médio de Palmer na semana `r strftime(today, format = "%V de %Y")` foi R\$4,67 variando entre R\$5,40 e R\$4,00. A média histórica dos dados deflacionados, desde 2012 até 2023, para esta semana, é R\$2,16. Em 2022, o preço deflacionado é de R\$1,35 para a semana `r strftime(today, format = "%V")` e, em 2023, o preço é R\$ 0,94. Em relação à semana `r strftime(last, format = "%V")`, os preços aumentaram 18,23%.
 
-No caso da Tommy, na semana `r strftime(today, format = "%V de %Y")` os preços médios foram de R\$3,01, variando entre R\$3,20 e R\$2,80. Este valor é maior do que a média histórica para esta semana (R\$1,30), do que o preço de 2022 (R\$1,25) e que o preço deflacionado de 2021 (R\$1,20). Em relação à semana anterior os preços aumentaram 5,61%. São cinco semanas seguidas de altas de preços. 
+No caso da Tommy, na semana `r strftime(today, format = "%V de %Y")` os preços médios foram de R\$4,12, variando entre R\$4,50 e R\$3,80. Este valor é maior do que a média histórica para esta semana (R\$1,86), do que o preço de 2022 (R\$1,36) e que o preço deflacionado de 2023 (R\$0,79). Em relação à semana anterior os preços aumentaram 15,41%.
 
-Sobre os preços de exportação, a Palmer foi vendida, na média, por R\$4,16, variando entre R\$4,30 e R\$4,00, queda de -1% em relação a semana anterior. A Tommy para os Estados Unidos e Europa teve média de preço de R\$3,54, respectivamente, variando entre R\$3,60 e R\$3,50, aumento de 8% em relação à semana anterior.
+Sobre os preços de exportação, a Palmer foi vendida, na média, por R\$5,13, variando entre R\$5,60 e R\$4,80, aumento de 13% em relação a semana anterior. A Tommy para a Europa teve média de preço de R\$4,49, respectivamente, variando entre R\$4,80 e R\$4,20, aumento de 15% em relação à semana anterior.
 
 <hr>
 
