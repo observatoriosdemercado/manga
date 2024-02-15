@@ -292,11 +292,11 @@ dados6 <- data.frame(dates=dados6$Data, cambio=dados6$Media)
 
 O objetivo desta análise foi verificar o comportamento das exportações de manga do Brasil. Os dados utilizados são mensais e disponibilizados pelo **Comexstat (MDIC)** para o período de *Janeiro de 2012 a `r strftime(atual, format = "%B de %Y")`*.
 
-Em relação aos volumes, em `r strftime(atual, format = "%B")` foram exportadas cerca de 27,2 mil toneladas (t) de mangas pelo Brasil. Este valor é menor do que o exportado pelo país, no mesmo mês, em 2021 (27,6 mil t), do que em `r strftime(atual, format = "%B")` de 2022 (41,6 mil t), mas supera a média histórica (2012 a 2020), que é de 17,5 mil t, aproximadamente. No ano, foram exportadas cerca de 266 mil t, um aumento de 15,01% em relação ao mesmo período de 2022. Contudo, ficou 2,37% abaixo do recorde histórico de 2021.
+Em relação aos volumes, em `r strftime(atual, format = "%B")` foram exportadas cerca de 11 mil toneladas (t) de mangas pelo Brasil. Este valor é maior do que o exportado pelo país, no mesmo mês, em 2022 (6,8 mil t), do que em `r strftime(atual, format = "%B")` de 2023 (8,5 mil t), e também supera a média histórica (2012 a 2023), que é de 6,4 mil t, aproximadamente. Os valores representam um crescimento de 60% em relação à 2022 e de 28,4% em relação à 2023.
 
-Em termos dos valores das exportações, em `r strftime(atual, format = "%B")` foram US\$ 37,8 milhões. O máximo histórico (até 2020) para este mês é de US\$ 33 milhões. Em `r strftime(atual, format = "%B")` de 2021, foram gerados cerca de US\$ 23,9 milhões em receitas e, em `r strftime(atual, format = "%B")` de 2022, um total de US$ 36,4 milhões. No ano, as receitas são recorde histórico, cerca de US\$ 312 milhões, superando o valor de US\$ 248,7 milhões de 2021.
+Em termos dos valores das exportações, em `r strftime(atual, format = "%B")` foram US\$ 14,3 milhões. Em `r strftime(atual, format = "%B")` de 2022, foram gerados cerca de US\$ 6,2 milhões em receitas e, em `r strftime(atual, format = "%B")` de 2023, um total de US\$ 7,3 milhões. 
 
-As exportações se concentraram principalmente na variedade Palmer para a Europa e Tommy para os Estados Unidos e Europa. Em relação aos destinos, em 2023, 45,3\% das mangas foram enviadas para a Holanda, 18,35\% para os Estados Unidos, 17,93\% para a Espanha, 6,06\% para o Reino Unido e 3,95\% para Portugal. Sobre as vias de exportação, 90,3\% foi marítima, 6,71\% aérea e 2,99\% rodoviária. A maior parte das frutas teve origem na Bahia (47,36\%) e em Pernambuco (45,42\%). São Paulo (3,25\%), Rio Grande do Norte (2,54\%) e Ceará (0,79\%) também contribuíram para os resultados obtidos com as exportações de manga.
+As exportações se concentraram principalmente na variedade Palmer para a Europa e Tommy para os Estados Unidos e Europa. Em relação aos destinos, em `r strftime(atual, format = "%B")` de 2024, 49,24\% das mangas foram enviadas para a Holanda, 23,23\% para a Espanha, 8,41\% para Portugal, 7,64% para os Estados Unidos e  6,83\% para o Reino Unido. Sobre as vias de exportação, 89\% foi marítima e 11\% foi aérea. A maior parte das frutas teve origem em Pernambuco (45,83\%) e na Bahia (32,65\%). O Rio Grande do Norte (10,71\%), São Paulo (8,47\%) e o Ceará (1,28\%) também contribuíram para os resultados obtidos com as exportações de manga.
 
 <hr>
 
@@ -340,9 +340,10 @@ ggplotly(g1) %>%
                       y=-0.35,
                       title=''))
 ```
+
 Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
-Obs: Dados  até o mês de `r strftime(atual, format = "%B de %Y")`.
+Obs: Dados até o mês de `r strftime(atual, format = "%B de %Y")`.
 
 ### TABELA
 
@@ -359,9 +360,10 @@ datatable(round(dados1t), option = list(
   lengthMenu = c(13, 15),
   columnDefs = list(list(className = 'dt-center', targets = "_all"))))
 ```
+
 Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
-Obs: Dados  até o mês de `r strftime(atual, format = "%B de %Y")`.
+Obs: Dados até o mês de `r strftime(atual, format = "%B de %Y")`.
 :::
 
 <br>
@@ -442,10 +444,9 @@ ggplotly(g3) %>%
 
 Fonte: Observatório de Mercado de Manga da Embrapa
 
-<br>
-<br>
+<br> <br>
 
-## Valor das Exportações de Manga do Brasil: `r strftime(atual, format = "%B de %Y")` em comparação com as informações entre 2012-2023 
+## Valor das Exportações de Manga do Brasil: `r strftime(atual, format = "%B de %Y")` em comparação com as informações entre 2012-2023
 
 <br>
 
@@ -487,11 +488,11 @@ ggplotly(g4) %>%
 
 Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
-Obs: Dados  até o mês de `r strftime(atual, format = "%B de %Y")`.
+Obs: Dados até o mês de `r strftime(atual, format = "%B de %Y")`.
 
 ### TABELA
 
-**VISUALIZAÇÃO DOS DADOS EM TABELA (US$ MILHÕES)**
+**VISUALIZAÇÃO DOS DADOS EM TABELA (US\$ MILHÕES)**
 
 ```{r exporta6}
 
@@ -502,10 +503,12 @@ datatable(round(table_valor,3), option = list(
   lengthMenu = c(12, 15),
   columnDefs = list(list(className = 'dt-center', targets = "_all"))))
 ```
+
 Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
-Obs: Dados  até o mês de `r strftime(atual, format = "%B de %Y")`.
+Obs: Dados até o mês de `r strftime(atual, format = "%B de %Y")`.
 :::
+
 <br>
 
 # 3. Análise do Volume das Exportações
@@ -587,7 +590,7 @@ Fonte: Observatório de Mercado de Manga da Embrapa
 
 <br>
 
-## Volume das Exportações de Manga do Brasil: `r strftime(atual, format = "%B de %Y")` em comparação com as informações entre 2012-2023 
+## Volume das Exportações de Manga do Brasil: `r strftime(atual, format = "%B de %Y")` em comparação com as informações entre 2012-2023
 
 <br>
 
@@ -628,7 +631,7 @@ ggplotly(g7) %>%
 
 Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa.
 
-Obs: Dados  até o mês de `r strftime(atual, format = "%B de %Y")`.
+Obs: Dados até o mês de `r strftime(atual, format = "%B de %Y")`.
 
 ### TABELA
 
@@ -646,20 +649,19 @@ datatable(round(table_volume,3), option = list(
 
 Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa.
 
-Obs: Dados  até o mês de `r strftime(atual, format = "%B de %Y")`.
-
+Obs: Dados até o mês de `r strftime(atual, format = "%B de %Y")`.
 :::
 
 <br>
 
-## Crescimento do Volume Mensal de Exportação: 2024/2023 e 2023/2022. 
+## Crescimento do Volume Mensal de Exportação: 2024/2023 e 2023/2022.
 
 <br>
 
 ::: panel-tabset
 ### GRÁFICO
 
-``` {r exporta11}
+```{r exporta11}
 
 g8 <- ggplot()+
   geom_col(data=variacaom, aes(x=Meses, y=value, fill=variable), lwd=1, position = "dodge")+
@@ -687,6 +689,7 @@ g8 <- ggplot()+
                       y=-0.35,
                       title=''))
 ```
+
 Fonte: Observatório de Mercado de Manga da Embrapa
 
 ### TABELA
@@ -708,14 +711,14 @@ Fonte: Observatório de Mercado de Manga da Embrapa
 
 <br>
 
-# 4. Evolução semanal de preços de manga exportação (ME) ao produtor no Vale do São Francisco 
+# 4. Evolução semanal de preços de manga exportação (ME) ao produtor no Vale do São Francisco
 
 <br>
 
 ::: panel-tabset
 ### GRÁFICO
 
-``` {r exporta13}
+```{r exporta13}
 #Gráfico com Ggplot2
 
 mycolors3 <- c("orange", "lightblue3", "red", "darkgreen", "blue")
@@ -748,11 +751,12 @@ ggplotly(g9) %>%
                       y=-0.35,
                       title=''))
 ```
+
 Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
 ### TABELA
 
-**VISUALIZAÇÃO DOS DADOS EM TABELA (R$)**
+**VISUALIZAÇÃO DOS DADOS EM TABELA (R\$)**
 
 ```{r exporta14}
 
@@ -763,12 +767,13 @@ datatable(round(dadosexpt,2), option = list(
   lengthMenu = c(10, 25, 50, 100),
   columnDefs = list(list(className = 'dt-center', targets = "_all"))))
 ```
+
 Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa
 :::
 
 <br>
 
-# 5. Principais destinos de exportação da Manga do Brasil:  `r strftime(atual, format = "%B de %Y")`.
+# 5. Principais destinos de exportação da Manga do Brasil: `r strftime(atual, format = "%B de %Y")`.
 
 <br>
 
@@ -804,6 +809,7 @@ ggplotly(g10) %>%
                       y=-0.35,
                       title=''))
 ```
+
 Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
 ### TABELA
@@ -818,13 +824,13 @@ datatable(dados3, option = list(
   lengthMenu = c(10, 25, 50, 100),
   columnDefs = list(list(className = 'dt-center', targets = "_all"))))
 ```
-Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
+Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
 :::
 
 <br>
 
-# 6. Principais vias de exportação da Manga do Brasil: `r strftime(atual, format = "%B de %Y")`. 
+# 6. Principais vias de exportação da Manga do Brasil: `r strftime(atual, format = "%B de %Y")`.
 
 <br>
 
@@ -858,6 +864,7 @@ ggplotly(g11) %>%
                       y=-0.35,
                       title=''))
 ```
+
 Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
 ### TABELA
@@ -872,8 +879,8 @@ datatable(dados4, option = list(
   lengthMenu = c(10, 25, 50, 100),
   columnDefs = list(list(className = 'dt-center', targets = "_all"))))
 ```
-Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
+Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
 :::
 
 <br>
@@ -910,6 +917,7 @@ ggplotly(g12) %>%
                       y=-0.35,
                       title=''))
 ```
+
 Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
 ### TABELA
@@ -924,12 +932,14 @@ datatable(dados5, option = list(
   lengthMenu = c(10, 25, 50, 100),
   columnDefs = list(list(className = 'dt-center', targets = "_all"))))
 ```
-Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
+Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
 :::
+
 <br>
 
-# 8. Evolução da Taxa de Câmbio Esperada para Dezembro de 2024 
+# 8. Evolução da Taxa de Câmbio Esperada para Dezembro de 2024
+
 <br>
 
 ::: panel-tabset
@@ -963,6 +973,7 @@ g13 <- ggplot(data=dados6)+
 
 ggplotly(g13)
 ```
+
 Fonte: FOCUS/BCB reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
 ### TABELA
@@ -983,8 +994,8 @@ datatable(cambiot, option = list(
   lengthMenu = c(10, 25, 50, 100),
   columnDefs = list(list(className = 'dt-center', targets = "_all"))))
 ```
-Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
+Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
 :::
 
 <br>
