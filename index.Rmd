@@ -53,8 +53,8 @@ knitr::opts_chunk$set(
   )
 
 library(lubridate)
-data <- as.Date("2024-02-16") #ajustar semanalmente
-sem_ano <- 07 #ajustar semanalmente
+data <- as.Date("2024-02-23") #ajustar semanalmente
+sem_ano <- 08 #ajustar semanalmente
 
 # Linhas que precisam de ajuste: 71, 104, 107
 ```
@@ -1173,7 +1173,7 @@ PALMER {data-navmenu="PREÇOS AO PRODUTOR"}
 #setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
 setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
-data <- as.Date("2024-02-16") #ajustar semanalmente
+data <- as.Date("2024-02-23") #ajustar semanalmente
 
 #Entrando dados no R
 dados <- read.csv2('dados_manga_palmer_semana.csv', header=T, sep=";", dec=".")
@@ -1304,12 +1304,12 @@ num <- tail(preco_palmer,1)
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "tomato",
-  icon= "fa-arrow-up")
+  icon= "fa-arrow-down")
 ```
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2023
 ``` {r}
-num <- 1.85
+num <- 2.20
 valueBox(
   value = paste0( "R$", format(round(num,2), decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1318,7 +1318,7 @@ valueBox(
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2022
 ``` {r}
-num <- 1.37
+num <- 1.42
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1342,7 +1342,7 @@ g1 <- ggplot()+
   scale_y_continuous(limits = c(0, 8), n.breaks = 8, labels = number_format(accuracy = 0.01,
                                                        decimal.mark = ","))+
   scale_x_continuous(breaks = seq(1, 52, by = 1))+
-  labs(y= "Preço R$", x= "Semanas de cada Ano", title='Mínimo, Máximo, Média e preços de 2022 a 2024 de Manga Palmer ao produtor',
+  labs(y= "Preço Palmer (R$)", x= "Semanas de cada Ano", title='Mínimo, Máximo, Média e preços de 2022 a 2024 de Manga Palmer ao produtor',
        caption = "Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
   theme_minimal()+
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=8, margin = margin(b=10)),
@@ -1409,7 +1409,7 @@ g3 <- ggplot(data=dadosp, aes(x=date)) +  #estetica vai valer para todos os geom
   scale_colour_manual("", 
                       breaks = c("PREÇO", "TENDÊNCIA"),
                       values = c("black", "tomato")) +
-  labs(y= "Preço R$", x= "Semanas de cada Ano", title='Evolução dos preços ao produtor e Tendência Manga Palmer',
+  labs(y= "Preço Palmer (R$)", x= "Semanas de cada Ano", title='Evolução dos preços ao produtor e Tendência Manga Palmer',
        caption = "Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa") +
   scale_y_continuous(limits=c(0,8), n.breaks = 9, expand = expansion(add=c(0,0.5)), 
                      labels=number_format(accuracy = 0.01, decimal.mark = ","))+
@@ -1598,7 +1598,7 @@ valueBox(
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2023
 ``` {r}
-num <- 2.27
+num <- 2.54
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1607,7 +1607,7 @@ valueBox(
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2022
 ``` {r}
-num <- 1.79
+num <- 2.20
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1631,7 +1631,7 @@ g5 <- ggplot()+
     scale_y_continuous(limits = c(0, 8), n.breaks = 8, labels = number_format(accuracy = 0.01,
                                                                               decimal.mark = ","))+
     scale_x_continuous(breaks = seq(1, 52, by = 1))+
-    labs(y= "Preço R$", x= "Semanas de cada Ano", title='Mínimo, Máximo, Média e preços de 2022 a 2024 de Manga Tommy ao produtor',
+    labs(y= "Preço Tommy (R$)", x= "Semanas de cada Ano", title='Mínimo, Máximo, Média e preços de 2022 a 2024 de Manga Tommy ao produtor',
          caption = "Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
     theme_minimal()+
     theme(axis.text.x=element_text(angle=0, hjust=0.5, size=8, margin = margin(b=10)),
@@ -1698,7 +1698,7 @@ g7 <- ggplot(data=dadosp, aes(x=date)) +  #estetica vai valer para todos os geom
     scale_colour_manual("", 
                         breaks = c("PREÇO", "TENDÊNCIA"),
                         values = c("black", "tomato")) +
-    labs(y= "Preço R$", x= "Semanas de cada Ano", title='Evolução dos preços ao produtor e Tendência Manga Tommy',
+    labs(y= "Preço Tommy (R$)", x= "Semanas de cada Ano", title='Evolução dos preços ao produtor e Tendência Manga Tommy',
          caption = "Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa") +
     scale_y_continuous(limits=c(0,8), n.breaks = 9, expand = expansion(add=c(0,0.5)), 
                        labels=number_format(accuracy = 0.01, decimal.mark = ","))+
