@@ -773,7 +773,7 @@ Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
 <br>
 
-# 5. Principais destinos de exportação da Manga do Brasil: `r strftime(atual, format = "%B de %Y")`.
+# 5. Principais destinos de exportação da Manga do Brasil em 2024.
 
 <br>
 
@@ -830,7 +830,7 @@ Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
 <br>
 
-# 6. Principais vias de exportação da Manga do Brasil: `r strftime(atual, format = "%B de %Y")`.
+# 6. Principais vias de exportação da Manga do Brasil em 2024.
 
 <br>
 
@@ -885,7 +885,7 @@ Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
 <br>
 
-# 7. Unidade da Federação da Manga exportada do Brasil: `r strftime(atual, format = "%B de %Y")`.
+# 7. Unidade da Federação da Manga exportada do Brasil em 2024.
 
 ::: panel-tabset
 ### GRÁFICO
