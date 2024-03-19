@@ -53,8 +53,8 @@ knitr::opts_chunk$set(
   )
 
 library(lubridate)
-data <- as.Date("2024-03-08") #ajustar semanalmente
-sem_ano <- 10 #ajustar semanalmente
+data <- as.Date("2024-03-15") #ajustar semanalmente
+sem_ano <- 11 #ajustar semanalmente
 
 # Linhas que precisam de ajuste: 71, 104, 107
 ```
@@ -939,7 +939,7 @@ MERCADO TRABALHO {data-navmenu="MERCADO INTERNO"}
 #setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_caged')
 setwd('/Users/jricardofl/Dropbox/tempecon/dados_caged')
 
-atual <-  as.Date("2023-12-01")
+atual <-  as.Date("2024-01-01")
 #today <- as.Date("2022-02-11")
 
 
@@ -950,53 +950,53 @@ library(scales)
 library(plotly)
 
 #Entrando dados no R
-dados1 <- read.csv2('dezembro_2023.csv', header=T, sep=";", dec = ".")
+dados1 <- read.csv2('janeiro_2024.csv', header=T, sep=";", dec = ".")
 colnames(dados1)[1] <- 'date'
 dados1$date <- seq(as.Date('2021-01-01'),to=atual,by='1 month')
 dados1a <- dados1 
 dados1a$ano <- strftime(dados1a$date, format="%Y") 
 dados1a$mes <- strftime(dados1a$date, format="%b") 
 
-saldo_22 <- dados1a %>% filter(ano=='2022')
-
-saldo_22 <- saldo_22 %>%
-  select(c(ano, mes, Saldo_Manga))
-
 saldo_23 <- dados1a %>% filter(ano=='2023')
 
 saldo_23 <- saldo_23 %>%
   select(c(ano, mes, Saldo_Manga))
 
-saldom <- rbind(saldo_22, saldo_23)
+saldo_24 <- dados1a %>% filter(ano=='2024')
+
+saldo_24 <- saldo_24 %>%
+  select(c(ano, mes, Saldo_Manga))
+
+saldom <- rbind(saldo_23, saldo_24)
 saldom$mes <- factor(saldom$mes,levels = c("Jan", "Fev", "Mar", "Abr", "Mai", 
                                            "Jun", "Jul", "Ago", "Set", "Out",
                                            "Nov", "Dez"))
 
 #Entrando com o restante dos dados
 
-load("dezembro_23_caged.RData")
+load("janeiro_24_caged.RData")
 
 #dados_02_vsf$sexo <- lapply(dados_02_vsf$sexo, factor)
 
-dados_12_vsf$sexo[dados_12_vsf$sexo == 1] <- 0
-dados_12_vsf$sexo[dados_12_vsf$sexo == 3] <- 1
+dados_01_vsf$sexo[dados_01_vsf$sexo == 1] <- 0
+dados_01_vsf$sexo[dados_01_vsf$sexo == 3] <- 1
 
-dados_12_vsf <- mutate(dados_12_vsf,
+dados_01_vsf <- mutate(dados_01_vsf,
                 sexo = factor(sexo, levels = 0:1, labels = c("Masculino", "Feminino")))
 
 # Mantendo apenas 
 
 #Separando as admissoes e as demissoes
-dados_12_vsf_positivos <-dados_12_vsf%>% filter(saldo_movim=="1")
-dados_12_vsf_negativos <-dados_12_vsf%>% filter(saldo_movim=="-1")
+dados_01_vsf_positivos <-dados_01_vsf%>% filter(saldo_movim=="1")
+dados_01_vsf_negativos <-dados_01_vsf%>% filter(saldo_movim=="-1")
 
 #Mantendo apenas o agronegocio
-secao_positivos <-dados_12_vsf_positivos%>% filter(secao=="A")
-secao_negativos <-dados_12_vsf_negativos%>% filter(secao=="A")
+secao_positivos <-dados_01_vsf_positivos%>% filter(secao=="A")
+secao_negativos <-dados_01_vsf_negativos%>% filter(secao=="A")
 
 #Mantendo apenas a manga
-subclasse_positivos <-dados_12_vsf_positivos%>% filter(subclasse=="133410")
-subclasse_negativos <-dados_12_vsf_negativos%>% filter(subclasse=="133410")
+subclasse_positivos <-dados_01_vsf_positivos%>% filter(subclasse=="133410")
+subclasse_negativos <-dados_01_vsf_negativos%>% filter(subclasse=="133410")
 
 subclasse_positivos <- mutate(subclasse_positivos,
                 grau_instrucao = factor(grau_instrucao, levels = 1:13, 
@@ -1023,27 +1023,27 @@ subclasse_positivos$salario <- as.integer(subclasse_positivos$salario)
 Row {data-height=125}
 -----------------------------------------------------------------------
 
-### pela mangicultura em `r strftime(atual, format = "%B")` de 2023 
+### pela mangicultura em `r strftime(atual, format = "%B")` de 2024 
 ``` {r emp1}
-num <- 440
+num <- 541
 valueBox(
   value = paste0(num, " Contratados"),
 #  color = "green",
   icon= "fa-arrow-up")
 ```
 
-### pela mangicultura em `r strftime(atual, format = "%B")` de 2023 
+### pela mangicultura em `r strftime(atual, format = "%B")` de 2024 
 ``` {r emp2}
-num <- 1.752
+num <- 598
 valueBox(
   value = paste0(num, " Demitidos"),
 #  color = "tomato",
   icon= "fa-arrow-down")
 ```
 
-### Saldo Gerado pela mangicultura em `r strftime(atual, format = "%B")` de 2023 
+### Saldo Gerado pela mangicultura em `r strftime(atual, format = "%B")` de 2024 
 ``` {r emp3}
-num <- -1.312
+num <- -57
 valueBox(
   value = paste0(num, " Empregos"),
 #  color = "tomato",
@@ -1064,9 +1064,9 @@ mycolors2 <- c("orange", "lightblue3")
 g1 <- ggplot() +  #estetica vai valer para todos os geom's
   geom_col(data=saldom, aes(x=mes, y=Saldo_Manga, fill=ano), size=2, width = 0.9, position = "dodge")+
     scale_fill_manual(values=mycolors2)+
-    labs(y= "Saldo de Emprego (unidade)", x= "Meses do Ano", title='Saldo mensal de Empregos na Mangicultura: 2022 e 2023',
+    labs(y= "Saldo de Emprego (unidade)", x= "Meses do Ano", title='Saldo mensal de Empregos na Mangicultura: 2023 e 2024',
        caption = "")+
-    scale_y_continuous(limits=c(-2100, 1600), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
+    scale_y_continuous(limits=c(-1500, 1300), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
   theme_minimal()+ #Definindo tema
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=20)),
         axis.text.y=element_text(hjust=1, size=10, margin = margin(l=20)),
@@ -1147,7 +1147,7 @@ ggplotly(g3)
 
 g4 <- ggplot(data = subclasse_positivos, aes(x = grau_instrucao, y = ..count..)) +
   geom_bar(fill='#1e4971')+
-    scale_y_continuous(limits=c(0, 180), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
+    scale_y_continuous(limits=c(0, 250), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
 labs(y= "Contratados Manga - VSF", x= "Grau de Instrução", title='Grau de Instrução dos empregos gerados',
        caption = "")+
   theme_minimal() +
@@ -1173,7 +1173,7 @@ PALMER {data-navmenu="PREÇOS AO PRODUTOR"}
 #setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
 setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
-data <- as.Date("2024-03-08") #ajustar semanalmente
+data <- as.Date("2024-03-15") #ajustar semanalmente
 
 #Entrando dados no R
 dados <- read.csv2('dados_manga_palmer_semana.csv', header=T, sep=";", dec=".")
@@ -1309,7 +1309,7 @@ valueBox(
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2023
 ``` {r}
-num <- 2.12
+num <- 2.08
 valueBox(
   value = paste0( "R$", format(round(num,2), decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1318,7 +1318,7 @@ valueBox(
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2022
 ``` {r}
-num <- 1.28
+num <- 1.35
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1598,7 +1598,7 @@ valueBox(
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2023
 ``` {r}
-num <- 3.03
+num <- 3.56
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1607,7 +1607,7 @@ valueBox(
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2022
 ``` {r}
-num <- 1.91
+num <- 1.52
 valueBox(
   value = paste0( "R$", format(num, decimal.mark =  ",")),
 #  color = "#edc40c",
