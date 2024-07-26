@@ -53,8 +53,8 @@ knitr::opts_chunk$set(
   )
 
 library(lubridate)
-data <- as.Date("2024-07-19") #ajustar semanalmente
-sem_ano <- 29 #ajustar semanalmente
+data <- Sys.Date() #ajustar semanalmente
+sem_ano <- isoweek(data) #ajustar semanalmente
 
 # Linhas que precisam de ajuste: 71, 104, 107
 ```
@@ -1173,7 +1173,7 @@ PALMER {data-navmenu="PREÇOS AO PRODUTOR"}
 #setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
 setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
-data <- as.Date("2024-07-19") #ajustar semanalmente
+data <- Sys.Date() #ajustar semanalmente
 
 #Entrando dados no R
 dados <- read.csv2('dados_manga_palmer_semana.csv', header=T, sep=";", dec=".")
@@ -1271,6 +1271,8 @@ table_db <- data.frame(matrix[,1], round(medias23,2), matrix[,2], round(tail(pre
 colnames(table_db) = c('Mínimo', 'Média', 'Máximo', '2022', '2023', '2024')
 
 #Parte 4
+preco_palmer_22 <- dadosp %>% filter(ano=='2022')
+preco_palmer_2022 <- as.matrix(preco_palmer_22$preco_def)
 
 preco_palmer_23 <- dadosp %>% filter(ano=='2023')
 preco_palmer_2023 <- as.matrix(preco_palmer_23$preco_def)
@@ -1309,7 +1311,7 @@ valueBox(
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2023
 ``` {r}
-num <- 1.67
+num <- preco_palmer_2023[sem_ano, ]
 valueBox(
   value = paste0( "R$", format(round(num,2), decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1318,9 +1320,9 @@ valueBox(
 
 ### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2022
 ``` {r}
-num <- 2.03
+num <- preco_palmer_2022[sem_ano, ]
 valueBox(
-  value = paste0( "R$", format(num, decimal.mark =  ",")),
+  value = paste0( "R$", format(round(num,2), decimal.mark =  ",")),
 #  color = "#edc40c",
   icon= "fa-pen")
 ```
@@ -1568,6 +1570,8 @@ colnames(table_db) = c('Semanas', 'Mínimo', 'Média', 'Máximo', 'Ano 2022', 'A
                     'Ano 2024')
 
 #Parte 4
+preco_tommy_22 <- dadosp %>% filter(ano=='2022')
+preco_tommy_2022 <- as.matrix(preco_tommy_22$preco_def)
 
 preco_tommy_23 <- dadosp %>% filter(ano=='2023')
 preco_tommy_2023 <- as.matrix(preco_tommy_23$preco_def)
@@ -1591,25 +1595,25 @@ Row {data-height=125}
 ``` {r}
 num <- tail(preco_tommy,1)
 valueBox(
-  value = paste0( "R$", format(num, decimal.mark =  ",")),
+  value = paste0( "R$", format(round(num,2), decimal.mark =  ",")),
 #  color = "tomato",
   icon= "fa-arrow-down")
 ```
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2023
 ``` {r}
-num <- 2.28
+num <- preco_tommy_2023[sem_ano, ]
 valueBox(
-  value = paste0( "R$", format(num, decimal.mark =  ",")),
+  value = paste0( "R$", format(round(num,2), decimal.mark =  ",")),
 #  color = "#edc40c",
   icon= "fa-pen")
 ```
 
 ### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2022
 ``` {r}
-num <- 2.47
+num <- preco_tommy_2022[sem_ano, ]
 valueBox(
-  value = paste0( "R$", format(num, decimal.mark =  ",")),
+  value = paste0( "R$", format(round(num,2), decimal.mark =  ",")),
 #  color = "#edc40c",
   icon= "fa-pen")
 ```
