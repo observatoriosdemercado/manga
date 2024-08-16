@@ -939,7 +939,7 @@ MERCADO TRABALHO {data-navmenu="MERCADO INTERNO"}
 #setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_caged')
 setwd('/Users/jricardofl/Dropbox/tempecon/dados_caged')
 
-atual <-  as.Date("2024-05-01")
+atual <-  as.Date("2024-06-01")
 #today <- as.Date("2022-02-11")
 
 
@@ -950,7 +950,7 @@ library(scales)
 library(plotly)
 
 #Entrando dados no R
-dados1 <- read.csv2('maio_2024.csv', header=T, sep=";", dec = ".")
+dados1 <- read.csv2('junho_2024.csv', header=T, sep=";", dec = ".")
 colnames(dados1)[1] <- 'date'
 dados1$date <- seq(as.Date('2021-01-01'),to=atual,by='1 month')
 dados1a <- dados1 
@@ -974,29 +974,29 @@ saldom$mes <- factor(saldom$mes,levels = c("Jan", "Fev", "Mar", "Abr", "Mai",
 
 #Entrando com o restante dos dados
 
-load("maio_24_caged.RData")
+load("junho_24_caged.RData")
 
 #dados_02_vsf$sexo <- lapply(dados_02_vsf$sexo, factor)
 
-dados_05_vsf$sexo[dados_05_vsf$sexo == 1] <- 0
-dados_05_vsf$sexo[dados_05_vsf$sexo == 3] <- 1
+dados_06_vsf$sexo[dados_06_vsf$sexo == 1] <- 0
+dados_06_vsf$sexo[dados_06_vsf$sexo == 3] <- 1
 
-dados_05_vsf <- mutate(dados_05_vsf,
+dados_06_vsf <- mutate(dados_06_vsf,
                 sexo = factor(sexo, levels = 0:1, labels = c("Masculino", "Feminino")))
 
 # Mantendo apenas 
 
 #Separando as admissoes e as demissoes
-dados_05_vsf_positivos <-dados_05_vsf%>% filter(saldo_movim=="1")
-dados_05_vsf_negativos <-dados_05_vsf%>% filter(saldo_movim=="-1")
+dados_06_vsf_positivos <-dados_06_vsf%>% filter(saldo_movim=="1")
+dados_06_vsf_negativos <-dados_06_vsf%>% filter(saldo_movim=="-1")
 
 #Mantendo apenas o agronegocio
-secao_positivos <-dados_05_vsf_positivos%>% filter(secao=="A")
-secao_negativos <-dados_05_vsf_negativos%>% filter(secao=="A")
+secao_positivos <-dados_06_vsf_positivos%>% filter(secao=="A")
+secao_negativos <-dados_06_vsf_negativos%>% filter(secao=="A")
 
 #Mantendo apenas a manga
-subclasse_positivos <-dados_05_vsf_positivos%>% filter(subclasse=="133410")
-subclasse_negativos <-dados_05_vsf_negativos%>% filter(subclasse=="133410")
+subclasse_positivos <-dados_06_vsf_positivos%>% filter(subclasse=="133410")
+subclasse_negativos <-dados_06_vsf_negativos%>% filter(subclasse=="133410")
 
 subclasse_positivos <- mutate(subclasse_positivos,
                 grau_instrucao = factor(grau_instrucao, levels = 1:13, 
@@ -1173,8 +1173,9 @@ PALMER {data-navmenu="PREÇOS AO PRODUTOR"}
 #setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
 setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
-data <- Sys.Date() #ajustar semanalmente
-atual <-  as.Date("2024-08-09")
+today <- Sys.Date() #ajustar semanalmente
+atual <-  today
+data <-  today
 
 #Entrando dados no R
 dados <- read.csv2('dados_manga_palmer_semana.csv', header=T, sep=";", dec=".")
@@ -1197,9 +1198,11 @@ dadosp$preco_def <- dadosp[,3]*(tail(dadosp[,4],1)/dadosp[,4])
 #dadosp<-dadosp[,-2]
 
 #Criando uma variável com as datas semanais
-date <- seq(as.Date('2012-01-07'),to=data,by='1 week')
+date <- seq(as.Date('2012-01-07'),to=today,by='1 week')
 date <- date[date != as.Date('2016-12-31')]
-date <- date[date != as.Date('2022-12-31')]
+date[date == as.Date('2022-12-31')] <- as.Date('2023-01-01')
+date <- date[date != as.Date('2023-12-30')]
+date <- c(date, as.Date('2024-08-16'))
 dadosp$date <- date
 
 #Analise de Serie Temporal
@@ -1495,10 +1498,11 @@ dadosp$preco_def <- dadosp[,3]*(tail(dadosp[,4],1)/dadosp[,4])
 #dadosp<-dadosp[,-2]
 
 #Criando uma variável com as datas semanais
-#Criando uma variável com as datas semanais
-date <- seq(as.Date('2012-01-07'),to=data,by='1 week')
+date <- seq(as.Date('2012-01-07'),to=today,by='1 week')
 date <- date[date != as.Date('2016-12-31')]
-date <- date[date != as.Date('2022-12-31')]
+date[date == as.Date('2022-12-31')] <- as.Date('2023-01-01')
+date <- date[date != as.Date('2023-12-30')]
+date <- c(date, as.Date('2024-08-16'))
 dadosp$date <- date
 
 #Analise de Serie Temporal
