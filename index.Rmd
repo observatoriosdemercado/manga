@@ -1197,12 +1197,11 @@ dadosp<-dados_comb[,-c(1,2,6,7)]
 dadosp$preco_def <- dadosp[,3]*(tail(dadosp[,4],1)/dadosp[,4])
 #dadosp<-dadosp[,-2]
 
-#Criando uma variável com as datas semanais
 date <- seq(as.Date('2012-01-07'),to=today,by='1 week')
 date <- date[date != as.Date('2016-12-31')]
 date[date == as.Date('2022-12-31')] <- as.Date('2023-01-01')
 date <- date[date != as.Date('2023-12-30')]
-date <- c(date, as.Date('2024-08-16'))
+date <- c(date, as.Date(today))
 dadosp$date <- date
 
 #Analise de Serie Temporal
@@ -1502,7 +1501,7 @@ date <- seq(as.Date('2012-01-07'),to=today,by='1 week')
 date <- date[date != as.Date('2016-12-31')]
 date[date == as.Date('2022-12-31')] <- as.Date('2023-01-01')
 date <- date[date != as.Date('2023-12-30')]
-date <- c(date, as.Date('2024-08-16'))
+date <- c(date, as.Date(today))
 dadosp$date <- date
 
 #Analise de Serie Temporal
