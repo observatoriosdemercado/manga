@@ -1,5 +1,5 @@
 ---
-title: "OBSERVATÓRIO DO MERCADO DE MANGA DA EMBRAPA SEMIÁRIDO"
+title: "OBSERVATÓRIO DO MERCADO DE UVA DA EMBRAPA SEMIÁRIDO"
 author: "João Ricardo F. de Lima"
 date: "today"
 editor: source
@@ -38,32 +38,30 @@ date <- seq(as.Date('2023-01-01'),to=as.Date('2023-12-01'),by='1 month')
 
 <hr>
 
-# ATUALIZAÇÃO DA INFORMAÇÕES SOBRE A CULTURA DA MANGA COM DADOS DA PAM/IBGE ATÉ 2023.
+# ATUALIZAÇÃO DA INFORMAÇÕES SOBRE A CULTURA DA UVA COM DADOS DA PAM/IBGE ATÉ 2023.
 
 <hr>
 
-Os dados utilizados são da Pesquisa Agrícola Municipal (PAM) do IBGE e são anuais relativos ao período de 2014 a 2023.
+Os dados utilizados são da Pesquisa Agrícola Municipal (PAM) do IBGE e relativos ao período de 2014 a 2023, excluindo o estado do Rio Grande do Sul (que possui a maior parte de sua uva para produção de vinho e suco) dado que o interesse aqui é com uva de mesa. Em 2023, a área plantada no Brasil foi de aproximadamente 30 mil hectares (ha). As três regiões que concentram a produção nacional são a Nordeste 13 mil ha, a Sudeste 9,6 mil ha e a Sul (Paraná e Santa Catarina) com 7,1 mil ha. Os estados de Pernambuco (10,3 mil ha), São Paulo (8 mil ha), Santa Catarina (3,8 mil ha), Paraná (3,3 mil ha), Bahia (2,6 mil ha ) e Minas Gerais (1,3 mil ha) são os seis estados que concentram a maior parte da área de uva de mesa no país. O Vale do São Francisco mantém sua trajetória de crescimento de área, saindo de 9 mil ha em 2014 para 12,3 mil ha em 2023, segundo o IBGE (2024), um aumento de 35,93%. Em relação às cidades, três do Vale do São Francisco estão entre as cinco maiores produtoras: Petrolina/PE (7 mil ha), Lagoa Grande/PE (2,44 mil ha) e Juazeiro/BA (1,63 mil ha). 
 
-Em 2023, a área plantada no Brasil foi de aproximadamente 80,7 mil hectares (ha). As duas regiões que concentram a produção nacional são a Nordeste 62 mil ha (76,85% do total) e a Sudeste 17,7 mil ha (21,98% do total). Os estados da Bahia (33,4 mil ha); Pernambuco (18,2 mil ha); São Paulo (10,3 mil ha), Minas Gerais (6,3 mil ha), Ceará (4,3 mil ha ) e Rio Grande do Norte (2,7 mil ha) representam, respectivamente, 41,4%, 22,5%, 12,7%, 7,8% e 5,3% e 3,4% do total nacional. O Vale do São Francisco mantém sua trajetória de crescimento de área, saindo de 36,4 mil ha em 2022 para 37,9 mil ha em 2023, segundo o IBGE (2024), um aumento de 4%.
+Em termos de volumes, em 2023, o Brasil colheu cerca de 853 mil toneladas (t), com o Nordeste participando com aproximadamente 67% de todo este volume. Os seis estados com maiores volumes de produção são, respectivamente, Pernambuco (58,2%), São Paulo (17,9%), Bahia (8,5%), Santa Catarina (6,8%), Paraná ( 5,1%) e Minas Gerais (2,4%). Em 2023, o Vale do São Francisco produziu cerca de 554 mil toneladas, um crescimento de 40% em relação ao volume de 2022. 
 
-Em termos de volumes, em 2023, o Brasil colheu cerca de 1,76 milhões de toneladas (t), com o Nordeste participando com aproximadamente 81% de todo este volume e o Vale do São Francisco, sozinho, representando 66% do total nacional. As quatro cidades com maiores volumes de produção são, respectivamente, Juazeiro (BA) com 377 mil t, Petrolina (PE) com 376 mil t, Belém do São Francisco (PE) com 154 mil t e Casa Nova (BA) com 112 mil t. Os volumes somados representam quase 72% de toda a produção do Nordeste. O Vale do São Francisco ultrapassou a marca de 1,16 milhões toneladas, um crescimento de 10,7% em relação ao volume de 2022.
+Sobre a produtividade, em 2023, a média anual da região Nordeste (43,9 t/ha) é maior do que a média nacional (28,4 t/ha). Segundo o IBGE (2024), o estado de Pernambuco possui a maior produtividade média (48,1 t/ha), seguido da Bahia (28,2 t/ha) e São Paulo (18,9 t/ha). O Vale do São Francisco sofreu muito, em 2022, com chuvas que afetaram a produção e a produtividade. Em 2023, contudo, as condições climáticas foram mais favoráveis e a produtividade subiu para 45,1 t/ha, um crescimento de 26,3 em relação ao ano anterior.  
 
-Sobre a produtividade, a média, em 2023, da região Nordeste (23 t/ha) é maior do que a média nacional (21,8 t/ha). Segundo o IBGE, o estado de Pernambuco possui a maior produtividade média (33,1 t/ha), seguido da Bahia (21,1 t/ha) e São Paulo (21 t/ha). O Vale do São Francisco possui uma produtividade superior a média regional, cerca de 21 t/ha, na média. No ano de 2014, a produtividade nesta região foi de 22 t/ha. Assim, a explicação para o grande crescimento do volume de mangas no Vale do São Francisco tem dois fatores, o crescimento da área e o crescimento da produtividade por área.
-
-A manga gerou quase 3,2 bilhões de reais em valor da produção no Brasil, em 2023, sendo que quase 70% deste total, 2,2 bilhões de reais, teve origem no Vale do Submédio São Francisco.
+A uva gerou mais de 3,5 bilhões de reais em valor da produção no Brasil, sendo que aproximadamente dois terços deste total, 2,2 bilhões de reais, foi originado no Vale do São Francisco. 
 
 <br>
 
-# 1. ATUALIZAÇÃO DADOS SOBRE ÁREA DA CULTURA DA MANGA.
+# 1. ATUALIZAÇÃO DADOS SOBRE ÁREA DA CULTURA DA UVA.
 
 ## 1.1 ÁREA NO BRASIL E REGIÕES PRODUTORAS
 
 ::: panel-tabset
 ### GRÁFICO
 
-```{r ibge_manga1}
+```{r ibge_uva1}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2024')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_uva/2024')
 
 #Inicio do Script
 #Pacotes a serem utilizados 
@@ -80,7 +78,7 @@ library(plotly)
 library(DT)
 
 mycolors2 <- c("darkgray", "lightblue3", "orange", "darkblue", "red", "darkgreen", "gold", "#0A6269", "#690F0A", "#6675E6" )
-mycolors3 <- c("orange")
+mycolors3 <- c("darkblue", "orange")
 
 #Entrando dados no R
 #dados1 <- read_excel("area_regioes.xlsx", col_names = TRUE)
@@ -89,13 +87,30 @@ dados1 <- read_excel("area_regioes.xlsx", col_names = TRUE, skip = 4, col_types 
 colnames(dados1)[1] <- 'regiao'
 dados1 <- dados1[-nrow(dados1),]
 
+#Brasil sem Rio Grande do Sul
+dados1_BR <- dados1[,-1]
+dados1_BR2 <- dados1_BR[1,]-dados1_BR[7,]
+
+#Região Sul sem Rio Grande do Sul
+dados1_Sul <- dados1_BR[5,]-dados1_BR[7,]
+
+#Brasil e RS novos
+dados1_brrs <- rbind(dados1_BR2, dados1_Sul)
+
+#Voltando com os dados
+dados1_br_no_ne_se <- rbind(dados1_BR2, dados1_BR[c(2:4),])
+dados2_br_no_ne_se <- rbind(dados1_br_no_ne_se, dados1_Sul)
+dados1_f <- rbind(dados2_br_no_ne_se, dados1_BR[6,])
+
+dados1 <- cbind (dados1[c(1:6),1], dados1_f)
+
 dados1m <- melt(dados1, id.var='regiao')
 dados1m_area <- dados1m
 
 g1 <- ggplot()+
   geom_col(data=dados1m, aes(x=reorder(regiao, -value), y=value/1000, fill=variable), lwd=1, position = "dodge")+ scale_fill_manual(values=mycolors2)+
-  labs(y= "Área Plantada de Manga (1000 ha)", x= "Brasil e Regiões", title='',
-       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  labs(y= "Área Plantada de Uva (1000 ha)", x= "Brasil e Regiões", title='',
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa")+
   theme_minimal()+
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=20)),
         axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=20)),
@@ -115,13 +130,13 @@ ggplotly(g1) %>%
     y=0.1,
     title=''))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa
 
 ### TABELA 
 
 **VISUALIZAÇÃO DOS DADOS EM TABELA (HECTARES)**
 
-```{r ibge_manga1a}
+```{r ibge_uva1a}
 datatable(dados1, option = list(
   autoWidth = TRUE,
   columnDefs = list(list(className = 'dt-center', targets = "_all"))))
@@ -129,7 +144,7 @@ datatable(dados1, option = list(
 #kable(round(table,2)) %>%
 #  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa
 :::
 
 ## 1.2 ÁREA NOS PRINCIPAIS ESTADOS PRODUTORES
@@ -137,9 +152,9 @@ Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
 ::: panel-tabset
 ### GRÁFICO
 
-```{r ibge_manga2}
+```{r ibge_uva2}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2024')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_uva/2024')
 
 #Entrando dados no R
 #dados2 <- read_excel("area_estados.xlsx", col_names = TRUE)
@@ -148,14 +163,13 @@ colnames(dados2)[1] <- 'estados'
 dados2 <- dados2[-nrow(dados2),]
 dados2 <- na.exclude(dados2)
 dados2 <- arrange(dados2, desc(dados2$"2023"))
-dados2 <- dados2[c(1:6),]
-dados2$estados[6] <- "Rio G. do Norte"
+dados2 <- dados2[c(2:7),]
 dados2m <- melt(dados2, id.var='estados')
 
 g2 <- ggplot()+
   geom_col(data=dados2m, aes(x=reorder(estados, -value), y=value/1000, fill=variable), lwd=1, position = "dodge")+ scale_fill_manual(values=mycolors2)+
-  labs(y= "Área Plantada de Manga (1000 ha)", x= "Estados do Brasil", title='',
-       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  labs(y= "Área Plantada de Uva (1000 ha)", x= "Estados do Brasil", title='',
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa")+
   theme_minimal()+
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=20)),
         axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=20)),
@@ -175,13 +189,13 @@ ggplotly(g2) %>%
     y=0.1,
     title=''))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa
 
 ### TABELA 
 
 **VISUALIZAÇÃO DOS DADOS EM TABELA (HECTARES)**
 
-```{r ibge_manga2a}
+```{r ibge_uva2a}
 datatable(dados2, option = list(
   autoWidth = TRUE,
   columnDefs = list(list(className = 'dt-center', targets = "_all"))))
@@ -189,7 +203,7 @@ datatable(dados2, option = list(
 #kable(round(table,2)) %>%
 #  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa
 :::
 
 
@@ -198,10 +212,10 @@ Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
 ::: panel-tabset
 ### GRÁFICO
 
-```{r ibge_manga3}
+```{r ibge_uva3}
 #Direcionado o R para o Diretorio a ser trabalhado
 #Entrando dados no R
-setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2024')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_uva/2024')
 
 dados3 <- read_excel("area_cidades.xlsx", col_names = TRUE, skip = 4, col_types = c('text', rep("numeric", 10)), na = "-")
 colnames(dados3)[1] <- 'cidades'
@@ -209,20 +223,25 @@ dados3 <- dados3[-nrow(dados3),]
 #dados3$"2013"[dados3$cidades == "Belém do São Francisco (PE)"] <- 600
 dados3 <- dados3 |>
   na.exclude() |>
-  arrange(desc(`2023`)) 
+  arrange(desc(`2023`)) |>
+  filter(!grepl("\\(RS\\)", cidades))  # Exclude cities from Rio Grande do Sul (RS)
+
+#dados3 <- dados3[c(1,8,9,12,14,20,22,27,28,30,31,33,34,36,37,
+#                   40,43,44,45,46),c(1,11)]
 
 # Select the top 16 rows and remove columns 2 to 10 (unnecessary columns)
-dados3a <- dados3 |>
-  slice_head(n = 20) |>
+dados3 <- dados3 |>
+  slice_head(n = 16) |>
   select(-c(2:10))
 
-dados3m <- melt(dados3a, id.var='cidades')
+dados3a <- dados3
+dados3m <- melt(dados3, id.var='cidades')
 dados3m_area <- dados3m
 
 g3 <- ggplot()+
   geom_col(data=dados3m, aes(x=reorder(cidades, -value), y=value, fill=variable), lwd=1, position = "dodge")+ scale_fill_manual(values=mycolors3)+
-  labs(y= "Área Plantada de Manga (ha)", x= "Cidades do Brasil", title='',
-       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  labs(y= "Área Plantada de Uva (ha)", x= "Cidades do Brasil", title='',
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa")+
   theme_minimal()+
   theme(axis.text.x=element_text(angle=20, hjust=0.5, size=8, margin = margin(b=20)),
         axis.text.y=element_text(hjust=0.5, size=8, margin = margin(l=20)),
@@ -242,23 +261,21 @@ ggplotly(g3) %>%
     y=-0.35,
     title=''))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa
 
 ### TABELA 
 
 **VISUALIZAÇÃO DOS DADOS EM TABELA (HECTARES)**
 
-```{r ibge_manga3a}
-dados3b <- dados3 |>
-  slice_head(n = 20)
-datatable(dados3b, option = list(
+```{r ibge_uva3a}
+datatable(dados3, option = list(
   autoWidth = TRUE,
   columnDefs = list(list(className = 'dt-center', targets = "_all"))))
 
 #kable(round(table,2)) %>%
 #  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de uva da Embrapa
 ::: 
 
 ## 1.4 ÁREA NO VALE DO S. FRANCISCO 
@@ -267,10 +284,10 @@ Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de manga da Embrapa
 
 ### GRÁFICO
 
-```{r ibge_manga4}
+```{r ibge_uva4}
 #Direcionado o R para o Diretorio a ser trabalhado
 #Entrando dados no R
-setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2024')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_uva/2024')
 
 dados4 <- read_excel("area_vale.xlsx", col_names = TRUE, skip = 4, 
                      col_types = c('text', rep("numeric", 10)), na = "-")
@@ -288,10 +305,10 @@ dados4m_area <- dados4m
 mycolors4 <- "blue"
 
 g4 <- ggplot()+
-  geom_col(data=dados4m, aes(x=variable, y=value/1000, fill="Area Manga (Hectares)"), lwd=1)+
+  geom_col(data=dados4m, aes(x=variable, y=value/1000, fill="Area Uva (Hectares)"), lwd=1)+
   scale_fill_manual(values=mycolors4)+
-  labs(y= "Área Plantada de Manga (mil ha)", x= "Vale do São Francisco", title='',
-       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  labs(y= "Área Plantada de Uva (mil ha)", x= "Vale do São Francisco", title='',
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa")+
   theme_minimal()+
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=20)),
         axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=20)),
@@ -311,13 +328,13 @@ ggplotly(g4) %>%
     y=-0.2,
     title=''))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa
 
 ### TABELA 
 
 **VISUALIZAÇÃO DOS DADOS EM TABELA (HECTARES)**
 
-```{r ibge_manga4a}
+```{r ibge_uva4a}
 datatable(dados4a, option = list(
   autoWidth = TRUE,
   columnDefs = list(list(className = 'dt-center', targets = "_all"))))
@@ -325,11 +342,11 @@ datatable(dados4a, option = list(
 #kable(round(table,2)) %>%
 #  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de uva da Embrapa
 
 ::: 
 
-# 2. ATUALIZAÇÃO DADOS SOBRE PRODUÇÃO DA CULTURA DA MANGA.
+# 2. ATUALIZAÇÃO DADOS SOBRE PRODUÇÃO DA CULTURA DA UVA.
 
 ## 2.1 QUANTIDADE NO BRASIL E REGIÕES
 
@@ -337,23 +354,41 @@ Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de manga da Embrapa
 
 ### GRÁFICO
 
-```{r ibge_manga5}
+```{r ibge_uva5}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2024')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_uva/2024')
 
 #Entrando dados no R
 dados1 <- read_excel("quanti_regioes.xlsx", col_names = TRUE, skip = 4, col_types = c('text', rep("numeric", 10)), na = "-")
 
 colnames(dados1)[1] <- 'regiao'
 dados1 <- dados1[-nrow(dados1),]
+
+#Brasil sem Rio Grande do Sul
+dados1_BR <- dados1[,-1]
+dados1_BR2 <- dados1_BR[1,]-dados1_BR[7,]
+
+#Região Sul sem Rio Grande do Sul
+dados1_Sul <- dados1_BR[5,]-dados1_BR[7,]
+
+#Brasil e RS novos
+dados1_brrs <- rbind(dados1_BR2, dados1_Sul)
+
+#Voltando com os dados
+dados1_br_no_ne_se <- rbind(dados1_BR2, dados1_BR[c(2:4),])
+dados2_br_no_ne_se <- rbind(dados1_br_no_ne_se, dados1_Sul)
+dados1_f <- rbind(dados2_br_no_ne_se, dados1_BR[6,])
+
+dados1 <- cbind (dados1[c(1:6),1], dados1_f)
+
 dados1m <- melt(dados1, id.var='regiao')
 
 dados1m_quanti <- dados1m
 
 g1 <- ggplot()+
   geom_col(data=dados1m, aes(x=reorder(regiao, -value), y=value/1000, fill=variable), lwd=1, position = "dodge")+ scale_fill_manual(values=mycolors2)+
-  labs(y= "Quantidade Produzida de Manga (Mil t)", x= "Brasil e Regiões", title='',
-       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  labs(y= "Quantidade Produzida de Uva (Mil t)", x= "Brasil e Regiões", title='',
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa")+
   theme_minimal()+
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=20)),
         axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=20)),
@@ -373,13 +408,13 @@ ggplotly(g1) %>%
     y=0.1,
     title=''))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa
 
 ### TABELA 
 
 **VISUALIZAÇÃO DOS DADOS EM TABELA (TONELADAS)**
 
-```{r ibge_manga5a}
+```{r ibge_uva5a}
 datatable(dados1, option = list(
   autoWidth = TRUE,
   columnDefs = list(list(className = 'dt-center', targets = "_all"))))
@@ -387,7 +422,7 @@ datatable(dados1, option = list(
 #kable(round(table,2)) %>%
 #  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa
 :::
 
 ## 2.2 QUANTIDADE NOS PRINCIPAIS ESTADOS PRODUTORES
@@ -395,9 +430,9 @@ Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
 ::: panel-tabset
 ### GRÁFICO
 
-```{r ibge_manga6}
+```{r ibge_uva6}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2024')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_uva/2024')
 
 #Entrando dados no R
 #Entrando dados no R
@@ -407,14 +442,12 @@ colnames(dados2)[1] <- 'estados'
 dados2 <- dados2[-nrow(dados2),]
 dados2 <- na.exclude(dados2)
 dados2 <- arrange(dados2, desc(dados2$"2023"))
-dados2 <- dados2[c(1:6),]
-dados2$estados[6] <- "Rio G. do Norte"
-dados2m <- melt(dados2, id.var='estados')
+dados2 <- dados2[c(2:7),]
 
 g2 <- ggplot()+
   geom_col(data=dados2m, aes(x=reorder(estados, -value), y=value/1000, fill=variable), lwd=1, position = "dodge")+ scale_fill_manual(values=mycolors2)+
-  labs(y= "Quantidade Produzida de Manga (Mil t)", x= "Estados do Brasil", title='',
-       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  labs(y= "Quantidade Produzida de Uva (Mil t)", x= "Estados do Brasil", title='',
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa")+
   theme_minimal()+
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=20)),
         axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=20)),
@@ -434,13 +467,13 @@ ggplotly(g2) %>%
     y=0.1,
     title=''))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa
 
 ### TABELA 
 
 **VISUALIZAÇÃO DOS DADOS EM TABELA (TONELADAS)**
 
-```{r ibge_manga6a}
+```{r ibge_uva6a}
 datatable(dados2, option = list(
   autoWidth = TRUE,
   columnDefs = list(list(className = 'dt-center', targets = "_all"))))
@@ -448,7 +481,7 @@ datatable(dados2, option = list(
 #kable(round(table,2)) %>%
 #  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa
 :::
 
 ## 2.3 QUANTIDADE NAS PRINCIPAIS CIDADES PRODUTORAS
@@ -457,10 +490,10 @@ Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
 ### GRÁFICO
 
-```{r ibge_manga7}
+```{r ibge_uva7}
 #Direcionado o R para o Diretorio a ser trabalhado
 #Entrando dados no R
-setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2024')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_uva/2024')
 dados3 <- read_excel("quanti_cidades.xlsx", col_names = TRUE, skip = 4, 
                      col_types = c('text', rep("numeric", 10)), na = "-")
 colnames(dados3)[1] <- 'cidades'
@@ -468,21 +501,22 @@ dados3 <- dados3[-nrow(dados3),]
 #dados3$"2013"[dados3$cidades == "Belém do São Francisco (PE)"] <- 600
 dados3 <- dados3 |>
   na.exclude() |>
-  arrange(desc(`2023`)) # Exclude cities from Rio Grande do Sul (RS)
+  arrange(desc(`2023`)) |>
+  filter(!grepl("\\(RS\\)", cidades))  # Exclude cities from Rio Grande do Sul (RS)
 
 # Select the top 16 rows and remove columns 2 to 10 (unnecessary columns)
-dados3a <- dados3 |>
-  slice_head(n = 20) |>
+dados3 <- dados3 |>
+  slice_head(n = 16) |>
   select(-c(2:10))
 
-#dados3a <- dados3
-dados3m <- melt(dados3a, id.var='cidades')
+dados3a <- dados3
+dados3m <- melt(dados3, id.var='cidades')
 dados3m_quanti <- dados3m
 
 g3 <- ggplot()+
   geom_col(data=dados3m, aes(x=reorder(cidades, -value), y=value/1000, fill=variable), lwd=1, position = "dodge")+ scale_fill_manual(values=mycolors3)+
-  labs(y= "Quantidade Produzida de Manga (Mil t)", x= "Cidades do Brasil", title='',
-       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  labs(y= "Quantidade Produzida de Uva (Mil t)", x= "Cidades do Brasil", title='',
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa")+
   theme_minimal()+
   theme(axis.text.x=element_text(angle=20, hjust=0.5, size=8, margin = margin(b=20)),
         axis.text.y=element_text(hjust=0.5, size=8, margin = margin(l=20)),
@@ -502,16 +536,13 @@ ggplotly(g3) %>%
     y=-0.35,
     title=''))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa
 
 ### TABELA 
 
 **VISUALIZAÇÃO DOS DADOS EM TABELA (TONELADAS)**
 
-```{r ibge_manga7a}
-dados3 <- dados3 |>
-  slice_head(n = 20)
-
+```{r ibge_uva7a}
 datatable(dados3, option = list(
   autoWidth = TRUE,
   columnDefs = list(list(className = 'dt-center', targets = "_all"))))
@@ -519,7 +550,7 @@ datatable(dados3, option = list(
 #kable(round(table,2)) %>%
 #  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa
 :::
 
 ## 2.4 QUANTIDADE NO VALE DO S. FRANCISCO 
@@ -528,10 +559,10 @@ Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
 ### GRÁFICO
 
-```{r ibge_manga8}
+```{r ibge_uva8}
 #Direcionado o R para o Diretorio a ser trabalhado
 #Entrando dados no R
-setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2024')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_uva/2024')
 
 dados4 <- read_excel("quanti_vale.xlsx", col_names = TRUE, skip = 4, 
                      col_types = c('text', rep("numeric", 10)), na = "-")
@@ -549,10 +580,10 @@ dados4m_quanti <- dados4m
 mycolors4 <- "blue"
 
 g4 <- ggplot()+
-  geom_col(data=dados4m, aes(x=variable, y=value/1000, fill="Quantidade Manga (1000 Toneladas)"), lwd=1)+
+  geom_col(data=dados4m, aes(x=variable, y=value/1000, fill="Quantidade Uva (1000 Toneladas)"), lwd=1)+
   scale_fill_manual(values=mycolors4)+
-  labs(y= "Quantidade Produzida de Manga (Mil t)", x= "Vale do São Francisco", title='',
-       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  labs(y= "Quantidade Produzida de Uva (Mil t)", x= "Vale do São Francisco", title='',
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa")+
   theme_minimal()+
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=20)),
         axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=20)),
@@ -572,13 +603,13 @@ ggplotly(g4) %>%
     y=-0.2,
     title=''))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa
 
 ### TABELA 
 
 **VISUALIZAÇÃO DOS DADOS EM TABELA**
 
-```{r ibge_manga8a}
+```{r ibge_uva8a}
 datatable(dados4a, option = list(
   autoWidth = TRUE,
   columnDefs = list(list(className = 'dt-center', targets = "_all"))))
@@ -586,11 +617,11 @@ datatable(dados4a, option = list(
 #kable(round(table,2)) %>%
 #  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa
 
 :::
 
-# 3. ATUALIZAÇÃO DADOS SOBRE PRODUTIVIDADE DA CULTURA DA MANGA.
+# 3. ATUALIZAÇÃO DADOS SOBRE PRODUTIVIDADE DA CULTURA DA UVA.
 
 ## 3.1 PRODUTIVIDADE NO BRASIL E PRINCIPAIS REGIÕES PRODUTORAS
 
@@ -598,9 +629,9 @@ Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
 ### GRÁFICO
 
-```{r ibge_manga9}
+```{r ibge_uva9}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2024')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_uva/2024')
 
 dados1m <- cbind(dados1m_quanti, dados1m_area$value)
 dados1m$prod <- dados1m$value/dados1m$`dados1m_area$value`
@@ -611,8 +642,8 @@ dados1m$value <- round(dados1m$value,1)
 
 g1 <- ggplot()+
   geom_col(data=dados1m, aes(x=regiao, y=value, fill=variable), lwd=1, position = "dodge")+ scale_fill_manual(values=mycolors2)+
-  labs(y= "Produtividade na Manga (t/ha)", x= "Brasil e Regiões", title='',
-       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  labs(y= "Produtividade na Uva (t/ha)", x= "Brasil e Regiões", title='',
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa")+
   theme_minimal()+
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=20)),
         axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=20)),
@@ -632,13 +663,13 @@ ggplotly(g1) %>%
     y=0.1,
     title=''))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa
 
 ### TABELA 
 
 **VISUALIZAÇÃO DOS DADOS EM TABELA (T/HA)**
 
-```{r ibge_manga9a}
+```{r ibge_uva9a}
 dados1c <- dcast(dados1m, regiao~variable)
 
 datatable(dados1c, option = list(
@@ -648,7 +679,7 @@ datatable(dados1c, option = list(
 #kable(round(table,2)) %>%
 #  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de uva da Embrapa
 
 :::
 
@@ -658,9 +689,9 @@ Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de manga da Embrapa
 
 ### GRÁFICO
 
-```{r ibge_manga10}
+```{r ibge_uva10}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2024')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_uva/2024')
 
 #Entrando dados no R
 dados2 <- read_excel("produti_estados.xlsx", col_names = TRUE, skip = 4, 
@@ -670,15 +701,14 @@ colnames(dados2)[1] <- 'estados'
 dados2 <- dados2[-nrow(dados2),]
 dados2 <- na.exclude(dados2)
 dados2 <- arrange(dados2, desc(dados2$"2023"))
-dados2$estados[10] <- "Rio G. do Norte"
-dados2 <- dados2[c(1,3,4,10,11,16),]
+dados2 <- dados2[c(1,2,7,10,11,12),]
 
 dados2m <- melt(dados2, id.var='estados')
 
 g2 <- ggplot()+
   geom_col(data=dados2m, aes(x=reorder(estados, -value), y=value/1000, fill=variable), lwd=1, position = "dodge")+ scale_fill_manual(values=mycolors2)+
-  labs(y= "Produtividade da Manga (t/ha)", x= "Estados do Brasil", title='',
-       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  labs(y= "Produtividade da Uva (t/ha)", x= "Estados do Brasil", title='',
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa")+
   theme_minimal()+
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=20)),
         axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=20)),
@@ -698,13 +728,13 @@ ggplotly(g2) %>%
     y=0.1,
     title=''))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa
 
 ### TABELA 
 
 **VISUALIZAÇÃO DOS DADOS EM TABELA (T/HA)**
 
-```{r ibge_manga10a}
+```{r ibge_uva10a}
 dados2t <- dados2[,1]
 dados2 <- round(dados2[,c(2:11)]/1000,1)
 dados2 <- cbind(dados2t, dados2)
@@ -716,7 +746,7 @@ datatable(dados2, option = list(
 #kable(round(table,2)) %>%
 #  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de uva da Embrapa
 
 :::
 
@@ -726,15 +756,15 @@ Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de manga da Embrapa
 
 ### GRÁFICO
 
-```{r ibge_manga11}
+```{r ibge_uva11}
 #Direcionado o R para o Diretorio a ser trabalhado
 #Entrando dados no R
-setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2024')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_uva/2024')
 
 # Merge data with inner join
 dados3m <- inner_join(dados3m_quanti, dados3m_area, by="cidades")
-#dados3m <- dados3m |>
-#  filter(variable.x == 2023)
+dados3m <- dados3m |>
+  filter(variable.x == 2023)
 dados3m$value <- dados3m$value.x/dados3m$value.y
 dados3m$variable <- dados3m$variable.x
 dados3m <- dados3m[,-c(2:5)]
@@ -742,8 +772,8 @@ dados3m$value <- round(dados3m$value,1)
 
 g3 <- ggplot()+
   geom_col(data=dados3m, aes(x=reorder(cidades, -value), y=value, fill=variable), lwd=1, position = "dodge")+ scale_fill_manual(values=mycolors3)+
-  labs(y= "Produtividade na Manga (t/ha)", x= "Cidades do Brasil", title='',
-       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  labs(y= "Produtividade na Uva (t/ha)", x= "Cidades do Brasil", title='',
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa")+
   theme_minimal()+
   theme(axis.text.x=element_text(angle=20, hjust=0.5, size=8, margin = margin(b=20)),
         axis.text.y=element_text(hjust=0.5, size=8, margin = margin(l=20)),
@@ -763,13 +793,13 @@ ggplotly(g3) %>%
     y=-0.35,
     title=''))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa
 
 ### TABELA 
 
 **VISUALIZAÇÃO DOS DADOS EM TABELA (T/HA)**
 
-```{r ibge_manga11a}
+```{r ibge_uva11a}
 dados3m_t <- dados3m[,-3]
 dados3m_t <- arrange(dados3m_t, desc(dados3m_t$"value"))
 colnames(dados3m_t)[2] <- 'Produtividade em 2023'
@@ -780,7 +810,7 @@ datatable(dados3m_t, option = list(
 #kable(round(table,2)) %>%
 #  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa
 ::: 
 
 ## 3.4 PRODUTIVIDADE NO VALE DO S. FRANCISCO 
@@ -789,10 +819,10 @@ Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
 ### GRÁFICO
 
-```{r ibge_manga12}
+```{r ibge_uva12}
 #Direcionado o R para o Diretório a ser trabalhado
 #Entrando dados no R
-setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2024')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_uva/2024')
 
 dados4m <- inner_join(dados4m_quanti, dados4m_area, by="variable")
 dados4m$value <- dados4m$value.x/dados4m$value.y
@@ -801,10 +831,10 @@ dados4m <- dados4m[,-c(3:5)]
 colnames(dados4m)[1] <- "mesorregiao"
 
 g4 <- ggplot()+
-  geom_col(data=dados4m, aes(x=variable, y=value, fill="Produtividade manga"), lwd=1)+
+  geom_col(data=dados4m, aes(x=variable, y=value, fill="Produtividade uva"), lwd=1)+
   scale_fill_manual(values=mycolors4)+
-  labs(y= "Produtividade da Manga (t/ha)", x= "Vale do São Francisco", title='',
-       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  labs(y= "Produtividade da Uva (t/ha)", x= "Vale do São Francisco", title='',
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa")+
   theme_minimal()+
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=20)),
         axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=20)),
@@ -824,13 +854,13 @@ ggplotly(g4) %>%
     y=-0.2,
     title=''))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa
 
 ### TABELA 
 
 **VISUALIZAÇÃO DOS DADOS EM TABELA (T/HA)**
 
-```{r ibge_manga12a}
+```{r ibge_uva12a}
 dados4c <- dcast(dados4m, mesorregiao~variable)
 datatable(dados4c, option = list(
   autoWidth = TRUE,
@@ -839,11 +869,11 @@ datatable(dados4c, option = list(
 #kable(round(table,2)) %>%
 #  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa
 
 :::
 
-# 4. ATUALIZAÇÃO DADOS SOBRE VALOR DA PRODUÇÃO DA CULTURA DA MANGA.
+# 4. ATUALIZAÇÃO DADOS SOBRE VALOR DA PRODUÇÃO DA CULTURA DA UVA.
 
 ## 4.1 VALOR DA PRODUÇÃO NO BRASIL E REGIÕES
 
@@ -851,9 +881,9 @@ Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
 ### GRÁFICO
 
-```{r ibge_manga13}
+```{r ibge_uva13}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2024')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_uva/2024')
 
 #Entrando dados no R
 #Entrando dados no R
@@ -864,13 +894,29 @@ dados1 <- read_excel("valor_regioes.xlsx", col_names = TRUE, skip = 4,
 colnames(dados1)[1] <- 'regiao'
 dados1 <- dados1[-nrow(dados1),]
 
+#Brasil sem Rio Grande do Sul
+dados1_BR <- dados1[,-1]
+dados1_BR2 <- dados1_BR[1,]-dados1_BR[7,]
+
+#Região Sul sem Rio Grande do Sul
+dados1_Sul <- dados1_BR[5,]-dados1_BR[7,]
+
+#Brasil e RS novos
+dados1_brrs <- rbind(dados1_BR2, dados1_Sul)
+
+#Voltando com os dados
+dados1_br_no_ne_se <- rbind(dados1_BR2, dados1_BR[c(2:4),])
+dados2_br_no_ne_se <- rbind(dados1_br_no_ne_se, dados1_Sul)
+dados1_f <- rbind(dados2_br_no_ne_se, dados1_BR[6,])
+
+dados1 <- cbind (dados1[c(1:6),1], dados1_f)
 dados1m <- melt(dados1, id.var='regiao')
 dados1m$value <- round(dados1m$value/1000,2)
 
 g1 <- ggplot()+
   geom_col(data=dados1m, aes(x=reorder(regiao, -value), y=value, fill=variable), lwd=1, position = "dodge")+ scale_fill_manual(values=mycolors2)+
   labs(y= "Valor da Produção (R$ milhões)", x= "Brasil e Regiões", title='',
-       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa")+
   theme_minimal()+
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=20)),
         axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=20)),
@@ -890,18 +936,19 @@ ggplotly(g1) %>%
     y=0.1,
     title=''))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa
 
 ### TABELA 
 
 **VISUALIZAÇÃO DOS DADOS (R$ MILHÕES) EM TABELA**
 
-```{r ibge_manga13a}
+```{r ibge_uva13a}
 dados1t <- dados1[,1]
 dados1 <- round(dados1[,c(2:11)]/1000,1)
 dados1 <- cbind(dados1t, dados1)
 
-colnames(dados1)[1] = "regioes"
+dados1 <- dados1 |> 
+  rename(regioes = dados1t)
 
 datatable(dados1, option = list(
   autoWidth = TRUE,
@@ -909,7 +956,7 @@ datatable(dados1, option = list(
 #kable(round(table,2)) %>%
 #  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa
 :::
 
 ## 4.2 VALOR DA PRODUÇÃO NOS PRINCIPAIS ESTADOS PRODUTORES
@@ -918,9 +965,9 @@ Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
 ### GRÁFICO
 
-```{r ibge_manga14}
+```{r ibge_uva14}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2024')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_uva/2024')
 
 #Entrando dados no R
 dados2 <- read_excel("valor_estados.xlsx", col_names = TRUE, skip = 4, 
@@ -930,14 +977,13 @@ colnames(dados2)[1] <- 'estados'
 dados2 <- dados2[-nrow(dados2),]
 dados2 <- na.exclude(dados2)
 dados2 <- arrange(dados2, desc(dados2$"2023"))
-dados2$estados[5] <- "Rio G. do Norte"
 dados2 <- dados2[c(1:6),]
 dados2m <- melt(dados2, id.var='estados')
 
 g2 <- ggplot()+
   geom_col(data=dados2m, aes(x=reorder(estados, -value), y=value/1000, fill=variable), lwd=1, position = "dodge")+ scale_fill_manual(values=mycolors2)+
   labs(y= "Valor da Produção (R$ milhões)", x= "Estados do Brasil", title='',
-       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa")+
   theme_minimal()+
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=20)),
         axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=20)),
@@ -957,13 +1003,13 @@ ggplotly(g2) %>%
     y=0.1,
     title=''))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa
 
 ### TABELA 
 
 **VISUALIZAÇÃO DOS DADOS (R$ MILHÕES) EM TABELA**
 
-```{r ibge_manga14a}
+```{r ibge_uva14a}
 
 dados2t <- dados2[,1]
 dados2 <- round(dados2[,c(2:11)]/1000,1)
@@ -976,7 +1022,7 @@ datatable(dados2, option = list(
 #kable(round(table,2)) %>%
 #  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa
 :::
 
 ## 4.3 VALOR DA PRODUÇÃO NAS PRINCIPAIS CIDADES PRODUTORAS
@@ -985,9 +1031,9 @@ Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
 ### GRÁFICO
 
-```{r ibge_manga15}
+```{r ibge_uva15}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2024')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_uva/2024')
 
 #Entrando dados no R
 dados3 <- read_excel("valor_cidades.xlsx", col_names = TRUE, skip = 4, 
@@ -999,19 +1045,21 @@ dados3 <- dados3[-nrow(dados3),]
 
 dados3 <- dados3 |>
   na.exclude() |>
-  arrange(desc(`2023`))
+  arrange(desc(`2023`)) |>
+  filter(!grepl("\\(RS\\)", cidades))  # Exclude cities from Rio Grande do Sul (RS)
 
 # Select the top 16 rows and remove columns 2 to 10 (unnecessary columns)
-dados3a <- dados3 |>
-  slice_head(n = 20) |>
+dados3 <- dados3 |>
+  slice_head(n = 16) |>
   select(-c(2:10))
 
-dados3m <- melt(dados3a, id.var='cidades')
+dados3a <- dados3
+dados3m <- melt(dados3, id.var='cidades')
 
 g3 <- ggplot()+
   geom_col(data=dados3m, aes(x=reorder(cidades, -value), y=value/1000, fill=variable), lwd=1, position = "dodge")+ scale_fill_manual(values=mycolors3)+
   labs(y= "Valor da Produção (R$ milhões)", x= "Cidades do Brasil", title='',
-       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa")+
   theme_minimal()+
   theme(axis.text.x=element_text(angle=20, hjust=0.5, size=8, margin = margin(b=20)),
         axis.text.y=element_text(hjust=0.5, size=8, margin = margin(l=20)),
@@ -1031,16 +1079,17 @@ ggplotly(g3) %>%
     y=-0.35,
     title=''))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa
 
 ### TABELA 
 
-**VISUALIZAÇÃO DOS DADOS (R$ MIL) EM TABELA**
+**VISUALIZAÇÃO DOS DADOS (R$ MILHÕES) EM TABELA**
 
-```{r ibge_manga15a}
+```{r ibge_uva15a}
 
-dados3 <- dados3 |>
-  slice_head(n = 20)
+#dados3t <- dados3[,1]
+#dados3 <- round(dados3[,c(2:11)]/1000,1)
+#dados3 <- cbind(dados3t, dados3)
 
 datatable(dados3, option = list(
   autoWidth = TRUE,
@@ -1049,7 +1098,7 @@ datatable(dados3, option = list(
 #kable(round(table,2)) %>%
 #  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa
 :::
 
 ## 4.4 VALOR DA PRODUÇÃO NO VALE DO S. FRANCISCO 
@@ -1058,10 +1107,10 @@ Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
 ### GRÁFICO
 
-```{r ibge_manga16}
+```{r ibge_uva16}
 #Direcionado o R para o Diretório a ser trabalhado
 #Entrando dados no R
-setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga/2024')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_uva/2024')
 dados4 <- read_excel("valor_vale.xlsx", col_names = TRUE, skip = 4, 
                      col_types = c('text', rep("numeric", 10)), na = "-")
 
@@ -1080,7 +1129,7 @@ g4 <- ggplot()+
   geom_col(data=dados4m, aes(x=variable, y=value/1000, fill="Valor da Produção"), lwd=1)+
   scale_fill_manual(values=mycolors4)+
   labs(y= "Valor da Produção (R$ milhões)", x= "Vale do São Francisco", title='',
-       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+       caption = "Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa")+
   theme_minimal()+
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=20)),
         axis.text.y=element_text(hjust=0.5, size=12, margin = margin(l=20)),
@@ -1100,14 +1149,14 @@ ggplotly(g4) %>%
     y=-0.2,
     title=''))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa
 
 
 ### TABELA 
 
 **VISUALIZAÇÃO DOS DADOS (R$ MILHÕES) EM TABELA**
 
-```{r ibge_manga16a}
+```{r ibge_uva16a}
 dados4a_t <- dados4a[,1]
 dados4a <- round(dados4a[,c(2:11)]/1000,1)
 dados4a <- cbind(dados4a_t, dados4a)
@@ -1119,7 +1168,7 @@ datatable(dados4a, option = list(
 #kable(round(table,2)) %>%
 #  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
 ```
-Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
+Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Uva da Embrapa
 
 :::
 
@@ -1127,7 +1176,7 @@ Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
 
 
-<center>![](logo_manga.png){width="10cm"}</center>
+<center>![](logo_uva.png){width="10cm"}</center>
 
 
 
@@ -1137,9 +1186,9 @@ Fonte: PAM/IBGE reprocessado pelo Observatório de Mercado de Manga da Embrapa
 
 
 
-<center><https://www.embrapa.br/observatorio-da-manga></center>
+<center><https://www.embrapa.br/observatorio-da-uva></center>
 
-<center>[Dashboard Mercado de Manga](https://bit.ly/3OgmyKp)</center>
+<center>[Dashboard Mercado de Uva](https://bit.ly/3OgmyKp)</center>
 
 
 
