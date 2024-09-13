@@ -42,13 +42,13 @@ date <- seq(as.Date('2023-01-01'),to=as.Date('2023-12-01'),by='1 month')
 
 <hr>
 
-Os dados utilizados são da Pesquisa Agrícola Municipal (PAM) do IBGE e são anuais relativos ao período de 2013 a 2023.
+Os dados utilizados são da Pesquisa Agrícola Municipal (PAM) do IBGE e são anuais relativos ao período de 2014 a 2023.
 
 Em 2023, a área plantada no Brasil foi de aproximadamente 80,7 mil hectares (ha). As duas regiões que concentram a produção nacional são a Nordeste 62 mil ha (76,85% do total) e a Sudeste 17,7 mil ha (21,98% do total). Os estados da Bahia (33,4 mil ha); Pernambuco (18,2 mil ha); São Paulo (10,3 mil ha), Minas Gerais (6,3 mil ha), Ceará (4,3 mil ha ) e Rio Grande do Norte (2,7 mil ha) representam, respectivamente, 41,4%, 22,5%, 12,7%, 7,8% e 5,3% e 3,4% do total nacional. O Vale do São Francisco mantém sua trajetória de crescimento de área, saindo de 36,4 mil ha em 2022 para 37,9 mil ha em 2023, segundo o IBGE (2024), um aumento de 4%.
 
 Em termos de volumes, em 2023, o Brasil colheu cerca de 1,76 milhões de toneladas (t), com o Nordeste participando com aproximadamente 81% de todo este volume e o Vale do São Francisco, sozinho, representando 66% do total nacional. As quatro cidades com maiores volumes de produção são, respectivamente, Juazeiro (BA) com 377 mil t, Petrolina (PE) com 376 mil t, Belém do São Francisco (PE) com 154 mil t e Casa Nova (BA) com 112 mil t. Os volumes somados representam quase 72% de toda a produção do Nordeste. O Vale do São Francisco ultrapassou a marca de 1,16 milhões toneladas, um crescimento de 10,7% em relação ao volume de 2022.
 
-Sobre a produtividade, a média, em 2023, da região Nordeste (23 t/ha) é maior do que a média nacional (21,8 t/ha). Segundo o IBGE, o estado de Pernambuco possui a maior produtividade média (33,1 t/ha), seguido da Bahia (21.1 t/ha) e São Paulo (21 t/ha). O Vale do São Francisco possui uma produtividade superior a média regional, cerca de 21 t/ha, na média. No ano de 2014, a produtividade nesta região foi de 22 t/ha. Assim, a explicação para o grande crescimento do volume de mangas no Vale do São Francisco tem dois fatores, o crescimento da área e o crescimento da produtividade por área.
+Sobre a produtividade, a média, em 2023, da região Nordeste (23 t/ha) é maior do que a média nacional (21,8 t/ha). Segundo o IBGE, o estado de Pernambuco possui a maior produtividade média (33,1 t/ha), seguido da Bahia (21,1 t/ha) e São Paulo (21 t/ha). O Vale do São Francisco possui uma produtividade superior a média regional, cerca de 21 t/ha, na média. No ano de 2014, a produtividade nesta região foi de 22 t/ha. Assim, a explicação para o grande crescimento do volume de mangas no Vale do São Francisco tem dois fatores, o crescimento da área e o crescimento da produtividade por área.
 
 A manga gerou quase 3,2 bilhões de reais em valor da produção no Brasil, em 2023, sendo que quase 70% deste total, 2,2 bilhões de reais, teve origem no Vale do Submédio São Francisco.
 
