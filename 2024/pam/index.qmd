@@ -38,7 +38,7 @@ date <- seq(as.Date('2023-01-01'),to=as.Date('2023-12-01'),by='1 month')
 
 <hr>
 
-# ATUALIZAÇÃO DA INFORMAÇÕES SOBRE A CULTURA DA MANGA COM DADOS DA PAM/IBGE ATÉ 2023.
+# ATUALIZAÇÕES DAS INFORMAÇÕES SOBRE A CULTURA DA MANGA COM DADOS DA PAM/IBGE ATÉ 2023.
 
 <hr>
 
@@ -48,7 +48,7 @@ Em 2023, a área plantada no Brasil foi de aproximadamente 80,7 mil hectares (ha
 
 Em termos de volumes, em 2023, o Brasil colheu cerca de 1,76 milhões de toneladas (t), com o Nordeste participando com aproximadamente 81% de todo este volume e o Vale do São Francisco, sozinho, representando 66% do total nacional. As quatro cidades com maiores volumes de produção são, respectivamente, Juazeiro (BA) com 377 mil t, Petrolina (PE) com 376 mil t, Belém do São Francisco (PE) com 154 mil t e Casa Nova (BA) com 112 mil t. Os volumes somados representam quase 72% de toda a produção do Nordeste. O Vale do São Francisco ultrapassou a marca de 1,16 milhões toneladas, um crescimento de 10,7% em relação ao volume de 2022.
 
-Sobre a produtividade, a média, em 2023, da região Nordeste (23 t/ha) é maior do que a média nacional (21,8 t/ha). Segundo o IBGE, o estado de Pernambuco possui a maior produtividade média (33,1 t/ha), seguido da Bahia (21,1 t/ha) e São Paulo (21 t/ha). O Vale do São Francisco possui uma produtividade superior a média regional, cerca de 21 t/ha, na média. No ano de 2014, a produtividade nesta região foi de 22 t/ha. Assim, a explicação para o grande crescimento do volume de mangas no Vale do São Francisco tem dois fatores, o crescimento da área e o crescimento da produtividade por área.
+Sobre a produtividade, a média, em 2023, da região Nordeste (23 t/ha) é maior do que a média nacional (21,8 t/ha). Segundo o IBGE, o estado de Pernambuco possui a maior produtividade média (33,1 t/ha), seguido da Bahia (21,1 t/ha) e São Paulo (21 t/ha). O Vale do São Francisco possui uma produtividade superior a média regional, cerca de 31 t/ha, na média. No ano de 2014, a produtividade nesta região foi de 22 t/ha. Assim, a explicação para o grande crescimento do volume de mangas no Vale do São Francisco tem dois fatores, o crescimento da área e o crescimento da produtividade por área.
 
 A manga gerou quase 3,2 bilhões de reais em valor da produção no Brasil, em 2023, sendo que quase 70% deste total, 2,2 bilhões de reais, teve origem no Vale do Submédio São Francisco.
 
