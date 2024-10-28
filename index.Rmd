@@ -56,8 +56,8 @@ library(lubridate)
 data <- Sys.Date() #ajustar semanalmente
 sem_ano <- isoweek(data) #ajustar semanalmente
 
-#data <- as.Date('2024-10-18')
-#sem_ano <- 42
+data <- as.Date('2024-10-25')
+sem_ano <- 43
 
 # Linhas que precisam de ajuste: 71, 104, 107
 ```
@@ -1176,7 +1176,11 @@ PALMER {data-navmenu="PREÇOS AO PRODUTOR"}
 #setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
 setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
-today <- Sys.Date() #ajustar semanalmente
+#today <- Sys.Date() #ajustar semanalmente
+#atual <-  today
+#data <-  today
+
+today <- as.Date('2024-10-25')
 atual <-  today
 data <-  today
 
@@ -1204,7 +1208,7 @@ date <- seq(as.Date('2012-01-07'),to=today,by='1 week')
 date <- date[date != as.Date('2016-12-31')]
 date[date == as.Date('2022-12-31')] <- as.Date('2023-01-01')
 date <- date[date != as.Date('2023-12-30')]
-#date <- c(date, as.Date(today))
+date <- c(date, as.Date(today))
 dadosp$date <- date
 
 #Analise de Serie Temporal
@@ -1479,6 +1483,10 @@ TOMMY {data-navmenu="PREÇOS AO PRODUTOR"}
 #setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
 setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
+today <- as.Date('2024-10-25')
+atual <-  today
+data <-  today
+
 #Entrando dados no R
 dados <- read.csv2('dados_manga_tommy_semana.csv', header=T, sep=";", dec=".")
 #dados <- dados[,-c(9:10)] #retirar as ultimas colunas
@@ -1504,7 +1512,7 @@ date <- seq(as.Date('2012-01-07'),to=today,by='1 week')
 date <- date[date != as.Date('2016-12-31')]
 date[date == as.Date('2022-12-31')] <- as.Date('2023-01-01')
 date <- date[date != as.Date('2023-12-30')]
-#date <- c(date, as.Date(today))
+date <- c(date, as.Date(today))
 dadosp$date <- date
 
 #Analise de Serie Temporal
