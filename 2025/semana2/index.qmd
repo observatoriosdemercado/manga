@@ -47,7 +47,7 @@ sem_ano <- isoweek(today)
 
 <hr>
 
-Os dados utilizados nesta análise são semanais e disponibilizados pelo **CEPEA (Esalq-USP)** englobando o período de 2012 a 2024, para as variedades de manga *Palmer* e *Tommy Atkins*, ao produtor do Vale do São Francisco. Os preços até a semana `r strftime(today, format = "%V")` de 2024, deflacionados pelo IGP-DI, são comparados com a média de cada semana entre 2012 e 2023, mínimo para cada semana e máximo. Os preços deflacionados de 2022 e de 2023 também são apresentados para comparação de 2024 com os dois anos anteriores.
+Os dados utilizados nesta análise são semanais e disponibilizados pelo **CEPEA (Esalq-USP)** englobando o período de 2012 a 2025, para as variedades de manga *Palmer* e *Tommy Atkins*, ao produtor do Vale do São Francisco. Os preços até a semana `r strftime(today, format = "%V")` de 2025, deflacionados pelo IGP-DI, são comparados com a média de cada semana entre 2012 e 2024, mínimo para cada semana e máximo. Os preços deflacionados de 2023 e de 2024 também são apresentados para comparação de 2025 com os dois anos anteriores.
 
 O preço médio de **Palmer** na semana `r strftime(today, format = "%V de %Y")` foi R\$1,50, variando entre R\$2,00 e R\$1,20. A média histórica dos dados deflacionados, desde 2012 até 2024, para esta semana, é R\$2,39. Em 2023, o preço deflacionado é de R\$0,99 para a semana `r strftime(today, format = "%V")` e, em 2024, o preço é R\$ 4,23. Em relação à semana `r strftime(last, format = "%V")`, os preços subiram 45,63%.
 
