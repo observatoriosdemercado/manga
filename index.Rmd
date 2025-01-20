@@ -53,10 +53,11 @@ knitr::opts_chunk$set(
   )
 
 library(lubridate)
-data <- Sys.Date() #ajustar semanalmente
-sem_ano <- isoweek(data) #ajustar semanalmente
+#data <- Sys.Date() #ajustar semanalmente
+#sem_ano <- isoweek(data) #ajustar semanalmente
 
-#data <- as.Date('2024-10-25')
+data <- as.Date('2025-01-17')
+sem_ano <- isoweek(data) 
 #sem_ano <- 43
 
 # Linhas que precisam de ajuste: 71, 104, 107
@@ -942,7 +943,7 @@ MERCADO TRABALHO {data-navmenu="MERCADO INTERNO"}
 #setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_caged')
 setwd('/Users/jricardofl/Dropbox/tempecon/dados_caged')
 
-atual <-  as.Date("2024-10-01")
+atual <-  as.Date("2024-11-01")
 #today <- as.Date("2022-02-11")
 
 
@@ -953,7 +954,7 @@ library(scales)
 library(plotly)
 
 #Entrando dados no R
-dados1 <- read.csv2('outubro_2024.csv', header=T, sep=";", dec = ".")
+dados1 <- read.csv2('novembro_2024.csv', header=T, sep=";", dec = ".")
 colnames(dados1)[1] <- 'date'
 dados1$date <- seq(as.Date('2021-01-01'),to=atual,by='1 month')
 dados1a <- dados1 
@@ -977,29 +978,29 @@ saldom$mes <- factor(saldom$mes,levels = c("Jan", "Fev", "Mar", "Abr", "Mai",
 
 #Entrando com o restante dos dados
 
-load("outubro_24_caged.RData")
+load("novembro_24_caged.RData")
 
 #dados_02_vsf$sexo <- lapply(dados_02_vsf$sexo, factor)
 
-dados_10_vsf$sexo[dados_10_vsf$sexo == 1] <- 0
-dados_10_vsf$sexo[dados_10_vsf$sexo == 3] <- 1
+dados_11_vsf$sexo[dados_11_vsf$sexo == 1] <- 0
+dados_11_vsf$sexo[dados_11_vsf$sexo == 3] <- 1
 
-dados_10_vsf <- mutate(dados_10_vsf,
+dados_11_vsf <- mutate(dados_11_vsf,
                 sexo = factor(sexo, levels = 0:1, labels = c("Masculino", "Feminino")))
 
 # Mantendo apenas 
 
 #Separando as admissoes e as demissoes
-dados_10_vsf_positivos <-dados_10_vsf%>% filter(saldo_movim=="1")
-dados_10_vsf_negativos <-dados_10_vsf%>% filter(saldo_movim=="-1")
+dados_11_vsf_positivos <-dados_11_vsf%>% filter(saldo_movim=="1")
+dados_11_vsf_negativos <-dados_11_vsf%>% filter(saldo_movim=="-1")
 
 #Mantendo apenas o agronegocio
-secao_positivos <-dados_10_vsf_positivos%>% filter(secao=="A")
-secao_negativos <-dados_10_vsf_negativos%>% filter(secao=="A")
+secao_positivos <-dados_11_vsf_positivos%>% filter(secao=="A")
+secao_negativos <-dados_11_vsf_negativos%>% filter(secao=="A")
 
 #Mantendo apenas a manga
-subclasse_positivos <-dados_10_vsf_positivos%>% filter(subclasse=="133410")
-subclasse_negativos <-dados_10_vsf_negativos%>% filter(subclasse=="133410")
+subclasse_positivos <-dados_11_vsf_positivos%>% filter(subclasse=="133410")
+subclasse_negativos <-dados_11_vsf_negativos%>% filter(subclasse=="133410")
 
 subclasse_positivos <- mutate(subclasse_positivos,
                 grau_instrucao = factor(grau_instrucao, levels = 1:13, 
@@ -1176,13 +1177,13 @@ PALMER {data-navmenu="PREÇOS AO PRODUTOR"}
 #setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
 setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
-today <- Sys.Date() #ajustar semanalmente
-atual <-  today
-data <-  today
-
-#today <- as.Date('2024-10-25')
+#today <- Sys.Date() #ajustar semanalmente
 #atual <-  today
 #data <-  today
+
+today <- as.Date('2025-01-17')
+atual <-  today
+data <-  today
 
 #Entrando dados no R
 dados <- read.csv2('dados_manga_palmer_semana.csv', header=T, sep=";", dec=".")
@@ -1231,40 +1232,39 @@ sazonal_graph <- tibble(cbind(semanas, sazonalidade))
 #Parte 3
 #Analise das comparações entre as médias
 
+preco_palmer_2024 <- window(preco_palmer, end=c(2024,52))
+seas24 <-seasplot(preco_palmer_2024, trend=F, outplot = F)
+medias24 <- colMeans(seas24$season)
+
+#preco_palmer_2022 <- window(preco_palmer, end=c(2022,52))
+
 preco_palmer_2023 <- window(preco_palmer, end=c(2023,52))
-seas23 <-seasplot(preco_palmer_2023, trend=F, outplot = F)
-medias23 <- colMeans(seas23$season)
-
-preco_palmer_2022 <- window(preco_palmer, end=c(2022,52))
-
-#preco_palmer_2023 <- window(preco_palmer, end=c(2023,52))
 #seas21<-seasplot(preco_palmer_2021, trend=F, outplot = F)
 #medias21 <- colMeans(seas21$season)
 
-preco_palmer_24 <- as.matrix(tail(dadosp$preco_def,sem_ano)) 
-preco_palmer_2024 <- matrix(NA, nrow=52, ncol=1)
+preco_palmer_25 <- as.matrix(tail(dadosp$preco_def,sem_ano)) 
+preco_palmer_2025 <- matrix(NA, nrow=52, ncol=1)
 
 for(i in 1:sem_ano){
-  preco_palmer_2024[i,1] = preco_palmer_24[i,1]
+  preco_palmer_2025[i,1] = preco_palmer_25[i,1]
 }
-  
 
 #Como só se tem até a semana 52
-medias23 <- medias23[1:52]
+medias24 <- medias24[1:52]
 #medias21 <- medias21[1:52]
 
 matrix = matrix(NA, nrow=52, ncol=2)
 
 for(i in 1:52){
-  matrix[i,1] = min(seas23$season[,i])
-  matrix[i,2] = max(seas23$season[,i])
+  matrix[i,1] = min(seas24$season[,i])
+  matrix[i,2] = max(seas24$season[,i])
 }
 
 time <- seq(1:52)
-table <- data.frame(time, matrix[,1], round(medias23,2), matrix[,2], round(tail(preco_palmer_2022,52),2),
-                    round(tail(preco_palmer_2023,52),2), preco_palmer_2024[,1])
-colnames(table) = c('Semanas', 'Mínimo', 'Média', 'Máximo', 'Ano 2022', 'Ano 2023', 
-                    'Ano 2024')
+table <- data.frame(time, matrix[,1], round(medias24,2), matrix[,2], round(tail(preco_palmer_2023,52),2),
+                    round(tail(preco_palmer_2024,52),2), preco_palmer_2025[,1])
+colnames(table) = c('Semanas', 'Mínimo', 'Média', 'Máximo', 'Ano 2023', 'Ano 2024', 
+                    'Ano 2025')
 
 tablea <- table[,-c(5:7)]
 tableb <- table[,-c(2,3,4)]
@@ -1273,27 +1273,27 @@ tablea2 <- melt(tablea, id.var='Semanas')
 tableb2 <- melt(tableb, id.var='Semanas')
 mycolors <- c("lightblue3", "gray44", "gold")
 
-table_db <- data.frame(matrix[,1], round(medias23,2), matrix[,2], round(tail(preco_palmer_2022,52),2),
-                    round(tail(preco_palmer_2023,52),2), preco_palmer_2024[,1])
-colnames(table_db) = c('Mínimo', 'Média', 'Máximo', '2022', '2023', '2024')
+table_db <- data.frame(matrix[,1], round(medias24,2), matrix[,2], round(tail(preco_palmer_2023,52),2),
+                    round(tail(preco_palmer_2024,52),2), preco_palmer_2025[,1])
+colnames(table_db) = c('Mínimo', 'Média', 'Máximo', '2023', '2024', '2025')
 
 #Parte 4
-preco_palmer_22 <- dadosp %>% filter(ano=='2022')
-preco_palmer_2022 <- as.matrix(preco_palmer_22$preco_def)
-
 preco_palmer_23 <- dadosp %>% filter(ano=='2023')
 preco_palmer_2023 <- as.matrix(preco_palmer_23$preco_def)
-variacao_23 <- (preco_palmer_2023/lag(preco_palmer_2023, 1) - 1)*100
 
+preco_palmer_24 <- dadosp %>% filter(ano=='2024')
+preco_palmer_2024 <- as.matrix(preco_palmer_24$preco_def)
 variacao_24 <- (preco_palmer_2024/lag(preco_palmer_2024, 1) - 1)*100
 
+variacao_25 <- (preco_palmer_2025/lag(preco_palmer_2025, 1) - 1)*100
+
 semanas <- seq(1:52)
-variacao <- data.frame(semanas, variacao_23[,1], variacao_24[,1])
-colnames(variacao) = c('Semanas', 'Ano 2023', 'Ano 2024')
+variacao <- data.frame(semanas, variacao_24[,1], variacao_25[,1])
+colnames(variacao) = c('Semanas', 'Ano 2024', 'Ano 2025')
 
 #Ajuste para a Tabela da Variação
 variacaot <- variacao[,-1]
-colnames(variacaot) = c('Variação em 2023', 'Variação em 2024')
+colnames(variacaot) = c('Variação em 2024', 'Variação em 2025')
 
 variacao <- melt(variacao, id.var='Semanas')
 
@@ -1307,7 +1307,7 @@ mycolors2 <- c("orange", "lightblue3")
 Row {data-height=125}
 -----------------------------------------------------------------------
 
-### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2024 
+### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2025 
 ``` {r}
 num <- tail(preco_palmer,1)
 valueBox(
@@ -1316,18 +1316,18 @@ valueBox(
   icon= "fa-arrow-down")
 ```
 
-### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2023
+### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2024
 ``` {r}
-num <- preco_palmer_2023[sem_ano, ]
+num <- preco_palmer_2024[sem_ano, ]
 valueBox(
   value = paste0( "R$", format(round(num,2), decimal.mark =  ",")),
 #  color = "#edc40c",
   icon= "fa-pen")
 ```
 
-### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2022
+### Preço de Palmer na Semana `r strftime(data, format = "%V")` de 2023
 ``` {r}
-num <- preco_palmer_2022[sem_ano, ]
+num <- preco_palmer_2023[sem_ano, ]
 valueBox(
   value = paste0( "R$", format(round(num,2), decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1351,7 +1351,7 @@ g1 <- ggplot()+
   scale_y_continuous(limits = c(0, 8), n.breaks = 8, labels = number_format(accuracy = 0.01,
                                                        decimal.mark = ","))+
   scale_x_continuous(breaks = seq(1, 52, by = 1))+
-  labs(y= "Preço Palmer (R$)", x= "Semanas de cada Ano", title='Mínimo, Máximo, Média e preços de 2022 a 2024 de Manga Palmer ao produtor',
+  labs(y= "Preço Palmer (R$)", x= "Semanas de cada Ano", title='Mínimo, Máximo, Média e preços de 2023 a 2025 de Manga Palmer ao produtor',
        caption = "Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
   theme_minimal()+
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=8, margin = margin(b=10)),
@@ -1483,9 +1483,9 @@ TOMMY {data-navmenu="PREÇOS AO PRODUTOR"}
 #setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
 setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
-#today <- as.Date('2024-10-25')
-#atual <-  today
-#data <-  today
+today <- as.Date('2025-01-17')
+atual <-  today
+data <-  today
 
 #Entrando dados no R
 dados <- read.csv2('dados_manga_tommy_semana.csv', header=T, sep=";", dec=".")
@@ -1534,39 +1534,39 @@ sazonal_graph <- tibble(cbind(semanas, sazonalidade))
 
 #Parte 3
 #Analise das comparações entre as médias
+preco_tommy_2024 <- window(preco_tommy, end=c(2024,52))
+seas24 <- seasplot(preco_tommy_2024, trend=F, outplot = F)
+medias24 <- colMeans(seas24$season)
+
+#preco_tommy_2022 <- window(preco_tommy, end=c(2022,52))
+
 preco_tommy_2023 <- window(preco_tommy, end=c(2023,52))
-seas23 <- seasplot(preco_tommy_2023, trend=F, outplot = F)
-medias23 <- colMeans(seas23$season)
-
-preco_tommy_2022 <- window(preco_tommy, end=c(2022,52))
-
-#preco_tommy_2023 <- window(preco_tommy, end=c(2023,52))
 #seas21<-seasplot(preco_tommy_2021, trend=F, outplot = F)
 #medias21 <- colMeans(seas21$season)
 
-preco_tommy_24 <- as.matrix(tail(dadosp$preco_def,sem_ano)) 
-preco_tommy_2024 <- matrix(NA, nrow=52, ncol=1)
+preco_tommy_25 <- as.matrix(tail(dadosp$preco_def,sem_ano)) 
+preco_tommy_2025 <- matrix(NA, nrow=52, ncol=1)
 
 for(i in 1:sem_ano){
-  preco_tommy_2024[i,1] = preco_tommy_24[i,1]
+  preco_tommy_2025[i,1] = preco_tommy_25[i,1]
 }
 
 #Como só se tem até a semana 52
 #medias20 <- medias20[1:52]
-medias23 <- medias23[1:52]
+medias24 <- medias24[1:52]
 
 matrix = matrix(NA, nrow=52, ncol=2)
 
 for(i in 1:52){
-  matrix[i,1] = min(seas23$season[,i])
-  matrix[i,2] = max(seas23$season[,i])
+  matrix[i,1] = min(seas24$season[,i])
+  matrix[i,2] = max(seas24$season[,i])
 }
 
 time <- seq(1:52)
-table <- data.frame(time, matrix[,1], round(medias23,2), matrix[,2], round(tail(preco_tommy_2022,52),2),
-                    round(tail(preco_tommy_2023,52),2), preco_tommy_2024[,1])
-colnames(table) = c('Semanas', 'Mínimo', 'Média', 'Máximo', 'Ano 2022', 'Ano 2023', 
-                    'Ano 2024')
+table <- data.frame(time, matrix[,1], round(medias24,2), matrix[,2], round(tail(preco_tommy_2023,52),2),
+                    round(tail(preco_tommy_2024,52),2), preco_tommy_2025[,1])
+colnames(table) = c('Semanas', 'Mínimo', 'Média', 'Máximo', 'Ano 2023', 'Ano 2024', 
+                    'Ano 2025')
 
 tablea <- table[,-c(5:7)]
 tableb <- table[,-c(2,3,4)]
@@ -1575,24 +1575,24 @@ tablea2 <- melt(tablea, id.var='Semanas')
 tableb2 <- melt(tableb, id.var='Semanas')
 mycolors <- c("lightblue3", "gray44", "gold")
 
-table_db <- data.frame(time, matrix[,1], round(medias23,2), matrix[,2], round(tail(preco_tommy_2022,52),2),
-                    round(tail(preco_tommy_2023,52),2), preco_tommy_2024[,1])
-colnames(table_db) = c('Semanas', 'Mínimo', 'Média', 'Máximo', 'Ano 2022', 'Ano 2023', 
-                    'Ano 2024')
+table_db <- data.frame(time, matrix[,1], round(medias24,2), matrix[,2], round(tail(preco_tommy_2023,52),2),
+                    round(tail(preco_tommy_2024,52),2), preco_tommy_2025[,1])
+colnames(table_db) = c('Semanas', 'Mínimo', 'Média', 'Máximo', 'Ano 2023', 'Ano 2024', 
+                    'Ano 2025')
 
 #Parte 4
-preco_tommy_22 <- dadosp %>% filter(ano=='2022')
-preco_tommy_2022 <- as.matrix(preco_tommy_22$preco_def)
-
 preco_tommy_23 <- dadosp %>% filter(ano=='2023')
 preco_tommy_2023 <- as.matrix(preco_tommy_23$preco_def)
-variacao_23 <- (preco_tommy_2023/lag(preco_tommy_2023, 1) - 1)*100
 
+preco_tommy_24 <- dadosp %>% filter(ano=='2024')
+preco_tommy_2024 <- as.matrix(preco_tommy_24$preco_def)
 variacao_24 <- (preco_tommy_2024/lag(preco_tommy_2024, 1) - 1)*100
 
+variacao_25 <- (preco_tommy_2025/lag(preco_tommy_2025, 1) - 1)*100
+
 semanas <- seq(1:52)
-variacao <- data.frame(semanas, variacao_23[,1], variacao_24[,1])
-colnames(variacao) = c('Semanas', 'Ano 2023', 'Ano 2024')
+variacao <- data.frame(semanas, variacao_24[,1], variacao_25[,1])
+colnames(variacao) = c('Semanas', 'Ano 2024', 'Ano 2025')
 
 variacao <- melt(variacao, id.var='Semanas')
 
@@ -1602,7 +1602,7 @@ mycolors2 <- c("orange", "lightblue3")
 Row {data-height=125}
 -----------------------------------------------------------------------
 
-### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2024
+### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2025
 ``` {r}
 num <- tail(preco_tommy,1)
 valueBox(
@@ -1611,18 +1611,18 @@ valueBox(
   icon= "fa-arrow-up")
 ```
 
-### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2023
+### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2024
 ``` {r}
-num <- preco_tommy_2023[sem_ano, ]
+num <- preco_tommy_2024[sem_ano, ]
 valueBox(
   value = paste0( "R$", format(round(num,2), decimal.mark =  ",")),
 #  color = "#edc40c",
   icon= "fa-pen")
 ```
 
-### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2022
+### Preço de Tommy na Semana `r strftime(data, format = "%V")` de 2023
 ``` {r}
-num <- preco_tommy_2022[sem_ano, ]
+num <- preco_tommy_2023[sem_ano, ]
 valueBox(
   value = paste0( "R$", format(round(num,2), decimal.mark =  ",")),
 #  color = "#edc40c",
@@ -1646,7 +1646,7 @@ g5 <- ggplot()+
     scale_y_continuous(limits = c(0, 8), n.breaks = 8, labels = number_format(accuracy = 0.01,
                                                                               decimal.mark = ","))+
     scale_x_continuous(breaks = seq(1, 52, by = 1))+
-    labs(y= "Preço Tommy (R$)", x= "Semanas de cada Ano", title='Mínimo, Máximo, Média e preços de 2022 a 2024 de Manga Tommy ao produtor',
+    labs(y= "Preço Tommy (R$)", x= "Semanas de cada Ano", title='Mínimo, Máximo, Média e preços de 2023 a 2025 de Manga Tommy ao produtor',
          caption = "Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
     theme_minimal()+
     theme(axis.text.x=element_text(angle=0, hjust=0.5, size=8, margin = margin(b=10)),
