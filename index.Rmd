@@ -53,11 +53,11 @@ knitr::opts_chunk$set(
   )
 
 library(lubridate)
-#data <- Sys.Date() #ajustar semanalmente
-#sem_ano <- isoweek(data) #ajustar semanalmente
+data <- Sys.Date() #ajustar semanalmente
+sem_ano <- isoweek(data) #ajustar semanalmente
 
-data <- as.Date('2025-01-17')
-sem_ano <- isoweek(data) 
+#data <- as.Date('2025-01-17')
+#sem_ano <- isoweek(data) 
 #sem_ano <- 43
 
 # Linhas que precisam de ajuste: 71, 104, 107
@@ -1177,13 +1177,13 @@ PALMER {data-navmenu="PREÇOS AO PRODUTOR"}
 #setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
 setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
-#today <- Sys.Date() #ajustar semanalmente
-#atual <-  today
-#data <-  today
-
-today <- as.Date('2025-01-17')
+today <- Sys.Date() #ajustar semanalmente
 atual <-  today
 data <-  today
+
+#today <- as.Date('2025-01-17')
+#atual <-  today
+#data <-  today
 
 #Entrando dados no R
 dados <- read.csv2('dados_manga_palmer_semana.csv', header=T, sep=";", dec=".")
@@ -1483,9 +1483,9 @@ TOMMY {data-navmenu="PREÇOS AO PRODUTOR"}
 #setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
 setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
-today <- as.Date('2025-01-17')
-atual <-  today
-data <-  today
+#today <- as.Date('2025-01-17')
+#atual <-  today
+#data <-  today
 
 #Entrando dados no R
 dados <- read.csv2('dados_manga_tommy_semana.csv', header=T, sep=";", dec=".")
