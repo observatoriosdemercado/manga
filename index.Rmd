@@ -53,11 +53,11 @@ knitr::opts_chunk$set(
   )
 
 library(lubridate)
-data <- Sys.Date() #ajustar semanalmente
-sem_ano <- isoweek(data) #ajustar semanalmente
+#data <- Sys.Date() #ajustar semanalmente
+#sem_ano <- isoweek(data) #ajustar semanalmente
 
-#data <- as.Date('2025-01-17')
-#sem_ano <- isoweek(data) 
+data <- as.Date('2025-02-07')
+sem_ano <- isoweek(data) 
 #sem_ano <- 43
 
 # Linhas que precisam de ajuste: 71, 104, 107
@@ -101,7 +101,7 @@ library(patchwork)
 
 options(digits=4)
 #today <- as.Date("2022-01-01")
-date <- seq(as.Date('2023-01-01'),to=as.Date('2023-12-01'),by='1 month')
+date <- seq(as.Date('2024-01-01'),to=as.Date('2024-12-01'),by='1 month')
 
 #Entrando dados no R
 dados <- read_excel("manga_ibge2023.xlsx", col_names = TRUE)
@@ -1177,13 +1177,13 @@ PALMER {data-navmenu="PREÇOS AO PRODUTOR"}
 #setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
 setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
-today <- Sys.Date() #ajustar semanalmente
-atual <-  today
-data <-  today
-
-#today <- as.Date('2025-01-17')
+#today <- Sys.Date() #ajustar semanalmente
 #atual <-  today
 #data <-  today
+
+today <- as.Date('2025-02-07')
+atual <-  today
+data <-  today
 
 #Entrando dados no R
 dados <- read.csv2('dados_manga_palmer_semana.csv', header=T, sep=";", dec=".")
