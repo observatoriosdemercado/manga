@@ -54,10 +54,11 @@ knitr::opts_chunk$set(
 
 library(lubridate)
 data <- Sys.Date() #ajustar semanalmente
-sem_ano <- isoweek(data) #ajustar semanalmente
+#last <- today - 7
+#sem_ano <- isoweek(data) #ajustar semanalmente
 
-#data <- as.Date('2025-02-07')
-#sem_ano <- isoweek(data) 
+#data <- as.Date('2025-02-16')
+sem_ano <- isoweek(data) 
 #sem_ano <- 43
 
 # Linhas que precisam de ajuste: 71, 104, 107
