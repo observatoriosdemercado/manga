@@ -944,7 +944,7 @@ MERCADO TRABALHO {data-navmenu="MERCADO INTERNO"}
 #setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_caged')
 setwd('/Users/jricardofl/Dropbox/tempecon/dados_caged')
 
-atual <-  as.Date("2024-12-01")
+atual <-  as.Date("2025-01-01")
 #today <- as.Date("2022-02-11")
 
 
@@ -955,53 +955,82 @@ library(scales)
 library(plotly)
 
 #Entrando dados no R
-dados1 <- read.csv2('dezembro_2024.csv', header=T, sep=";", dec = ".")
+dados1 <- read.csv2('janeiro_2025.csv', header=T, sep=";", dec = ".")
 colnames(dados1)[1] <- 'date'
 dados1$date <- seq(as.Date('2021-01-01'),to=atual,by='1 month')
 dados1a <- dados1 
 dados1a$ano <- strftime(dados1a$date, format="%Y") 
-dados1a$mes <- strftime(dados1a$date, format="%b") 
-
-saldo_23 <- dados1a %>% filter(ano=='2023')
-
-saldo_23 <- saldo_23 %>%
-  select(c(ano, mes, Saldo_Manga))
+dados1a$mes <- strftime(dados1a$date, format="%B") 
 
 saldo_24 <- dados1a %>% filter(ano=='2024')
 
 saldo_24 <- saldo_24 %>%
   select(c(ano, mes, Saldo_Manga))
 
-saldom <- rbind(saldo_23, saldo_24)
-saldom$mes <- factor(saldom$mes,levels = c("Jan", "Fev", "Mar", "Abr", "Mai", 
-                                           "Jun", "Jul", "Ago", "Set", "Out",
-                                           "Nov", "Dez"))
+
+saldo_25 <- dados1a %>% filter(ano=='2025')
+
+saldo_25 <- saldo_25 %>%
+  select(c(ano, mes, Saldo_Manga))
+
+saldom <- rbind(saldo_24, saldo_25)
+saldom$mes <- factor(saldom$mes,levels = c("Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"))
+
+total_24 <- dados1a %>%
+  select(c(ano, mes, Contratados_Manga, Demitidos_Manga, Saldo_Manga))%>% 
+  filter(ano=='2024')
+
+total_24$mes <- factor(total_24$mes,levels = c("Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"))
+
+total_25 <- dados1a %>%
+  select(c(ano, mes, Contratados_Manga, Demitidos_Manga, Saldo_Manga)) %>% 
+  filter(ano=='2025')
+
+total_25$mes <- factor(total_25$mes,levels = c("Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro",  "Novembro", "Dezembro"))
+
+totalm <- merge(total_24, total_25, by="mes", all = T)
+#totalm <- inner_join(total_23, total_24, by="mes")
+
+totalm <- totalm %>%
+        select(c(mes,Contratados_Manga.x, Demitidos_Manga.x, Contratados_Manga.y, Demitidos_Manga.y, Saldo_Manga.x, Saldo_Manga.y))
+
+totalm <- totalm %>%
+  rename("Contratados 2024" = Contratados_Manga.x,
+         "Demitidos 2024" = Demitidos_Manga.x,
+         "Contratados 2025" = Contratados_Manga.y,
+         "Demitidos 2025" = Demitidos_Manga.y,
+         "Saldo 2024" = Saldo_Manga.x,
+         "Saldo 2025" = Saldo_Manga.y)
 
 #Entrando com o restante dos dados
 
-load("dezembro_24_caged.RData")
+load("janeiro_25_caged.RData")
 
-#dados_02_vsf$sexo <- lapply(dados_02_vsf$sexo, factor)
+#dados_08_vsf$sexo <- lapply(dados_08_vsf$sexo, factor)
 
-dados_12_vsf$sexo[dados_12_vsf$sexo == 1] <- 0
-dados_12_vsf$sexo[dados_12_vsf$sexo == 3] <- 1
+dados_01_vsf$sexo[dados_01_vsf$sexo == 1] <- 0
+dados_01_vsf$sexo[dados_01_vsf$sexo == 3] <- 1
 
-dados_12_vsf <- mutate(dados_12_vsf,
+dados_01_vsf <- mutate(dados_01_vsf,
                 sexo = factor(sexo, levels = 0:1, labels = c("Masculino", "Feminino")))
 
 # Mantendo apenas 
 
 #Separando as admissoes e as demissoes
-dados_12_vsf_positivos <-dados_12_vsf%>% filter(saldo_movim=="1")
-dados_12_vsf_negativos <-dados_12_vsf%>% filter(saldo_movim=="-1")
+dados_01_vsf_positivos <-dados_01_vsf%>% filter(saldo_movim=="1")
+dados_01_vsf_negativos <-dados_01_vsf%>% filter(saldo_movim=="-1")
 
 #Mantendo apenas o agronegocio
-secao_positivos <-dados_12_vsf_positivos%>% filter(secao=="A")
-secao_negativos <-dados_12_vsf_negativos%>% filter(secao=="A")
+secao_positivos <-dados_01_vsf_positivos%>% filter(secao=="A")
+secao_negativos <-dados_01_vsf_negativos%>% filter(secao=="A")
 
 #Mantendo apenas a manga
-subclasse_positivos <-dados_12_vsf_positivos%>% filter(subclasse=="133410")
-subclasse_negativos <-dados_12_vsf_negativos%>% filter(subclasse=="133410")
+subclasse_positivos <-dados_01_vsf_positivos%>% filter(subclasse=="133410")
+subclasse_negativos <-dados_01_vsf_negativos%>% filter(subclasse=="133410")
+
+#Ajustando o grau de escolaridade
+subclasse_positivos$grau_instrucao[subclasse_positivos$grau_instrucao == 80] <- 12
+subclasse_positivos$grau_instrucao[subclasse_positivos$grau_instrucao == 99] <- 13
 
 subclasse_positivos <- mutate(subclasse_positivos,
                 grau_instrucao = factor(grau_instrucao, levels = 1:13, 
@@ -1028,7 +1057,7 @@ subclasse_positivos$salario <- as.integer(subclasse_positivos$salario)
 Row {data-height=125}
 -----------------------------------------------------------------------
 
-### pela mangicultura em `r strftime(atual, format = "%B")` de 2024 
+### pela mangicultura em `r strftime(atual, format = "%B")` de 2025 
 ``` {r emp1}
 num <- tail(dados1$Contratados_Manga,1)
 valueBox(
@@ -1037,7 +1066,7 @@ valueBox(
   icon= "fa-arrow-up")
 ```
 
-### pela mangicultura em `r strftime(atual, format = "%B")` de 2024 
+### pela mangicultura em `r strftime(atual, format = "%B")` de 2025 
 ``` {r emp2}
 num <- tail(dados1$Demitidos_Manga,1)
 valueBox(
@@ -1046,7 +1075,7 @@ valueBox(
   icon= "fa-arrow-down")
 ```
 
-### Saldo Gerado pela mangicultura em `r strftime(atual, format = "%B")` de 2024 
+### Saldo Gerado pela mangicultura em `r strftime(atual, format = "%B")` de 2025 
 ``` {r emp3}
 num <- tail(dados1$Saldo_Manga,1)
 valueBox(
@@ -1069,9 +1098,9 @@ mycolors2 <- c("orange", "lightblue3")
 g1 <- ggplot() +  #estetica vai valer para todos os geom's
   geom_col(data=saldom, aes(x=mes, y=Saldo_Manga, fill=ano), size=2, width = 0.9, position = "dodge")+
     scale_fill_manual(values=mycolors2)+
-    labs(y= "Saldo de Emprego (unidade)", x= "Meses do Ano", title='Saldo mensal de Empregos na Mangicultura: 2023 e 2024',
+    labs(y= "Saldo de Emprego (unidade)", x= "Meses do Ano", title='Saldo mensal de Empregos na Mangicultura: 2024 e 2025',
        caption = "")+
-    scale_y_continuous(limits=c(-1500, 1300), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
+    scale_y_continuous(limits=c(-1000, 1000), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
   theme_minimal()+ #Definindo tema
   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=20)),
         axis.text.y=element_text(hjust=1, size=10, margin = margin(l=20)),
@@ -1152,7 +1181,7 @@ ggplotly(g3)
 
 g4 <- ggplot(data = subclasse_positivos, aes(x = grau_instrucao, y = ..count..)) +
   geom_bar(fill='#1e4971')+
-    scale_y_continuous(limits=c(0, 200), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
+    scale_y_continuous(limits=c(0, 400), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
 labs(y= "Contratados Manga - VSF", x= "Grau de Instrução", title='Grau de Instrução dos empregos gerados',
        caption = "")+
   theme_minimal() +
@@ -1178,7 +1207,8 @@ PALMER {data-navmenu="PREÇOS AO PRODUTOR"}
 #setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
 setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
-today <- Sys.Date() #ajustar semanalmente
+#today <- Sys.Date() #ajustar semanalmente
+today <- as.Date('2025-03-14')
 atual <-  today
 data <-  today
 
@@ -1349,7 +1379,7 @@ g1 <- ggplot()+
     geom_line(data=tablea2, aes(x=Semanas, y=value, colour=variable), linetype = "solid",
             size = 1)+
   scale_colour_manual(values = c("red", "chocolate", "darkgreen")) +
-  scale_y_continuous(limits = c(0, 8), n.breaks = 8, labels = number_format(accuracy = 0.01,
+  scale_y_continuous(limits = c(0, 9), n.breaks = 8, labels = number_format(accuracy = 0.01,
                                                        decimal.mark = ","))+
   scale_x_continuous(breaks = seq(1, 52, by = 1))+
   labs(y= "Preço Palmer (R$)", x= "Semanas de cada Ano", title='Mínimo, Máximo, Média e preços de 2023 a 2025 de Manga Palmer ao produtor',
@@ -1421,7 +1451,7 @@ g3 <- ggplot(data=dadosp, aes(x=date)) +  #estetica vai valer para todos os geom
                       values = c("black", "tomato")) +
   labs(y= "Preço Palmer (R$)", x= "Semanas de cada Ano", title='Evolução dos preços ao produtor e Tendência Manga Palmer',
        caption = "Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa") +
-  scale_y_continuous(limits=c(0,8), n.breaks = 9, expand = expansion(add=c(0,0.5)), 
+  scale_y_continuous(limits=c(0,9), n.breaks = 9, expand = expansion(add=c(0,0.5)), 
                      labels=number_format(accuracy = 0.01, decimal.mark = ","))+
   scale_x_date(date_breaks = "6 months",
                labels = date_format("%b-%Y"))+
@@ -1644,7 +1674,7 @@ g5 <- ggplot()+
     geom_line(data=tablea2, aes(x=Semanas, y=value, colour=variable), linetype = "solid",
               size = 1)+
     scale_colour_manual(values = c("red", "chocolate", "darkgreen")) +
-    scale_y_continuous(limits = c(0, 8), n.breaks = 8, labels = number_format(accuracy = 0.01,
+    scale_y_continuous(limits = c(0, 9), n.breaks = 8, labels = number_format(accuracy = 0.01,
                                                                               decimal.mark = ","))+
     scale_x_continuous(breaks = seq(1, 52, by = 1))+
     labs(y= "Preço Tommy (R$)", x= "Semanas de cada Ano", title='Mínimo, Máximo, Média e preços de 2023 a 2025 de Manga Tommy ao produtor',
