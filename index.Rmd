@@ -1207,8 +1207,8 @@ PALMER {data-navmenu="PREÇOS AO PRODUTOR"}
 #setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
 setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
-#today <- Sys.Date() #ajustar semanalmente
-today <- as.Date('2025-09-12')
+today <- Sys.Date() #ajustar semanalmente
+#today <- as.Date('2025-09-12')
 atual <-  today
 data <-  today
 
