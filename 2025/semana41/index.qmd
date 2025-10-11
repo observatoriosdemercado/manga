@@ -49,7 +49,7 @@ Os dados utilizados nesta análise são semanais e disponibilizados pelo **CEPEA
 
 O preço médio de **Palmer** na semana `r strftime(today, format = "%V de %Y")` foi R\$ 2,14, variando entre R\$ 2,50 e R\$ 1,60. A média histórica dos dados deflacionados, desde 2012 até 2024, para esta semana, é R\$ 2,43. Em 2023, o preço deflacionado é de R\$ 3,80 para a semana `r strftime(today, format = "%V")` e, em 2024, o preço é R\$ 1,49. Em relação à semana `r strftime(last, format = "%V")`, os preços diminuíram -14,74%.
 
-No caso da **Tommy**, na semana `r strftime(today, format = "%V de %Y")` os preços médios foram de R\$ 1,26, variando entre R\$ 1,50 e R\$ 1,05. Este valor é maior do que a média histórica para esta semana (R\$ 1,20), menor do que o preço em 2024, R\$ 0,62, mas é maior do que o valor de 2023 (R\$ 2,73). Em relação à semana anterior, os preços tiveram aumento de 7,69%. 
+No caso da **Tommy**, na semana `r strftime(today, format = "%V de %Y")` os preços médios foram de R\$ 1,26, variando entre R\$ 1,50 e R\$ 1,05. Este valor é maior do que a média histórica para esta semana (R\$ 1,20), maior do que o preço em 2024, R\$ 0,62, mas é menor do que o valor de 2023 (R\$ 2,73). Em relação à semana anterior, os preços tiveram aumento de 7,69%. 
 
 Sobre os preços de exportação, a **Palmer Exportação** teve média de R\$ 3,01, variando entre R\$ 3,25 e R\$ 2,80. A **Keitt Exportação** teve média de R\$ 3,40, variando entre R\$ 3,50 e R\$ 3,20, estável em relação ao preço da semana passada. No caso da **Kent Exportação**, a média da semana foi R\$ 4,14, variando entre R\$ 4,70 e R\$ 3,70, uma diminuição de -6% na semana.
 
