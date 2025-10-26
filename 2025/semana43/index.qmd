@@ -51,7 +51,7 @@ O preço médio de **Palmer** na semana `r strftime(today, format = "%V de %Y")`
 
 No caso da **Tommy**, na semana `r strftime(today, format = "%V de %Y")` os preços médios foram de R\$ 1,88, variando entre R\$ 2,10 e R\$ 1,60. Este valor é maior do que a média histórica para esta semana (R\$ 1,25), maior do que o preço em 2023, R\$ 1,82 e do que o valor de 2024 (R\$ 0,62). Em relação à semana anterior, os preços tiveram uma queda de -3,59%. 
 
-Sobre os preços de exportação, a **Palmer Exportação** teve média de R\$ 2,90, variando entre R\$ 3,00 e R\$ 2,85, aumento de 9% em relação à semana anterior. A média de preço da **Tommy Exportação para os Estados Unidos** foi R\$2,05, variando entre R\$2,10 e R\$2,00 A **Keitt Exportação** teve média de R\$ 2,99, variando entre R\$ 3,05 e R\$ 2,90, uma redução de -4% em relação ao preço da semana passada. No caso da **Kent Exportação**, a média da semana foi R\$ 4,03, variando entre R\$ 4,40 e R\$ 3,75, um aumento de 4% na semana.
+Sobre os preços de exportação, a **Palmer Exportação** teve média de R\$ 2,90, variando entre R\$ 3,00 e R\$ 2,85, aumento de 9% em relação à semana anterior. A média de preço da **Tommy Exportação para os Estados Unidos** foi R\$2,05, variando entre R\$2,10 e R\$2,00. A **Keitt Exportação** teve média de R\$ 2,99, variando entre R\$ 3,05 e R\$ 2,90, uma redução de -4% em relação ao preço da semana passada. No caso da **Kent Exportação**, a média da semana foi R\$ 4,03, variando entre R\$ 4,40 e R\$ 3,75, um aumento de 4% na semana.
 
 <hr>
 
