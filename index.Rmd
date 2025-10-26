@@ -3,7 +3,7 @@ title: "DASHBOARD MERCADO DE MANGA"
 #author: "João Ricardo Lima"
 output: 
   flexdashboard::flex_dashboard:
-    logo: "https://raw.githubusercontent.com/observatoriosdemercado/manga/main/branca_peq.png"
+    logo: "img/branca_peq.png"
     favicon: "https://www.embrapa.br/portal-embrapa-theme/images/marca-embrapa-colorida.png"
     navbar:
       - {title: "Apoio, Metodologia e Fontes dos Dados", href: "https://observatoriosdemercado.github.io/manga/fonte/", align: right}
@@ -1207,8 +1207,8 @@ PALMER {data-navmenu="PREÇOS AO PRODUTOR"}
 #setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
 setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
-today <- Sys.Date() #ajustar semanalmente
-#today <- as.Date('2025-09-12')
+#today <- Sys.Date() #ajustar semanalmente
+today <- as.Date('2025-10-24')
 atual <-  today
 data <-  today
 
@@ -1392,7 +1392,7 @@ g1 <- ggplot()+
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         plot.caption = element_text(hjust = 0, size=8),
-        plot.title = element_text(hjust = 0.5, size=12, face=""),
+        plot.title = element_text(hjust = 0.5, size=8),
         legend.position = "right", legend.title = element_blank(),
         legend.text=element_text(size=8)) # Definindo posição da legenda
 
@@ -1423,7 +1423,7 @@ g2 <- ggplot()+
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         plot.caption = element_text(hjust = 0, size=8),
-        plot.title = element_text(hjust = 0.5, size=12, face=""),
+        plot.title = element_text(hjust = 0.5, size=8),
         legend.position = "right", legend.title = element_blank(),
         legend.text=element_text(size=8)) # Definindo posição da legenda
 
@@ -1460,7 +1460,7 @@ g3 <- ggplot(data=dadosp, aes(x=date)) +  #estetica vai valer para todos os geom
         axis.text.y=element_text(hjust=1, size=8, margin = margin(l=10)),
         axis.title.x = element_text(size=8, face = "bold", margin = margin(b=10)),
         axis.title.y = element_text(size=8, face = "bold", margin = margin(l=10)),
-        plot.title = element_text(hjust = 0.5, size=12),
+        plot.title = element_text(hjust = 0.5, size=8),
         plot.caption = element_text(hjust = 0, size=8),
         legend.position = c(2,1),
         legend.justification = c(1.2, 1.2),
@@ -1493,7 +1493,7 @@ g4 <- ggplot(data=sazonal_graph)+
         axis.title.x = element_text(size=8, face = "bold"),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        plot.title = element_text(hjust = 0.5, size=12),
+        plot.title = element_text(hjust = 0.5, size=8),
         plot.caption = element_text(hjust = 0, size=8),
         legend.position = "bottom", legend.title = element_blank(),
         legend.text=element_text(size=8)) # Definindo posição da legenda
@@ -1514,7 +1514,7 @@ TOMMY {data-navmenu="PREÇOS AO PRODUTOR"}
 #setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
 setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
-#today <- as.Date('2025-01-17')
+today <- as.Date('2025-10-24')
 #atual <-  today
 #data <-  today
 
@@ -1687,7 +1687,7 @@ g5 <- ggplot()+
           panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),
           plot.caption = element_text(hjust = 0, size=8),
-          plot.title = element_text(hjust = 0.5, size=12, face=""),
+          plot.title = element_text(hjust = 0.5, size=8),
           legend.position = "right", legend.title = element_blank(),
           legend.text=element_text(size=8)) # Definindo posição da legenda
 
@@ -1718,7 +1718,7 @@ g6 <- ggplot()+
           panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),
           plot.caption = element_text(hjust = 0, size=8),
-          plot.title = element_text(hjust = 0.5, size=12, face=""),
+          plot.title = element_text(hjust = 0.5, size=8),
           legend.position = "right", legend.title = element_blank(),
           legend.text=element_text(size=8)) # Definindo posição da legenda
 
@@ -1755,7 +1755,7 @@ g7 <- ggplot(data=dadosp, aes(x=date)) +  #estetica vai valer para todos os geom
           axis.text.y=element_text(hjust=1, size=8, margin = margin(l=10)),
           axis.title.x = element_text(size=8, face = "bold", margin = margin(b=10)),
           axis.title.y = element_text(size=8, face = "bold", margin = margin(l=10)),
-          plot.title = element_text(hjust = 0.5, size=12, face=""),
+          plot.title = element_text(hjust = 0.5, size=8),
           plot.caption = element_text(hjust = 0, size=8),
           legend.position = c(2,1),
           legend.justification = c(1.2, 1.2),
@@ -1788,8 +1788,8 @@ g8 <- ggplot(data=sazonal_graph)+
           axis.title.x = element_text(size=8, face = "bold"),
           panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),
-          plot.caption = element_text(hjust = 0.5, size=8),
-          plot.title = element_text(hjust = 0.5, size=12, face=""),
+          plot.caption = element_text(hjust = 0, size=8),
+          plot.title = element_text(hjust = 0.5, size=12),
           legend.position = "bottom", legend.title = element_blank(),
           legend.text=element_text(size=8)) # Definindo posição da legenda
 
