@@ -69,8 +69,8 @@ BRASIL {data-navmenu="DADOS GERAIS"}
 
 ```{r database5}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('C:/Users/Lenovo/Dropbox/tempecon/dados_manga')
-#setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
+#setwd('C:/Users/Lenovo/Dropbox/tempecon/dados_manga')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
 #Inicio do Script
 #Pacotes a serem utilizados
@@ -454,8 +454,8 @@ VOLUME CEASAS {data-navmenu="MERCADO INTERNO"}
 
 ```{r database4}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('C:/Users/Lenovo/Dropbox/tempecon/dados_manga')
-#setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
+#setwd('C:/Users/Lenovo/Dropbox/tempecon/dados_manga')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
 #Inicio do Script
 #Pacotes a serem utilizados
@@ -758,8 +758,8 @@ Row
 
 ```{r consumo_manga1}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('c:/Users/Lenovo/Dropbox/tempecon/dados_manga')
-#setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
+#setwd('c:/Users/Lenovo/Dropbox/tempecon/dados_manga')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
 #Inicio do Script
 #Pacotes a serem utilizados 
@@ -846,8 +846,8 @@ Row
 
 ```{r consumo_manga3}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('c:/Users/Lenovo/Dropbox/tempecon/dados_manga')
-#setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
+#Setwd('c:/Users/Lenovo/Dropbox/tempecon/dados_manga')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
 #Inicio do Script
 #Pacotes a serem utilizados 
@@ -891,8 +891,8 @@ ggplotly(g3) %>%
 
 ```{r consumo_manga4}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('c:/Users/Lenovo/Dropbox/tempecon/dados_manga')
-#setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
+#setwd('c:/Users/Lenovo/Dropbox/tempecon/dados_manga')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
 #Inicio do Script
 #Pacotes a serem utilizados 
@@ -941,10 +941,10 @@ MERCADO TRABALHO {data-navmenu="MERCADO INTERNO"}
 
 ```{r database6}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('c:/Users/Lenovo/Dropbox/tempecon/dados_caged')
-#setwd('/Users/jricardofl/Dropbox/tempecon/dados_caged')
+#setwd('c:/Users/Lenovo/Dropbox/tempecon/dados_caged')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_caged')
 
-atual <-  as.Date("2025-09-01")
+atual <-  as.Date("2025-10-01")
 #today <- as.Date("2022-02-11")
 
 
@@ -955,7 +955,7 @@ library(scales)
 library(plotly)
 
 #Entrando dados no R
-dados1 <- read.csv2('setembro_2025.csv', header=T, sep=";", dec = ".")
+dados1 <- read.csv2('outubro_2025.csv', header=T, sep=";", dec = ".")
 colnames(dados1)[1] <- 'date'
 dados1$date <- seq(as.Date('2021-01-01'),to=atual,by='1 month')
 dados1a <- dados1 
@@ -1012,29 +1012,29 @@ totalm <- totalm %>%
 
 #Entrando com o restante dos dados
 
-load("setembro_25_caged.RData")
+load("outubro_25_caged.RData")
 
 #dados_08_vsf$sexo <- lapply(dados_08_vsf$sexo, factor)
 
-dados_09_vsf$sexo[dados_09_vsf$sexo == 1] <- 0
-dados_09_vsf$sexo[dados_09_vsf$sexo == 3] <- 1
+dados_10_vsf$sexo[dados_10_vsf$sexo == 1] <- 0
+dados_10_vsf$sexo[dados_10_vsf$sexo == 3] <- 1
 
-dados_09_vsf <- mutate(dados_09_vsf,
+dados_10_vsf <- mutate(dados_10_vsf,
                 sexo = factor(sexo, levels = 0:1, labels = c("Masculino", "Feminino")))
 
 # Mantendo apenas 
 
 #Separando as admissoes e as demissoes
-dados_09_vsf_positivos <-dados_09_vsf%>% filter(saldo_movim=="1")
-dados_09_vsf_negativos <-dados_09_vsf%>% filter(saldo_movim=="-1")
+dados_10_vsf_positivos <-dados_10_vsf%>% filter(saldo_movim=="1")
+dados_10_vsf_negativos <-dados_10_vsf%>% filter(saldo_movim=="-1")
 
 #Mantendo apenas o agronegocio
-secao_positivos <-dados_09_vsf_positivos%>% filter(secao=="A")
-secao_negativos <-dados_09_vsf_negativos%>% filter(secao=="A")
+secao_positivos <-dados_10_vsf_positivos%>% filter(secao=="A")
+secao_negativos <-dados_10_vsf_negativos%>% filter(secao=="A")
 
 #Mantendo apenas a manga
-subclasse_positivos <-dados_09_vsf_positivos%>% filter(subclasse=="133410")
-subclasse_negativos <-dados_09_vsf_negativos%>% filter(subclasse=="133410")
+subclasse_positivos <-dados_10_vsf_positivos%>% filter(subclasse=="133410")
+subclasse_negativos <-dados_10_vsf_negativos%>% filter(subclasse=="133410")
 
 #Ajustando o grau de escolaridade
 subclasse_positivos$grau_instrucao[subclasse_positivos$grau_instrucao == 80] <- 12
@@ -1212,8 +1212,8 @@ PALMER {data-navmenu="PREÇOS AO PRODUTOR"}
 
 ``` {r database1}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('c:/Users/Lenovo/Dropbox/tempecon/dados_manga')
-#setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
+#setwd('c:/Users/Lenovo/Dropbox/tempecon/dados_manga')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
 today <- Sys.Date() #ajustar semanalmente
 #today <- as.Date('2025-10-31')
@@ -1519,8 +1519,8 @@ TOMMY {data-navmenu="PREÇOS AO PRODUTOR"}
 
 ``` {r database2}
 #Direcionado o R para o Diretorio a ser trabalhado
-setwd('c:/Users/Lenovo/Dropbox/tempecon/dados_manga')
-#setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
+#setwd('c:/Users/Lenovo/Dropbox/tempecon/dados_manga')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
 #today <- as.Date('2025-10-24')
 #atual <-  today
