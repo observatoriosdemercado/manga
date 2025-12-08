@@ -53,12 +53,12 @@ knitr::opts_chunk$set(
   )
 
 library(lubridate)
-data <- Sys.Date() #ajustar semanalmente
+#data <- Sys.Date() #ajustar semanalmente
 #last <- today - 7
-sem_ano <- isoweek(data) #ajustar semanalmente
+#sem_ano <- isoweek(data) #ajustar semanalmente
 
-#data <- as.Date('2025-09-05')
-#sem_ano <- isoweek(data) 
+data <- as.Date('2025-12-05')
+sem_ano <- isoweek(data) 
 #sem_ano <- 43
 
 # Linhas que precisam de ajuste: 71, 104, 107
@@ -69,8 +69,8 @@ BRASIL {data-navmenu="DADOS GERAIS"}
 
 ```{r database5}
 #Direcionado o R para o Diretorio a ser trabalhado
-#setwd('C:/Users/Lenovo/Dropbox/tempecon/dados_manga')
-setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
+setwd('C:/Users/Lenovo/Dropbox/tempecon/dados_manga')
+#setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
 #Inicio do Script
 #Pacotes a serem utilizados
@@ -454,8 +454,8 @@ VOLUME CEASAS {data-navmenu="MERCADO INTERNO"}
 
 ```{r database4}
 #Direcionado o R para o Diretorio a ser trabalhado
-#setwd('C:/Users/Lenovo/Dropbox/tempecon/dados_manga')
-setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
+setwd('C:/Users/Lenovo/Dropbox/tempecon/dados_manga')
+#setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
 #Inicio do Script
 #Pacotes a serem utilizados
@@ -758,8 +758,8 @@ Row
 
 ```{r consumo_manga1}
 #Direcionado o R para o Diretorio a ser trabalhado
-#setwd('c:/Users/Lenovo/Dropbox/tempecon/dados_manga')
-setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
+setwd('c:/Users/Lenovo/Dropbox/tempecon/dados_manga')
+#setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
 #Inicio do Script
 #Pacotes a serem utilizados 
@@ -846,8 +846,8 @@ Row
 
 ```{r consumo_manga3}
 #Direcionado o R para o Diretorio a ser trabalhado
-#Setwd('c:/Users/Lenovo/Dropbox/tempecon/dados_manga')
-setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
+setwd('c:/Users/Lenovo/Dropbox/tempecon/dados_manga')
+#setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
 #Inicio do Script
 #Pacotes a serem utilizados 
@@ -891,8 +891,8 @@ ggplotly(g3) %>%
 
 ```{r consumo_manga4}
 #Direcionado o R para o Diretorio a ser trabalhado
-#setwd('c:/Users/Lenovo/Dropbox/tempecon/dados_manga')
-setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
+setwd('c:/Users/Lenovo/Dropbox/tempecon/dados_manga')
+#setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
 #Inicio do Script
 #Pacotes a serem utilizados 
@@ -941,8 +941,8 @@ MERCADO TRABALHO {data-navmenu="MERCADO INTERNO"}
 
 ```{r database6}
 #Direcionado o R para o Diretorio a ser trabalhado
-#setwd('c:/Users/Lenovo/Dropbox/tempecon/dados_caged')
-setwd('/Users/jricardofl/Dropbox/tempecon/dados_caged')
+setwd('c:/Users/Lenovo/Dropbox/tempecon/dados_caged')
+#setwd('/Users/jricardofl/Dropbox/tempecon/dados_caged')
 
 atual <-  as.Date("2025-10-01")
 #today <- as.Date("2022-02-11")
@@ -1189,7 +1189,7 @@ ggplotly(g3)
 
 g4 <- ggplot(data = subclasse_positivos, aes(x = grau_instrucao, y = ..count..)) +
   geom_bar(fill='#1e4971')+
-    scale_y_continuous(limits=c(0, 650), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
+    scale_y_continuous(limits=c(0, 500), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
 labs(y= "Contratados Manga - VSF", x= "Grau de Instrução", title='Grau de Instrução dos empregos gerados',
        caption = "")+
   theme_minimal() +
@@ -1212,11 +1212,11 @@ PALMER {data-navmenu="PREÇOS AO PRODUTOR"}
 
 ``` {r database1}
 #Direcionado o R para o Diretorio a ser trabalhado
-#setwd('c:/Users/Lenovo/Dropbox/tempecon/dados_manga')
-setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
+setwd('c:/Users/Lenovo/Dropbox/tempecon/dados_manga')
+#setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
-today <- Sys.Date() #ajustar semanalmente
-#today <- as.Date('2025-10-31')
+#today <- Sys.Date() #ajustar semanalmente
+today <- as.Date('2025-12-05')
 atual <-  today
 data <-  today
 
@@ -1519,8 +1519,8 @@ TOMMY {data-navmenu="PREÇOS AO PRODUTOR"}
 
 ``` {r database2}
 #Direcionado o R para o Diretorio a ser trabalhado
-#setwd('c:/Users/Lenovo/Dropbox/tempecon/dados_manga')
-setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
+setwd('c:/Users/Lenovo/Dropbox/tempecon/dados_manga')
+#setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
 #today <- as.Date('2025-10-24')
 #atual <-  today
