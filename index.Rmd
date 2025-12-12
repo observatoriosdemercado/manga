@@ -53,11 +53,11 @@ knitr::opts_chunk$set(
   )
 
 library(lubridate)
-#data <- Sys.Date() #ajustar semanalmente
+data <- Sys.Date() #ajustar semanalmente
 #last <- today - 7
-#sem_ano <- isoweek(data) #ajustar semanalmente
+sem_ano <- isoweek(data) #ajustar semanalmente
 
-data <- as.Date('2025-12-05')
+#data <- as.Date('2025-12-05')
 sem_ano <- isoweek(data) 
 #sem_ano <- 43
 
@@ -1215,8 +1215,8 @@ PALMER {data-navmenu="PREÇOS AO PRODUTOR"}
 setwd('c:/Users/Lenovo/Dropbox/tempecon/dados_manga')
 #setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
 
-#today <- Sys.Date() #ajustar semanalmente
-today <- as.Date('2025-12-05')
+today <- Sys.Date() #ajustar semanalmente
+#today <- as.Date('2025-12-05')
 atual <-  today
 data <-  today
 
