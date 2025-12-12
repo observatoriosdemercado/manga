@@ -47,11 +47,9 @@ sem_ano <- isoweek(today)
 
 Os dados utilizados nesta análise são semanais e disponibilizados pelo **CEPEA (Esalq-USP)** englobando o período de 2012 a 2025, para as variedades de manga *Palmer* e *Tommy Atkins*, ao produtor do Vale do São Francisco. Os preços até a semana `r strftime(today, format = "%V")` de 2025, deflacionados pelo IGP-DI, são comparados com a média de cada semana entre 2012 e 2024, mínimo para cada semana e máximo. Os preços deflacionados de 2023 e de 2024 também são apresentados para comparação de 2025 com os dois anos anteriores.
 
-O preço médio de **Palmer** na semana `r strftime(today, format = "%V de %Y")` foi R\$ 2,14, variando entre R\$ 2,60 e R\$ 1,90. A média histórica dos dados deflacionados, desde 2012 até 2024, para esta semana, é R\$ 1,75. Em 2023, o preço deflacionado é de R\$ 2,58 para a semana `r strftime(today, format = "%V")` e, em 2024, o preço é R\$ 0,40. Em relação à semana `r strftime(last, format = "%V")`, os preços diminuíram -1,83%.
+O preço médio de **Palmer** na semana `r strftime(today, format = "%V de %Y")` foi R\$ 2,14, variando entre R\$ 2,50 e R\$ 1,60. A média histórica dos dados deflacionados, desde 2012 até 2024, para esta semana, é R\$ 1,93. Em 2023, o preço deflacionado é de R\$ 3,33 para a semana `r strftime(today, format = "%V")` e, em 2024, o preço é R\$ 0,48. Em relação à semana `r strftime(last, format = "%V")`, os preços diminuíram -3,60%.
 
-No caso da **Tommy**, na semana `r strftime(today, format = "%V de %Y")` os preços médios foram de R\$ 1,65, variando entre R\$ 1,80 e R\$ 1,40. Este valor é maior do que a média histórica para esta semana (R\$ 1,10), maior do que o preço em 2024, R\$ 0,76, mas menor do que o valor de 2023 (R\$ 2,17). Em relação à semana anterior, os preços aumentaram 3,12%. 
-
-Sobre os preços de exportação, a **Palmer Exportação** teve média de R\$ 2,74, variando entre R\$ 3,20 e R\$ 2,20, queda de -4% em relação à semana anterior. A média de preço da **Tommy Exportação para os Estados Unidos** foi R\$2,07, variando entre R\$2,20 e R\$2,00, estável em relação à semana passada. A **Keitt Exportação** teve média de R\$ 2,88, variando entre R\$ 3,00 e R\$ 2,70, queda de -4% em relação ao preço da semana passada. No caso da **Kent Exportação**, a média da semana foi R\$ 3,21, variando entre R\$ 3,50 e R\$ 3,00, uma redução de -5% na semana.
+No caso da **Tommy**, na semana `r strftime(today, format = "%V de %Y")` os preços médios foram de R\$ 1,90, variando entre R\$ 2,20 e R\$ 1,50. Este valor é maior do que a média histórica para esta semana (R\$ 1,25), maior do que o preço em 2024, R\$ 1,31, mas menor do que o valor de 2023 (R\$ 3,01). Em relação à semana anterior, os preços aumentaram 7,34%. 
 
 <hr>
 
