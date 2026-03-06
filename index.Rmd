@@ -944,7 +944,7 @@ MERCADO TRABALHO {data-navmenu="MERCADO INTERNO"}
 setwd('c:/Users/Lenovo/Dropbox/tempecon/dados_caged')
 #setwd('/Users/jricardofl/Dropbox/tempecon/dados_caged')
 
-atual <-  as.Date("2025-12-01")
+atual <-  as.Date("2026-01-01")
 #today <- as.Date("2022-02-11")
 
 
@@ -955,20 +955,19 @@ library(scales)
 library(plotly)
 
 #Entrando dados no R
-dados1 <- read.csv2('dezembro_2025.csv', header=T, sep=";", dec = ".")
+dados1 <- read.csv2('janeiro_2026.csv', header=T, sep=";", dec = ".")
 colnames(dados1)[1] <- 'date'
 dados1$date <- seq(as.Date('2021-01-01'),to=atual,by='1 month')
 dados1a <- dados1 
 dados1a$ano <- strftime(dados1a$date, format="%Y") 
 dados1a$mes <- strftime(dados1a$date, format="%B") 
 
-
-saldo_24 <- dados1a |> filter(ano == "2024") |> select(ano, mes, Saldo_Manga) |> mutate(mes = as.character(mes))
 saldo_25 <- dados1a |> filter(ano == "2025") |> select(ano, mes, Saldo_Manga) |> mutate(mes = as.character(mes))
+saldo_26 <- dados1a |> filter(ano == "2026") |> select(ano, mes, Saldo_Manga) |> mutate(mes = as.character(mes))
 
-saldom <- rbind(saldo_24, saldo_25)   # agora não vira NA
+saldom <- rbind(saldo_25, saldo_26)   # agora não vira NA
 # ou, melhor:
-saldom <- bind_rows(saldo_24, saldo_25)
+saldom <- bind_rows(saldo_25, saldo_26)
 
 mes_levels <- c("janeiro","fevereiro","março","abril","maio","junho",
                 "julho","agosto","setembro","outubro","novembro","dezembro")
@@ -979,16 +978,10 @@ dados1a <- dados1 |>
     mes = factor(format(date, "%B"), levels = mes_levels, ordered = TRUE)
   )
 
-saldo_24 <- dados1a |> filter(ano == "2024") |> select(ano, mes, Saldo_Manga)
 saldo_25 <- dados1a |> filter(ano == "2025") |> select(ano, mes, Saldo_Manga)
+saldo_26 <- dados1a |> filter(ano == "2026") |> select(ano, mes, Saldo_Manga)
 
-saldom <- rbind(saldo_24, saldo_25)   # funciona porque os levels são idênticos
-
-total_24 <- dados1a %>%
-  select(c(ano, mes, Contratados_Manga, Demitidos_Manga, Saldo_Manga))%>% 
-  filter(ano=='2024')
-
-total_24$mes <- factor(total_24$mes,levels = c("Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"))
+saldom <- rbind(saldo_25, saldo_26)   # funciona porque os levels são idênticos
 
 total_25 <- dados1a %>%
   select(c(ano, mes, Contratados_Manga, Demitidos_Manga, Saldo_Manga)) %>% 
@@ -996,45 +989,51 @@ total_25 <- dados1a %>%
 
 total_25$mes <- factor(total_25$mes,levels = c("Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro",  "Novembro", "Dezembro"))
 
-totalm <- merge(total_24, total_25, by="mes", all = T)
+total_26 <- dados1a %>%
+  select(c(ano, mes, Contratados_Manga, Demitidos_Manga, Saldo_Manga))%>% 
+  filter(ano=='2026')
+
+total_26$mes <- factor(total_26$mes,levels = c("Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"))
+
+totalm <- merge(total_25, total_26, by="mes", all = T)
 #totalm <- inner_join(total_23, total_24, by="mes")
 
 totalm <- totalm %>%
         select(c(mes,Contratados_Manga.x, Demitidos_Manga.x, Contratados_Manga.y, Demitidos_Manga.y, Saldo_Manga.x, Saldo_Manga.y))
 
 totalm <- totalm %>%
-  rename("Contratados 2024" = Contratados_Manga.x,
-         "Demitidos 2024" = Demitidos_Manga.x,
-         "Contratados 2025" = Contratados_Manga.y,
-         "Demitidos 2025" = Demitidos_Manga.y,
-         "Saldo 2024" = Saldo_Manga.x,
-         "Saldo 2025" = Saldo_Manga.y)
+  rename("Contratados 2025" = Contratados_Manga.x,
+         "Demitidos 2025" = Demitidos_Manga.x,
+         "Contratados 2026" = Contratados_Manga.y,
+         "Demitidos 2026" = Demitidos_Manga.y,
+         "Saldo 2025" = Saldo_Manga.x,
+         "Saldo 2026" = Saldo_Manga.y)
 
 #Entrando com o restante dos dados
 
-load("dezembro_25_caged.RData")
+load("janeiro_26_caged.RData")
 
 #dados_08_vsf$sexo <- lapply(dados_08_vsf$sexo, factor)
 
-dados_12_vsf$sexo[dados_12_vsf$sexo == 1] <- 0
-dados_12_vsf$sexo[dados_12_vsf$sexo == 3] <- 1
+dados_01_vsf$sexo[dados_01_vsf$sexo == 1] <- 0
+dados_01_vsf$sexo[dados_01_vsf$sexo == 3] <- 1
 
-dados_12_vsf <- mutate(dados_12_vsf,
+dados_01_vsf <- mutate(dados_01_vsf,
                 sexo = factor(sexo, levels = 0:1, labels = c("Masculino", "Feminino")))
 
 # Mantendo apenas 
 
 #Separando as admissoes e as demissoes
-dados_12_vsf_positivos <-dados_12_vsf%>% filter(saldo_movim=="1")
-dados_12_vsf_negativos <-dados_12_vsf%>% filter(saldo_movim=="-1")
+dados_01_vsf_positivos <-dados_01_vsf%>% filter(saldo_movim=="1")
+dados_01_vsf_negativos <-dados_01_vsf%>% filter(saldo_movim=="-1")
 
 #Mantendo apenas o agronegocio
-secao_positivos <-dados_12_vsf_positivos%>% filter(secao=="A")
-secao_negativos <-dados_12_vsf_negativos%>% filter(secao=="A")
+secao_positivos <-dados_01_vsf_positivos%>% filter(secao=="A")
+secao_negativos <-dados_01_vsf_negativos%>% filter(secao=="A")
 
 #Mantendo apenas a manga
-subclasse_positivos <-dados_12_vsf_positivos%>% filter(subclasse=="133410")
-subclasse_negativos <-dados_12_vsf_negativos%>% filter(subclasse=="133410")
+subclasse_positivos <-dados_01_vsf_positivos%>% filter(subclasse=="133410")
+subclasse_negativos <-dados_01_vsf_negativos%>% filter(subclasse=="133410")
 
 #Ajustando o grau de escolaridade
 subclasse_positivos$grau_instrucao[subclasse_positivos$grau_instrucao == 80] <- 12
@@ -1065,7 +1064,7 @@ subclasse_positivos$salario <- as.integer(subclasse_positivos$salario)
 Row {data-height=125}
 -----------------------------------------------------------------------
 
-### pela mangicultura em `r strftime(atual, format = "%B")` de 2025 
+### pela mangicultura em `r strftime(atual, format = "%B")` de 2026 
 ``` {r emp1}
 num <- tail(dados1$Contratados_Manga,1)
 valueBox(
@@ -1074,7 +1073,7 @@ valueBox(
   icon= "fa-arrow-up")
 ```
 
-### pela mangicultura em `r strftime(atual, format = "%B")` de 2025 
+### pela mangicultura em `r strftime(atual, format = "%B")` de 2026 
 ``` {r emp2}
 num <- tail(dados1$Demitidos_Manga,1)
 valueBox(
@@ -1083,7 +1082,7 @@ valueBox(
   icon= "fa-arrow-down")
 ```
 
-### Saldo Gerado pela mangicultura em `r strftime(atual, format = "%B")` de 2025 
+### Saldo Gerado pela mangicultura em `r strftime(atual, format = "%B")` de 2026 
 ``` {r emp3}
 num <- tail(dados1$Saldo_Manga,1)
 valueBox(
@@ -1106,7 +1105,7 @@ mycolors2 <- c("orange", "lightblue3")
 g1 <- ggplot() +  #estetica vai valer para todos os geom's
   geom_col(data=saldom, aes(x=mes, y=Saldo_Manga, fill=ano), size=2, width = 0.9, position = "dodge")+
     scale_fill_manual(values=mycolors2)+
-    labs(y= "Saldo de Emprego (unidade)", x= "Meses do Ano", title='Saldo mensal de Empregos na Mangicultura: 2024 e 2025',
+    labs(y= "Saldo de Emprego (unidade)", x= "Meses do Ano", title='Saldo mensal de Empregos na Mangicultura: 2025 e 2026',
        caption = "")+
     scale_y_continuous(limits=c(-1000, 1000), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
   theme_minimal()+ #Definindo tema
@@ -1189,7 +1188,7 @@ ggplotly(g3)
 
 g4 <- ggplot(data = subclasse_positivos, aes(x = grau_instrucao, y = ..count..)) +
   geom_bar(fill='#1e4971')+
-    scale_y_continuous(limits=c(0, 200), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
+    scale_y_continuous(limits=c(0, 250), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
 labs(y= "Contratados Manga - VSF", x= "Grau de Instrução", title='Grau de Instrução dos empregos gerados',
        caption = "")+
   theme_minimal() +
