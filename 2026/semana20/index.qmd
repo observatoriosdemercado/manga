@@ -1,0 +1,910 @@
+---
+title: "OBSERVATÓRIO DO MERCADO DE MANGA DA EMBRAPA SEMIÁRIDO"
+author: "João Ricardo F. de Lima"
+date: "today"
+editor: source
+lang: pt
+language: 
+    toc-title-document: '<a href="https://observatoriosdemercado.github.io/manga/" target="_blank"><img src="img/logo_embrapa.jpg" alt="Logotipo Embrapa" width="150"></a>'
+format: 
+  html:
+    toc: true
+    toc_float:
+      collapsed: yes
+      smooth_scroll: yes
+    toc-location: left
+    code-fold: false
+    embed-resources: true
+    page-layout: full
+#    fig-asp: 0.618
+    fig-width: 10
+    fig-height: 8
+#    fig-dpi: 300
+    fig-align: center
+    df-print: paged
+theme:
+  light: flatly
+execute:
+  echo: false
+  message: false
+  warning: false
+  cache: false
+---
+
+```{r setup, include=FALSE}
+# ----------------------------------------------------------------------------
+# 1. OPÇÕES GLOBAIS
+# ----------------------------------------------------------------------------
+knitr::opts_chunk$set(
+  echo       = FALSE,
+  warning    = FALSE,
+  message    = FALSE,
+  fig.align  = "center",
+  comment    = "#",
+  size       = "normalsize"
+  )
+
+options(digits = 4)
+
+# ----------------------------------------------------------------------------
+# 2. PACOTES
+# ----------------------------------------------------------------------------
+library(lubridate)
+library(foreign)
+library(mFilter)
+library(forecast)
+library(dplyr)
+library(tsutils)
+library(xts)
+library(ggthemes)
+library(FinTS)
+library(scales)
+library(ggplot2)
+library(reshape)
+library(reshape2)
+library(imputeTS)
+library(seasonal)
+library(uroot)
+library(tseries)
+library(quantmod)
+library(kableExtra)   # tabelas complexas
+library(lmtest)
+library(plotly)
+library(DT)
+library(magrittr)
+
+# ----------------------------------------------------------------------------
+# 3. PARÂMETROS DO BOLETIM
+# ----------------------------------------------------------------------------
+#today <- as.Date('2026-05-08')
+today <- Sys.Date()
+last    <- today - 7
+sem_ano <- isoweek(today)
+time    <- 1:52   # vetor de semanas usado nas tabelas/gráficos
+
+# Pasta com os dados (ajuste conforme a máquina)
+#data_dir <- 'c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga'
+data_dir <- 'C:/Users/Lenovo/Dropbox/tempecon/dados_manga'
+
+# ----------------------------------------------------------------------------
+# 4. FUNÇÕES AUXILIARES
+#    (a mesma lógica era repetida para Palmer e Tommy; aqui fica em um só lugar)
+# ----------------------------------------------------------------------------
+
+# Lê um CSV de preços semanais, junta com o IGP-DI, deflaciona e cria as datas.
+ler_serie_manga <- function(arquivo) {
+  setwd(data_dir)
+
+  dados <- read.csv2(arquivo, header = TRUE, sep = ";", dec = ".")
+  colnames(dados)[1] <- 'produto'
+
+  igpdi <- read.csv2('igpdi.csv', header = TRUE, sep = ";", dec = ".")
+
+  dados_comb <- cbind(dados, igpdi)
+  dadosp <- dados_comb[, -c(1, 2, 6, 7)]
+
+  # Deflacionar a série de manga pelo IGP-DI
+  dadosp$preco_def <- dadosp[, 3] * (tail(dadosp[, 4], 1) / dadosp[, 4])
+
+  # Datas semanais (com os ajustes das semanas sem cotação)
+  date <- seq(as.Date('2012-01-07'), to = today, by = '1 week')
+  date <- date[date != as.Date('2016-12-31')]
+  date[date == as.Date('2022-12-31')] <- as.Date('2023-01-01')
+  date <- date[date != as.Date('2023-12-30')]
+  date <- c(date, as.Date(today))
+  dadosp$date <- date
+
+  dadosp
+}
+
+# Monta as tabelas (mínimo/média/máximo + anos 2024, 2025, 2026) para o gráfico
+# de comparação entre as médias históricas.
+tabela_comparacao <- function(preco_serie, dadosp) {
+  preco_2025 <- window(preco_serie, end = c(2025, 52))
+  seas25     <- seasplot(preco_2025, trend = FALSE, outplot = FALSE)
+  medias25   <- colMeans(seas25$season)
+
+  preco_2024 <- window(preco_serie, end = c(2024, 52))
+
+  preco_atual <- as.matrix(tail(dadosp$preco_def, sem_ano))
+  preco_2026  <- matrix(NA, nrow = 52, ncol = 1)
+  for (i in 1:sem_ano) {
+    preco_2026[i, 1] <- preco_atual[i, 1]
+  }
+
+  # Como só se tem até a semana 52
+  medias25 <- medias25[1:52]
+
+  minmax <- matrix(NA, nrow = 52, ncol = 2)
+  for (i in 1:52) {
+    minmax[i, 1] <- min(seas25$season[, i])
+    minmax[i, 2] <- max(seas25$season[, i])
+  }
+
+  table <- data.frame(time, minmax[, 1], round(medias25, 2), minmax[, 2],
+                       round(tail(preco_2024, 52), 2),
+                       round(tail(preco_2025, 52), 2), preco_2026[, 1])
+  colnames(table) <- c('Semanas', 'Mínimo', 'Média', 'Máximo',
+                        'Ano 2024', 'Ano 2025', 'Ano 2026')
+
+  tablea <- table[, -c(5:7)]
+  tableb <- table[, -c(2, 3, 4)]
+
+  list(
+    preco_2024 = preco_2024,
+    preco_2025 = preco_2025,
+    preco_2026 = preco_2026,
+    medias     = round(medias25, 2),   # média histórica por semana (2012-2025)
+    table      = table,                # tabela completa (para a aba TABELA)
+    tablea2    = melt(tablea, id.var = 'Semanas'),
+    tableb2    = melt(tableb, id.var = 'Semanas')
+  )
+}
+
+# Monta as tabelas para o gráfico que usa a média de 2023 a 2025.
+tabela_media_23_25 <- function(preco_serie, preco_2024, preco_2025, preco_2026) {
+  preco_2023_5 <- window(preco_serie, start = c(2023, 1), end = c(2025, 52))
+  seas23_5     <- seasplot(preco_2023_5, trend = FALSE, outplot = FALSE)
+  medias23_5   <- colMeans(seas23_5$season)[1:52]
+
+  table <- data.frame(time, round(medias23_5, 2),
+                       round(tail(preco_2024, 52), 2),
+                       round(tail(preco_2025, 52), 2), preco_2026[, 1])
+  colnames(table) <- c('Semanas', 'Média 23_25', 'Ano 2024',
+                        'Ano 2025', 'Ano 2026')
+
+  tablea <- table[, -c(3:5)]
+  tableb <- table[, -c(2)]
+
+  list(
+    tablea2 = melt(tablea, id.var = 'Semanas'),
+    tableb2 = melt(tableb, id.var = 'Semanas')
+  )
+}
+
+# Monta a variação semanal de preços 2025 x 2026.
+# Retorna: $grafico (formato longo p/ ggplot) e $tabela (formato largo p/ datatable).
+tabela_variacao <- function(serie_df, preco_2026) {
+  preco_25     <- serie_df %>% filter(ano == '2025')
+  preco_2025   <- as.matrix(preco_25$preco_def)
+  variacao_25  <- (preco_2025 / lag(preco_2025, 1) - 1) * 100
+  variacao_26  <- (preco_2026 / lag(preco_2026, 1) - 1) * 100
+
+  semanas  <- seq(1:52)
+  variacao <- data.frame(semanas, variacao_25[, 1], variacao_26[, 1])
+  colnames(variacao) <- c('Semanas', 'Ano 2025', 'Ano 2026')
+
+  tabela <- variacao[, -1]
+  colnames(tabela) <- c('Variação em 2025', 'Variação em 2026')
+
+  list(
+    grafico = melt(variacao, id.var = 'Semanas'),
+    tabela  = tabela
+  )
+}
+
+# ----------------------------------------------------------------------------
+# 5. VALORES DA ANÁLISE DA CAPA
+# ----------------------------------------------------------------------------
+
+# >>> ÚNICO PREENCHIMENTO MANUAL POR SEMANA <<<
+# Faixa "variando entre" — NÃO existe na base do CEPEA, digite os valores:
+palmer_max <- 2.00; palmer_min <- 1.30   # Palmer ao produtor
+tommy_max  <- 2.80; tommy_min  <- 1.90   # Tommy ao produtor
+pexp_max   <- 2.60; pexp_min   <- 1.90   # Palmer exportação
+texp_max   <- 2.50; texp_min   <- 2.10   # Tommy exportação Europa
+
+#A **Tommy Exportação para a Europa** teve média de R\$`r fmt(texp_atual)`, variando entre R\$`r fmt(texp_max)` e R\$`r fmt(texp_min)`.
+
+# --- Funções de formatação / redação ----------------------------------------
+fmt <- function(x, dec = 2) formatC(round(x, dec), format = "f", digits = dec,
+                                    big.mark = ".", decimal.mark = ",")
+var_verb     <- function(v) if (v < 0) "reduziram" else "aumentaram"
+var_noun     <- function(v) if (v < 0) "redução"   else "aumento"
+comp_palavra <- function(a, b) if (a < b) "menor" else if (a > b) "maior" else "igual"
+
+# --- Cálculos automáticos (vêm da base do CEPEA) ----------------------------
+.dp_palmer <- ler_serie_manga('dados_manga_palmer_semana.csv')
+.dp_tommy  <- ler_serie_manga('dados_manga_tommy_semana.csv')
+
+.cmp_palmer <- tabela_comparacao(ts(.dp_palmer[, 5], start = c(2012, 1), freq = 52),
+                                 .dp_palmer)
+.cmp_tommy  <- tabela_comparacao(ts(.dp_tommy[, 5],  start = c(2012, 1), freq = 52),
+                                 .dp_tommy)
+
+w <- sem_ano
+
+# Preço médio nominal da semana atual (último dado de 2026)
+palmer_atual <- tail(.dp_palmer$preco, 1)
+tommy_atual  <- tail(.dp_tommy$preco,  1)
+
+# Média histórica e anos anteriores (deflacionados), para a semana atual
+palmer_hist <- .cmp_palmer$medias[w]
+palmer_2024 <- round(tail(.cmp_palmer$preco_2024, 52), 2)[w]
+palmer_2025 <- round(tail(.cmp_palmer$preco_2025, 52), 2)[w]
+tommy_hist  <- .cmp_tommy$medias[w]
+tommy_2024  <- round(tail(.cmp_tommy$preco_2024, 52), 2)[w]
+tommy_2025  <- round(tail(.cmp_tommy$preco_2025, 52), 2)[w]
+
+# Variação % vs. semana anterior (preço nominal de 2026)
+.p26_palmer <- subset(.dp_palmer, ano == 2026)$preco
+.p26_tommy  <- subset(.dp_tommy,  ano == 2026)$preco
+palmer_var  <- (.p26_palmer[w] / .p26_palmer[w - 1] - 1) * 100
+tommy_var   <- (.p26_tommy[w]  / .p26_tommy[w - 1]  - 1) * 100
+
+# Preços de exportação (R$) da semana atual e variação da Palmer exportação
+.exp   <- read.csv2(file.path(data_dir, 'manga_export_medias_deflacionados.csv'),
+                     header = TRUE, sep = ";", dec = ".")
+.exp26 <- subset(.exp, ano == 2026)
+pexp_atual <- .exp26$Palmer[.exp26$semana == w]
+pexp_prev  <- .exp26$Palmer[.exp26$semana == w - 1]
+pexp_var   <- (pexp_atual / pexp_prev - 1) * 100
+texp_atual <- .exp26$Tommy_Europa[.exp26$semana == w]
+```
+
+# ANÁLISE DOS PREÇOS AO PRODUTOR ATÉ A SEMANA `r strftime(today, format = "%V")` {-}
+
+Os dados utilizados nesta análise são semanais e disponibilizados pelo **CEPEA (Esalq-USP)** englobando o período de 2012 a 2026, para as variedades de manga *Palmer* e *Tommy Atkins*, ao produtor do Vale do São Francisco. Os preços até a semana `r strftime(today, format = "%V")` de 2026, deflacionados pelo IGP-DI, são comparados com a média de cada semana entre 2012 e 2025, mínimo para cada semana e máximo. Os preços deflacionados de 2024 e de 2025 também são apresentados para comparação de 2026 com os dois anos anteriores.
+
+O preço médio de **Palmer** na semana `r strftime(today, format = "%V de %Y")` foi R\$ `r fmt(palmer_atual)` variando entre R\$ `r fmt(palmer_max)` e R\$ `r fmt(palmer_min)`. A média histórica dos dados deflacionados, desde 2012 até 2025, para esta semana, é R\$ `r fmt(palmer_hist)`.  Em 2024, o preço deflacionado é de R\$ `r fmt(palmer_2024)` para a semana `r strftime(today, format = "%V")` e, em 2025, o preço é R\$ `r fmt(palmer_2025)`. Em relação à semana `r strftime(last, format = "%V")`, os preços `r var_verb(palmer_var)` `r fmt(palmer_var)`%.
+
+No caso da **Tommy**, na semana `r strftime(today, format = "%V de %Y")`, os preços médios foram de R\$ `r fmt(tommy_atual)`, variando entre R\$ `r fmt(tommy_max)` e R\$ `r fmt(tommy_min)`. Este valor é `r comp_palavra(tommy_atual, tommy_hist)` do que a média histórica para esta semana (R\$ `r fmt(tommy_hist)`), é `r comp_palavra(tommy_atual, tommy_2024)` do que o preço em 2024 (R\$ `r fmt(tommy_2024)`) e do que o valor de 2025 (R\$ `r fmt(tommy_2025)`). Em relação à semana anterior, os preços `r var_verb(tommy_var)` `r fmt(tommy_var)`%.
+
+Sobre os preços de exportação, a **Palmer exportação** foi vendida na média por R\$ `r fmt(pexp_atual)`, variando entre R\$`r fmt(pexp_max)` e R\$`r fmt(pexp_min)`, `r var_noun(pexp_var)` de `r fmt(pexp_var, 0)`% em relação à semana anterior. 
+
+<hr>
+
+# 1. MANGA PALMER AO PRODUTOR DO VALE DO SÃO FRANCISCO
+
+<br>
+
+```{r tratamento_base, results='', fig.cap=''}
+dadosp <- ler_serie_manga('dados_manga_palmer_semana.csv')
+
+# Análise de série temporal
+preco_palmer <- dadosp[,5]
+preco_palmer <- ts(preco_palmer, start=c(2012,1), freq=52)
+trend_palmer <- cmav(preco_palmer, outplot=F)
+```
+
+## EVOLUÇÃO DA TENDÊNCIA DE MANGA PALMER NO VALE SÃO FRANCISCO: 2012 A 2026.
+
+```{r palmer1, results='', fig.cap=''}
+#Gráfico com Ggplot2
+
+g1 <- ggplot(data=dadosp, aes(x=date)) +  #estetica vai valer para todos os geom's
+  geom_line(aes(y=preco_def, colour="PREÇO"), lwd=1)+
+  geom_line(aes(y=trend_palmer, colour="TENDÊNCIA"), lwd=1)+
+  scale_colour_manual("", 
+                      breaks = c("PREÇO", "TENDÊNCIA"),
+                      values = c("blue", "red")) +
+  labs(y= "Preço Palmer (R$)", x= "Semanas de cada Ano", title='',
+       caption = "Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa") +
+  scale_y_continuous(limits=c(0,8), n.breaks = 9, expand = expansion(add=c(0,0.5)), 
+                     labels=number_format(accuracy = 0.01, decimal.mark = ","))+
+  scale_x_date(date_breaks = "1 year",
+               labels = date_format("%Y"))+
+  theme_classic()+ #Definindo tema
+  theme(axis.text.x=element_text(angle=35, hjust=1, size=10, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=1, size=10, margin = margin(l=20)),
+        axis.title.x = element_text(size=10, face = "bold", margin = margin(b=20)),
+        axis.title.y = element_text(size=10, face = "bold", margin = margin(l=20)),
+        plot.title = element_text(hjust = 0.5, size=16, face="italic"),
+        plot.caption = element_text(hjust = 0, size=12),
+        legend.position = c(1,1),
+        legend.justification = c(1.2, 1.2),
+        legend.text=element_text(size=10)) # Definindo posição da legenda
+
+ggplotly(g1) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.4, 
+                      y=-0.3,
+                      title=''))
+```
+
+Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+
+## EVOLUÇÃO DA SAZONALIDADE PREÇO DE MANGA PALMER AO PRODUTOR DO VALE SÃO FRANCISCO
+
+```{r palmer2, results='', fig.cap=''}
+#Decompor a Série
+decompa<-decompose(preco_palmer, type = 'multiplicative')
+
+sazonalidade <- decompa$figure
+semanas <- seq(1:52)
+sazonal_graph <- tibble(cbind(semanas, sazonalidade))
+
+g2 <- ggplot(data=sazonal_graph)+
+  geom_line(aes(x=semanas, y=sazonalidade), color="blue", linewidth=1)+
+  scale_y_continuous(limits=c(0,1.8), n.breaks = 5, expand = expansion(add=c(0,0.5)), 
+                     labels=number_format(accuracy = 0.01, decimal.mark = ","))+
+  scale_x_continuous(breaks = seq(1, 52, by = 3))+
+  labs(y= "", x= "Semanas de cada Ano", title='',
+       caption = "Fonte: Observatório de Mercado de Manga da Embrapa")+
+  theme_classic()+
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=10, margin = margin(l=20)),
+        axis.title.y = element_text(size=10, face = "bold"),
+        axis.title.x = element_text(size=10, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0, size=14),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=10)) # Definindo posição da legenda
+ggplotly(g2) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.25, 
+                      y=-0.2,
+                      title=''))
+```
+
+Fonte: Observatório de Mercado de Manga da Embrapa
+
+<br> <br>
+
+## EVOLUÇÃO DOS PREÇOS DE MANGA PALMER AO PRODUTOR DO VALE SÃO FRANCISCO
+
+<br>
+
+::: panel-tabset
+### GRÁFICO CONSIDERANDO A MÉDIA 2012 A 2025
+
+```{r palmer3}
+comp_palmer <- tabela_comparacao(preco_palmer, dadosp)
+
+preco_palmer_2024 <- comp_palmer$preco_2024
+preco_palmer_2025 <- comp_palmer$preco_2025
+preco_palmer_2026 <- comp_palmer$preco_2026
+table   <- comp_palmer$table        # usado na aba TABELA (chunk palmer4)
+tablea2 <- comp_palmer$tablea2
+tableb2 <- comp_palmer$tableb2
+mycolors <- c("lightblue3", "gray44", "gold")
+
+g3 <- ggplot()+
+  geom_col(data=tableb2, aes(x=Semanas, y=value, fill=variable), size=2, width = 0.7,
+           position = "dodge")+
+  scale_fill_manual(values=mycolors)+
+    geom_line(data=tablea2, aes(x=Semanas, y=value, colour=variable), linetype = "solid",
+            size = 1)+
+  scale_colour_manual(values = c("red", "chocolate", "darkgreen")) +
+  scale_y_continuous(limits = c(0, 8.5), n.breaks = 8, labels = number_format(accuracy = 0.01,
+                                                       decimal.mark = ","))+
+  scale_x_continuous(breaks = seq(1, 52, by = 3))+
+  labs(y= "Preço Palmer (R$)", x= "Semanas de cada Ano", title='',
+       caption = "Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=10, margin = margin(l=20)),
+        axis.title.y = element_text(size=10, face = "bold"),
+        axis.title.x = element_text(size=10, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0, size=14),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=8)) # Definindo posição da legenda
+
+ggplotly(g3) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.45, 
+                      y=-0.2,
+                      title=''))
+```
+
+Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+### TABELA
+
+**VISUALIZAÇÃO DOS DADOS EM TABELA**
+
+```{r palmer4}
+tableP <-table[,-1]
+#rmarkdown::paged_table(round(tableD,2))
+datatable(round(tableP,2), option = list(
+  autoWidth = TRUE))
+```
+
+Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa
+:::
+
+### GRÁFICO PREÇOS CONSIDERANDO A MÉDIA 2023 A 2025
+
+```{r palmer3a, results='', fig.cap=''}
+
+comp_palmer_23_25 <- tabela_media_23_25(preco_palmer, preco_palmer_2024,
+                                        preco_palmer_2025, preco_palmer_2026)
+
+tablea2 <- comp_palmer_23_25$tablea2
+tableb2 <- comp_palmer_23_25$tableb2
+mycolors <- c("lightblue3", "gray44", "gold")
+
+g3a <- ggplot()+
+  geom_col(data=tableb2, aes(x=Semanas, y=value, fill=variable), size=2, width = 0.7,
+           position = "dodge")+
+  scale_fill_manual(values=mycolors)+
+    geom_line(data=tablea2, aes(x=Semanas, y=value, colour=variable), linetype = "solid",
+            size = 1)+
+  scale_colour_manual(values = c("chocolate")) +
+  scale_y_continuous(limits = c(0, 5.5), n.breaks = 10, labels = number_format(accuracy = 0.01,
+                                                       decimal.mark = ","))+
+  scale_x_continuous(breaks = seq(1, 52, by = 3))+
+  labs(y= "Preço Palmer (R$)", x= "Semanas de cada Ano", title='',
+       caption = "Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=10, margin = margin(l=20)),
+        axis.title.y = element_text(size=10, face = "bold"),
+        axis.title.x = element_text(size=10, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0, size=14),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=8)) # Definindo posição da legenda
+
+ggplotly(g3a) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.45, 
+                      y=-0.2,
+                      title=''))
+```
+
+Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br> <br>
+
+## EVOLUÇÃO DA VARIAÇÃO SEMANAL DE PREÇOS DE MANGA PALMER (MI) AO PRODUTOR NO VALE DO SÃO FRANCISCO
+
+::: panel-tabset
+### GRÁFICO
+
+<br> <br>
+
+```{r palmer5, results='', fig.cap=''}
+
+var_palmer <- tabela_variacao(dadosp, preco_palmer_2026)
+variacao  <- var_palmer$grafico
+variacaot <- var_palmer$tabela     # usado na aba TABELA (chunk palmer6)
+mycolors2 <- c("orange", "lightblue3")
+
+
+g4 <- ggplot()+
+  geom_col(data=variacao, aes(x=Semanas, y=value, fill=variable), size=2, width = 0.9, position = "dodge")+
+  scale_fill_manual(values=mycolors2)+
+  scale_y_continuous(labels = number_format(accuracy = 0.01, decimal.mark = ","))+
+  scale_x_continuous(breaks = seq(1, 52, by = 3))+
+  labs(y= "Variação Percentual", x= "Semanas do Ano", title='',
+       caption = "Fonte: Observatório de Mercado de Manga da Embrapa")+
+  theme_minimal()+
+   theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=10, margin = margin(l=20)),
+        axis.title.y = element_text(size=10, face = "bold"),
+        axis.title.x = element_text(size=10, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0, size=14),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=10)) # Definindo posição da legenda
+
+ggplotly(g4) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.45, 
+                      y=-0.2,
+                      title=''))
+```
+
+Fonte: Observatório de Mercado de Manga da Embrapa
+
+### TABELA
+
+```{r palmer6}
+#rmarkdown::paged_table(round(tableD,2))
+datatable(round(variacaot,2), option = list(
+  autoWidth = TRUE))
+```
+
+Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa
+:::
+
+<hr>
+
+# 2. MANGA TOMMY AO PRODUTOR DO VALE DO SÃO FRANCISCO
+
+## EVOLUÇÃO DO PREÇO DE MANGA TOMMY AO PRODUTOR DO VALE SÃO FRANCISCO: 2012 A 2026
+
+```{r setupt}
+dadosp <- ler_serie_manga('dados_manga_tommy_semana.csv')
+
+# Análise de série temporal
+preco_tommy <- dadosp[,5]
+preco_tommy <- ts(preco_tommy, start=c(2012,1), freq=52)
+trend_tommy <- cmav(preco_tommy, outplot=F)
+```
+
+```{r tommy1, results='', fig.cap=''}
+#Gráfico com Ggplot2
+
+g5 <- ggplot(data=dadosp, aes(x=date)) +  #estetica vai valer para todos os geom's
+  geom_line(aes(y=preco_def, colour="PREÇO"), lwd=1)+
+  geom_line(aes(y=trend_tommy, colour="TENDÊNCIA"), lwd=1)+
+  scale_colour_manual("", 
+                      breaks = c("PREÇO", "TENDÊNCIA"),
+                      values = c("blue", "red")) +
+  labs(y= "Preço Tommy (R$)", x= "Semanas de cada Ano", title='',
+       caption = "Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa") +
+  scale_y_continuous(limits=c(0,8), n.breaks = 9, expand = expansion(add=c(0,0.5)), 
+                     labels=number_format(accuracy = 0.01, decimal.mark = ","))+
+  scale_x_date(date_breaks = "1 year",
+               labels = date_format("%Y"))+
+  theme_classic()+ #Definindo tema
+theme(axis.text.x=element_text(angle=35, hjust=1, size=10, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=1, size=10, margin = margin(l=20)),
+        axis.title.x = element_text(size=10, face = "bold", margin = margin(b=20)),
+        axis.title.y = element_text(size=10, face = "bold"),
+        plot.title = element_text(hjust = 0.5, size=16, face="italic"),
+        plot.caption = element_text(hjust = 0, size=12),
+        legend.position = c(1,1),
+        legend.justification = c(1.2, 1.2),
+        legend.text=element_text(size=10)) # Definindo posição da legenda
+
+ggplotly(g5) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.45, 
+                      y=-0.3,
+                      title=''))
+```
+
+Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+## EVOLUÇÃO DA SAZONALIDADE PREÇO DE MANGA TOMMY AO PRODUTOR DO VALE SÃO FRANCISCO {.unnumbered}
+
+```{r tommy2, results='', fig.cap=''}
+#Decompor a Série
+decompa<-decompose(preco_tommy, type = 'multiplicative')
+
+sazonalidade <- decompa$figure
+semanas <- seq(1:52)
+sazonal_graph <- tibble(cbind(semanas, sazonalidade))
+
+
+g6 <- ggplot(data=sazonal_graph)+
+  geom_line(aes(x=semanas, y=sazonalidade), color="blue", size=1)+
+  scale_y_continuous(limits=c(0,1.5), n.breaks = 5, expand = expansion(add=c(0,0.5)), 
+                     labels=number_format(accuracy = 0.01, decimal.mark = ","))+
+  scale_x_continuous(breaks = seq(1, 52, by = 3))+
+  labs(y= "", x= "Semanas de cada Ano", title='',
+       caption = "Fonte: Observatório de Mercado de Manga da Embrapa")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=10, margin = margin(l=20)),
+        axis.title.y = element_text(size=10, face = "bold"),
+        axis.title.x = element_text(size=10, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0, size=14),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=10)) # Definindo posição da legenda
+
+ggplotly(g6) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.25, 
+                      y=-0.2,
+                      title=''))
+```
+
+Fonte: Observatório de Mercado de Manga da Embrapa
+
+<br>
+
+## EVOLUÇÃO DOS PREÇOS DE MANGA TOMMY AO PRODUTOR DO VALE SÃO FRANCISCO
+
+::: panel-tabset
+### GRÁFICO PREÇOS CONSIDERANDO A MÉDIA 2012 A 2025
+
+```{r tommy3, results='', fig.cap=''}
+
+comp_tommy <- tabela_comparacao(preco_tommy, dadosp)
+
+preco_tommy_2024 <- comp_tommy$preco_2024
+preco_tommy_2025 <- comp_tommy$preco_2025
+preco_tommy_2026 <- comp_tommy$preco_2026
+table   <- comp_tommy$table        # usado na aba TABELA (chunk tommy4)
+tablea2 <- comp_tommy$tablea2
+tableb2 <- comp_tommy$tableb2
+mycolors <- c("lightblue3", "gray44", "gold")
+
+g7 <- ggplot()+
+  geom_col(data=tableb2, aes(x=Semanas, y=value, fill=variable), size=2, width = 0.7,
+           position = "dodge")+
+  scale_fill_manual(values=mycolors)+
+  geom_line(data=tablea2, aes(x=Semanas, y=value, colour=variable), linetype = "solid",
+            size = 1)+
+  scale_colour_manual(values = c("red", "chocolate", "darkgreen")) +
+  scale_y_continuous(limits = c(0, 8.5), n.breaks = 8, labels = number_format(accuracy = 0.01,
+                                                                            decimal.mark = ","))+
+  scale_x_continuous(breaks = seq(1, 52, by = 3))+
+  labs(y= "Preço Tommy (R$)", x= "Semanas de cada Ano", title='',
+       caption = "Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=10, margin = margin(l=20)),
+        axis.title.y = element_text(size=10, face = "bold"),
+        axis.title.x = element_text(size=10, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0, size=14),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=8)) # Definindo posição da legenda
+
+ggplotly(g7) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.45, 
+                      y=-0.2,
+                      title=''))
+```
+
+Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+### TABELA
+
+**VISUALIZAÇÃO DOS DADOS EM TABELA**
+
+```{r tommy4}
+tableT <-table[,-1]
+datatable(round(tableT,2))
+
+#kable(round(table,2)) %>%
+#  kable_styling(full_width = T, bootstrap_options = c("striped", "hover", "condensed"))
+```
+
+Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa
+:::
+
+### GRÁFICO CONSIDERANDO A MÉDIA 2023 A 2025
+
+```{r tommmy3a, results='', fig.cap=''}
+
+comp_tommy_23_25 <- tabela_media_23_25(preco_tommy, preco_tommy_2024,
+                                       preco_tommy_2025, preco_tommy_2026)
+
+tablea2 <- comp_tommy_23_25$tablea2
+tableb2 <- comp_tommy_23_25$tableb2
+mycolors <- c("lightblue3", "gray44", "gold")
+
+g3 <- ggplot()+
+  geom_col(data=tableb2, aes(x=Semanas, y=value, fill=variable), size=2, width = 0.7,
+           position = "dodge")+
+  scale_fill_manual(values=mycolors)+
+    geom_line(data=tablea2, aes(x=Semanas, y=value, colour=variable), linetype = "solid",
+            size = 1)+
+  scale_colour_manual(values = c("chocolate")) +
+  scale_y_continuous(limits = c(0, 6.5), n.breaks = 10, labels = number_format(accuracy = 0.01,
+                                                       decimal.mark = ","))+
+  scale_x_continuous(breaks = seq(1, 52, by = 3))+
+  labs(y= "Preço Tommy (R$)", x= "Semanas de cada Ano", title='',
+       caption = "Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=10, margin = margin(l=20)),
+        axis.title.y = element_text(size=10, face = "bold"),
+        axis.title.x = element_text(size=10, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0, size=14),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=8)) # Definindo posição da legenda
+
+ggplotly(g3) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.45, 
+                      y=-0.2,
+                      title=''))
+```
+
+Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br> <br>
+
+## EVOLUÇÃO DA VARIAÇÃO SEMANAL DE PREÇOS DE MANGA TOMMY (MI) AO PRODUTOR NO VALE DO SÃO FRANCISCO
+
+::: panel-tabset
+### GRÁFICO
+
+```{r tommy5, results='', fig.cap=''}
+
+var_tommy <- tabela_variacao(dadosp, preco_tommy_2026)
+variacao   <- var_tommy$grafico
+variacaott <- var_tommy$tabela     # usado na aba TABELA (chunk tommy6)
+mycolors2 <- c("orange", "lightblue3")
+
+g8 <- ggplot()+
+  geom_col(data=variacao, aes(x=Semanas, y=value, fill=variable), size=2, 
+           width = 0.9, position = "dodge")+
+  scale_fill_manual(values=mycolors2)+
+  scale_y_continuous(labels = number_format(accuracy = 0.01, decimal.mark = ","))+
+  scale_x_continuous(breaks = seq(1, 52, by = 3))+
+  labs(y= "Variação Percentual", x= "Semanas do Ano", title='',
+       caption = "Fonte: Observatório de Mercado de Manga da Embrapa")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=10, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=10, margin = margin(l=20)),
+        axis.title.y = element_text(size=10, face = "bold"),
+        axis.title.x = element_text(size=10, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0, size=10),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=10)) # Definindo posição da legenda
+
+ggplotly(g8) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.45, 
+                      y=-0.2,
+                      title=''))
+```
+
+Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+### TABELA
+
+```{r tommy6}
+#rmarkdown::paged_table(round(tableD,2))
+datatable(round(variacaott,2), option = list(
+  autoWidth = TRUE))
+```
+
+Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa
+:::
+
+<br>
+
+# 3. EVOLUÇÃO SEMANAL DE PREÇOS DE MANGA EXPORTAÇÃO (ME) AO PRODUTOR NO VALE DO SÃO FRANCISCO
+
+::: panel-tabset
+```{r preco_exp}
+setwd(data_dir)
+
+#Entrando dados no R
+dadosexp <- read.csv2('manga_export_medias_deflacionados.csv', header=T, sep=";", dec=".")
+#colnames(dadosexp)[1]<-'Palmer'
+
+#Entrando dados no R - Deflator
+igpdi <- read.csv2('igpdi.csv', 
+                   header=T, sep=";",
+                   dec=".")
+colnames(igpdi)[1]<-'Ano'
+
+igpdi2 <- igpdi %>% filter (Ano >= 2021) 
+igpdi2$date <- seq(as.Date('2021-01-05'),to=today,by='1 week') 
+igpdi2 <- igpdi2 %>% filter(date > "2021-07-27")
+
+dadosexp_comb<-cbind(dadosexp, igpdi2)
+dadosexp_comb<-dadosexp_comb[,-c(1:2)]
+
+#Deflacionar a serie de manga de exportação
+dadosexp_comb$Palmer <- dadosexp_comb[,1]*(tail(dadosexp_comb[,8],1)/dadosexp_comb[,8])
+dadosexp_comb$Tommy_USA <- dadosexp_comb[,2]*(tail(dadosexp_comb[,8],1)/dadosexp_comb[,8])
+dadosexp_comb$Tommy_Europa <- dadosexp_comb[,3]*(tail(dadosexp_comb[,8],1)/dadosexp_comb[,8])
+dadosexp_comb$Kent <- dadosexp_comb[,4]*(tail(dadosexp_comb[,8],1)/dadosexp_comb[,8])
+dadosexp_comb$Keitt <- dadosexp_comb[,5]*(tail(dadosexp_comb[,8],1)/dadosexp_comb[,8])
+
+dadosexp_table <- dadosexp_comb %<>%
+  select(c(date, Palmer, Tommy_USA, Tommy_Europa, Kent, Keitt))
+
+dadosexp_comb <- melt(dadosexp_comb, id.var='date')
+```
+
+## GRÁFICO
+
+```{r exp1, results='', fig.cap=''}
+#Gráfico com Ggplot2
+
+mycolors3 <- c("orange", "lightblue3", "red", "darkgreen", "blue")
+
+g9 <- ggplot()+
+  geom_col(data=dadosexp_comb, aes(x=date, y=value, fill=variable), size=2, 
+           width = 4, position = "dodge")+
+  scale_fill_manual(values=mycolors3)+
+  scale_y_continuous(limits = c(0, 6), n.breaks = 10, labels = number_format(accuracy = 0.01,
+                                                                            decimal.mark = ","))+
+  scale_x_date(breaks = date_breaks("4 weeks"), expand=c(0,0),
+               labels = date_format("%W/%y"))+
+  labs(y= "Preços Exportação (R$)", x= "Semanas do Ano", title='',
+       caption = "Fonte: Observatório de Mercado de Manga da Embrapa")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=45, hjust=0.5, size=9, margin = margin(b=10)),
+        axis.text.y=element_text(hjust=0.5, size=10, margin = margin(l=20)),
+        axis.title.y = element_text(size=10, face = "bold"),
+        axis.title.x = element_text(size=10, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0, size=14),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=10)) # Definindo posição da legenda
+
+ggplotly(g9) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.45, 
+                      y=-0.2,
+                      title=''))
+```
+
+Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+## TABELA
+
+**VISUALIZAÇÃO DOS DADOS EM TABELA**
+
+```{r exp2}
+
+dadosexpt<-dadosexp_table[,-1]
+datatable(round(dadosexpt,2))
+```
+
+Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa
+:::
+
+<br>
+
+# INFORMAÇÕES E APOIO
+
+<br>
+
+<center>![](logo_manga.png){width="10cm"}</center>
+
+<br>
+
+<center>João Ricardo F. de Lima</center>
+
+<center>Email Coordenador: joao.ricardo\@embrapa.br</center>
+
+<br>
+
+<center><https://www.embrapa.br/observatorio-da-manga></center>
+
+<center>[Dashboard Mercado de Manga](https://bit.ly/3KTVLkJ)</center>
+
+<br>
+
+<center>Telefones:</center>
+
+<center>87-3866-3667</center>
+
+<center>87-99961-5799</center>
+
+<br>
+
+<center>![](apoio4.png){width="10.5cm"}</center>
+
+<br>
