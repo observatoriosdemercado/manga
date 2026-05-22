@@ -2,7 +2,8 @@
 title: "Mercado de Manga"
 format:
   dashboard:
-    logo: ../img/branca_peq.png
+    embed-resources: true
+    logo: logo_embrapa.png
     nav-buttons:
       - icon: github
         href: https://github.com/observatoriosdemercado
