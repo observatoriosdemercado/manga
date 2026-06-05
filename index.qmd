@@ -1,5 +1,5 @@
 ---
-title: "Mercado de Manga"
+title: "PAINEL MERCADO DE MANGA"
 format:
   dashboard:
     embed-resources: true
