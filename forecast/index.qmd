@@ -266,7 +266,7 @@ previsíveis como o ENSO):
 
 O câmbio entra só na Palmer (mais exportadora); o clima local e os proxies regionais
 foram **descartados** pela seleção em $h=8$ (ver §9). A autocorrelação do preço é
-tratada internamente pelo AutoARIMA (parte AR) e pelo LightGBM (defasagens).
+tratada internamente pelo AutoARIMA (parte AR) e pelo XGBoost (defasagens).
 
 ```{python}
 import warnings; warnings.filterwarnings("ignore")
@@ -279,7 +279,7 @@ from statsforecast.models import AutoARIMA, SeasonalNaive
 from statsforecast.utils import ConformalIntervals
 from mlforecast import MLForecast
 from mlforecast.utils import PredictionIntervals
-import lightgbm as lgb
+import xgboost as xgb
 
 # Parâmetros do estudo
 H, N_WIN, STEP, NIVEL = 8, 20, 4, 50
@@ -348,8 +348,8 @@ plot.show()
 ## 8. Modelos e validação rolling-origin
 
 Quatro competidores por variedade: **naive sazonal** (baseline), **AutoARIMA** (com
-as exógenas selecionadas), **LightGBM** (defasagens + exógenas) e o **ensemble**
-(média de AutoARIMA e LightGBM). Tudo avaliado por `cross_validation` (origem móvel),
+as exógenas selecionadas), **XGBoost** (defasagens + exógenas) e o **ensemble**
+(média de AutoARIMA e XGBoost). Tudo avaliado por `cross_validation` (origem móvel),
 com RMSE, MAPE e **acurácia direcional**.
 
 ```{python}
@@ -386,16 +386,16 @@ for uid, cols in EXOG_VAR.items():
                        freq=1, n_jobs=1)
     cv_sf = sf.cross_validation(df=sub[["unique_id", "ds", "y"] + cols],
                                 h=H, n_windows=N_WIN, step_size=STEP)
-    mlf = MLForecast(models={"LightGBM": lgb.LGBMRegressor(
-        n_estimators=200, max_depth=3, learning_rate=0.05, verbosity=-1)},
+    mlf = MLForecast(models={"XGBoost": xgb.XGBRegressor(
+        n_estimators=200, max_depth=3, learning_rate=0.05, verbosity=0)},
         freq=1, lags=[1, 2, 4, 52])
     cv_ml = mlf.cross_validation(df=sub[["unique_id", "ds", "y"] + cols],
                                  h=H, n_windows=N_WIN, step_size=STEP, static_features=[])
-    cv = cv_sf.merge(cv_ml[["unique_id", "ds", "cutoff", "LightGBM"]],
+    cv = cv_sf.merge(cv_ml[["unique_id", "ds", "cutoff", "XGBoost"]],
                      on=["unique_id", "ds", "cutoff"])
-    cv["Ensemble"] = (cv["AutoARIMA"] + cv["LightGBM"]) / 2
+    cv["Ensemble"] = (cv["AutoARIMA"] + cv["XGBoost"]) / 2
     cv["yc"] = cv["cutoff"].map(refy)
-    for m in ["SeasonalNaive", "AutoARIMA", "LightGBM", "Ensemble"]:
+    for m in ["SeasonalNaive", "AutoARIMA", "XGBoost", "Ensemble"]:
         r = metr(cv["y"].values, cv[m].values, cv["yc"].values)
         metricas.append({"Variedade": uid, "Modelo": m,
                          "RMSE": r[0], "MAPE (%)": r[1], "Dir.Acc (%)": r[2]})
@@ -409,7 +409,7 @@ for uid, cols in EXOG_VAR.items():
             prediction_intervals=PredictionIntervals(n_windows=N_WIN, h=H))
     fml = mlf.predict(h=H, X_df=Xf[["unique_id", "ds"] + cols], level=[NIVEL])
     f = fsf.merge(fml, on=["unique_id", "ds"]).merge(Xf[["ds", "fecha"]], on="ds")
-    f["Ensemble"] = (f["AutoARIMA"] + f["LightGBM"]) / 2
+    f["Ensemble"] = (f["AutoARIMA"] + f["XGBoost"]) / 2
     previsoes.append(f)
 
 resumo = pd.DataFrame(metricas).sort_values(["Variedade", "RMSE"]).reset_index(drop=True)
@@ -424,11 +424,11 @@ resumo = pd.DataFrame(metricas).sort_values(["Variedade", "RMSE"]).reset_index(d
 ```{python}
 # Ganho de cada modelo vs naive sazonal (RMSE)
 piv = resumo.pivot(index="Variedade", columns="Modelo", values="RMSE")
-ganho = (1 - piv[["AutoARIMA", "LightGBM", "Ensemble"]].div(piv["SeasonalNaive"], axis=0)) * 100
+ganho = (1 - piv[["AutoARIMA", "XGBoost", "Ensemble"]].div(piv["SeasonalNaive"], axis=0)) * 100
 ganho = ganho.round(1).reset_index()
 (GT(ganho).tab_header(title="Redução de RMSE vs. naive sazonal (%)",
                       subtitle="maior = melhor")
- .fmt_number(columns=["AutoARIMA", "LightGBM", "Ensemble"], decimals=1))
+ .fmt_number(columns=["AutoARIMA", "XGBoost", "Ensemble"], decimals=1))
 ```
 
 **O que os números mostram** (consistente com a seleção de variáveis):
@@ -438,9 +438,13 @@ ganho = ganho.round(1).reset_index()
   global), e o câmbio chega a atrapalhar.
 - **O ENSO (Niño) é o canal exógeno robusto** para as duas — e oportuno, com El
   Niño forte em 2026 (anomalia Niño 1+2 ≳ +2,5 °C).
-- **O AutoARIMA é o modelo mais forte**; o **ensemble** ajuda pouco (e pode piorar a
-  Tommy, onde o LightGBM vai mal). Coerente com a ideia de que, em série curta e
-  ruidosa, o modelo mais simples e regularizado tende a vencer.
+- **O AutoARIMA continua o modelo mais forte isolado**, mas o **ensemble com
+  XGBoost** chega muito perto dele nas duas variedades (Palmer: 0,774 vs. 0,769;
+  Tommy: 0,858 vs. 0,852) — uma melhora real frente ao LightGBM, testado antes e
+  descartado por perder mais terreno na Tommy (RMSE 1,07 vs. 0,93 do XGBoost).
+  Coerente com a ideia de que, em série curta e ruidosa, o modelo mais simples e
+  regularizado tende a vencer, mas o crescimento *level-wise* do XGBoost generaliza
+  melhor que o *leaf-wise* do LightGBM neste volume de dados (~750 semanas).
 - **O clima local não sobreviveu à seleção em $h=8$** — em parte por restrição de
   horizonte: o sinal da antracnose mora em 3–6 semanas, fora do alcance previsível
   de 8 semanas (pode reaparecer em horizontes curtos, $h\le 4$).
@@ -486,14 +490,14 @@ def faixa(lo, hi):
 tab = fc[["unique_id", "fecha"]].copy()
 tab["fecha"] = tab["fecha"].dt.strftime("%Y-%m-%d")
 tab["AutoARIMA"] = faixa(fc[f"AutoARIMA-lo-{NIVEL}"], fc[f"AutoARIMA-hi-{NIVEL}"])
-tab["LightGBM"] = faixa(fc[f"LightGBM-lo-{NIVEL}"], fc[f"LightGBM-hi-{NIVEL}"])
+tab["XGBoost"] = faixa(fc[f"XGBoost-lo-{NIVEL}"], fc[f"XGBoost-hi-{NIVEL}"])
 # banda do ensemble = media das bandas (heuristica ilustrativa, nao recalibrada;
 # as bandas validas sao as conformais de cada modelo individual)
-tab["Ensemble"] = faixa((fc[f"AutoARIMA-lo-{NIVEL}"] + fc[f"LightGBM-lo-{NIVEL}"]) / 2,
-                        (fc[f"AutoARIMA-hi-{NIVEL}"] + fc[f"LightGBM-hi-{NIVEL}"]) / 2)
+tab["Ensemble"] = faixa((fc[f"AutoARIMA-lo-{NIVEL}"] + fc[f"XGBoost-lo-{NIVEL}"]) / 2,
+                        (fc[f"AutoARIMA-hi-{NIVEL}"] + fc[f"XGBoost-hi-{NIVEL}"]) / 2)
 (GT(tab.rename(columns={"unique_id": "Variedade", "fecha": "Semana",
                         "AutoARIMA": f"AutoARIMA (intervalo {NIVEL}%)",
-                        "LightGBM": f"LightGBM (intervalo {NIVEL}%)",
+                        "XGBoost": f"XGBoost (intervalo {NIVEL}%)",
                         "Ensemble": f"Ensemble (intervalo {NIVEL}%)"}))
  .tab_header(title=f"Previsões fora da amostra — intervalo de {NIVEL}%",
              subtitle=f"Próximas {H} semanas — R$/kg"))
