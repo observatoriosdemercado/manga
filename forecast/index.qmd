@@ -282,7 +282,7 @@ from mlforecast.utils import PredictionIntervals
 import lightgbm as lgb
 
 # Parâmetros do estudo
-H, N_WIN, STEP, NIVEL = 8, 20, 4, 80
+H, N_WIN, STEP, NIVEL = 8, 20, 4, 50
 
 igpdi = pd.read_csv("dados/igpdi.csv", sep=";", decimal=".")
 exo = pd.read_csv("dados/df_exogenas.csv", parse_dates=["date"]).set_index("date")
@@ -449,7 +449,13 @@ ganho = ganho.round(1).reset_index()
 
 ## 10. Previsão fora da amostra
 
-Reestimado com toda a amostra; banda **conformal** de 80% (livre de distribuição).
+Reestimado com toda a amostra; banda **conformal** de 50% (livre de distribuição).
+
+Coerente com a discussão do §6 — o modelo não acerta o ponto, e fingir que acerta
+("o preço da semana 752 será R\$ 2,05") é uma falsa precisão. Por isso a entrega
+abaixo é o **intervalo**, não o ponto: "o preço deve ficar entre R\$ Y e R\$ Z, com
+50% de confiança (conformal)" — o valor pontual do modelo é apenas o centro dessa
+banda, não uma previsão mais "correta" que o resto do intervalo.
 
 ```{python}
 fc = pd.concat(previsoes, ignore_index=True)
@@ -474,12 +480,23 @@ plot.show()
 ```
 
 ```{python}
-tab = fc[["unique_id", "fecha", "AutoARIMA", "LightGBM", "Ensemble"]].copy()
+def faixa(lo, hi):
+    return [f"{a:.2f} – {b:.2f}" for a, b in zip(lo, hi)]
+
+tab = fc[["unique_id", "fecha"]].copy()
 tab["fecha"] = tab["fecha"].dt.strftime("%Y-%m-%d")
-(GT(tab.rename(columns={"unique_id": "Variedade", "fecha": "Semana"}))
- .tab_header(title="Previsões fora da amostra",
-             subtitle=f"Próximas {H} semanas — R$/kg")
- .fmt_number(columns=["AutoARIMA", "LightGBM", "Ensemble"], decimals=2))
+tab["AutoARIMA"] = faixa(fc[f"AutoARIMA-lo-{NIVEL}"], fc[f"AutoARIMA-hi-{NIVEL}"])
+tab["LightGBM"] = faixa(fc[f"LightGBM-lo-{NIVEL}"], fc[f"LightGBM-hi-{NIVEL}"])
+# banda do ensemble = media das bandas (heuristica ilustrativa, nao recalibrada;
+# as bandas validas sao as conformais de cada modelo individual)
+tab["Ensemble"] = faixa((fc[f"AutoARIMA-lo-{NIVEL}"] + fc[f"LightGBM-lo-{NIVEL}"]) / 2,
+                        (fc[f"AutoARIMA-hi-{NIVEL}"] + fc[f"LightGBM-hi-{NIVEL}"]) / 2)
+(GT(tab.rename(columns={"unique_id": "Variedade", "fecha": "Semana",
+                        "AutoARIMA": f"AutoARIMA (intervalo {NIVEL}%)",
+                        "LightGBM": f"LightGBM (intervalo {NIVEL}%)",
+                        "Ensemble": f"Ensemble (intervalo {NIVEL}%)"}))
+ .tab_header(title=f"Previsões fora da amostra — intervalo de {NIVEL}%",
+             subtitle=f"Próximas {H} semanas — R$/kg"))
 ```
 
 ## 11. Próximos passos
