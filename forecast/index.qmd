@@ -1,0 +1,502 @@
+---
+title: "Previsão de Preços de Manga com o Ecossistema Nixtla"
+subtitle: "Referencial metodológico e protótipo (Palmer e Tommy)"
+author: "João Ricardo F. de Lima"
+date: "today"
+editor: source
+lang: pt
+language:
+  toc-title-document: '<a href="https://observatoriosdemercado.github.io/manga/" target="_blank"><img src="logo_embrapa.jpg" alt="Logotipo Embrapa" width="150"></a>'
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-location: left
+    code-fold: true
+    embed-resources: true
+    page-layout: full
+    fig-width: 12
+    fig-height: 6
+    fig-align: center
+    df-print: paged
+    fontsize: 13pt
+theme:
+  light: flatly
+execute:
+  echo: true
+  message: false
+  warning: false
+  cache: false
+jupyter: manga-nixtla
+---
+
+# Parte I — Referencial Metodológico
+
+> Esta primeira parte é um material de apoio sobre **modelos de previsão de
+> preços**, escrito para servir de referência didática. A segunda parte aplica
+> tudo isso, na prática, ao preço da manga com o ecossistema **Nixtla**.
+
+## 1. Por que prever preços é difícil
+
+O motivo mais profundo é quase filosófico: **o preço de hoje já incorpora tudo o
+que o mercado sabe e espera.** Se fosse óbvio que o preço subiria na próxima
+semana, os agentes comprariam já, e a alta aconteceria agora. Esse mecanismo
+empurra os preços para perto de um **passeio aleatório** (*random walk*):
+
+$$
+P_{t+1} = P_t + \varepsilon_{t+1}, \qquad \mathbb{E}[\varepsilon_{t+1}\mid \mathcal{I}_t]=0
+$$
+
+onde $\mathcal{I}_t$ é o conjunto de informação disponível em $t$. A previsão ótima
+do amanhã passa a ser, simplesmente, $\mathbb{E}[P_{t+1}\mid\mathcal{I}_t]=P_t$ —
+o valor de hoje. O que sobra, $\varepsilon_{t+1}$, é por definição **o que ninguém
+conseguiu antecipar**. É por isso que bater uma previsão ingênua (*naive*) é tão
+difícil — e, quando se consegue, costuma ser por pouco.
+
+Em termos estatísticos, decompomos a série em sinal e ruído,
+
+$$
+y_t = \underbrace{f(\mathbf{x}_t)}_{\text{previsível}} + \underbrace{\varepsilon_t}_{\text{irredutível}},
+$$
+
+e em preços a **razão sinal/ruído** é baixa: a parte previsível $f(\mathbf{x}_t)$ é
+pequena perto da variância do ruído $\sigma^2_\varepsilon$.
+
+## 2. Por que preços de fruta são ainda mais difíceis
+
+Sobre o problema geral, a manga acrescenta características que tornam o caso quase
+extremo:
+
+1. **Perecibilidade → sem estoque, sem arbitragem.** Grãos se guardam em silo, e o
+   estoque amortece o preço entre safras. Manga **se vende ou se perde**. Sem esse
+   colchão, o preço precisa equilibrar oferta e demanda *na semana*.
+2. **Oferta e demanda inelásticas no curto prazo.** Sendo $\eta$ a elasticidade-preço,
+   uma variação de quantidade se traduz em variação de preço aproximadamente por
+   $$\%\Delta P \approx \frac{1}{\eta}\,\%\Delta Q.$$
+   Com $\eta$ pequeno (curvas íngremes), **uma pequena variação de quantidade vira
+   uma grande variação de preço**. É a física do mercado de perecível.
+3. **Defasagens biológicas + clima.** A oferta de hoje foi decidida na floração,
+   meses atrás, e mediada por temperatura, chuva e doença (antracnose).
+4. **Sincronia da oferta.** Quando muitos produtores colhem juntos, o preço desaba;
+   num vazio, dispara. Isso gera picos que modelos suaves não acompanham.
+5. **Qualidade é parte do preço.** Uma chuva que traz doença muda a *qualidade* que
+   chega ao mercado, não só a quantidade.
+6. **Quebras estruturais.** Novos pomares, mudança de área, abertura/fechamento de
+   mercados de exportação, câmbio — o "regime" muda e modelos do passado erram no
+   futuro.
+
+Conclusão prática: o **erro irredutível** $\sigma^2_\varepsilon$ aqui é grande. Parte
+do trabalho honesto é reconhecer esse piso, em vez de prometer uma precisão que o
+fenômeno não permite. Um MAPE de 20–30% em previsão multi-semana pode ser um bom
+resultado neste mercado.
+
+## 3. Os canais que movem o preço da manga no Vale do São Francisco
+
+A modelagem fica mais rica quando as variáveis explicativas têm **mecanismo** e
+**defasagem** com sentido econômico/agronômico.
+
+### 3.1 Clima local
+- **Floração → colheita (~16 semanas).** Temperatura e chuva na floração afetam o
+  pegamento; entram defasadas ~16 semanas (`*_lag16`).
+- **Antracnose (chuva ~30 dias / janela 3–6 semanas).** Chuva e umidade ~1 mês
+  antes favorecem a doença; a fruta chega ao mercado com lesão → mais descarte →
+  preço cai. Variável candidata: acumulado de chuva nas semanas 3–6 (`rain_3a6`).
+- **Estresse térmico (dias quentes).** O dano de calor é de **extremo**, não de
+  média: nº de dias com máxima > 35 °C (`hot_days_35`).
+
+### 3.2 Oferta global / canal de exportação
+- **Câmbio.** Real desvalorizado → exportar é mais atrativo → menos manga no
+  interno → preço sobe.
+- **Concorrentes via clima (Peru/Equador).** A manga peruana (Kent) precisa de
+  frio (<16 °C) para florar no inverno austral; El Niño mantém a costa quente →
+  safra deles cai (nov–abr) → puxão de exportação sobre o Brasil. **O gatilho é
+  relativo**: usa-se a **anomalia** de temperatura do inverno (lag ~6 meses), que
+  converge com o índice oceânico Niño 1+2 (e este é *previsível* meses à frente).
+- **África (Costa do Marfim, Senegal…) — despriorizada.** Janela quase
+  complementar (primavera do HN) e gargalo majoritariamente fitossanitário, não
+  climático.
+- **Preço de atacado europeu** (mercado de destino) — sinal mais direto do puxão
+  de exportação; usável **defasado** (o futuro não é conhecido).
+
+### 3.3 Competição doméstica
+Quatro polos disputam o consumidor interno: **Vale do São Francisco, Livramento/BA,
+Norte de Minas (Jaíba) e São Paulo**. A **sazonalidade média** dessa competição já
+é captada pelos termos de Fourier; o ganho preditivo novo está nas **anomalias**
+(um polo fora do calendário). Proxies de **clima por região** são predeterminados
+e evitam a **endogeneidade** de usar o preço de outra região (determinado
+simultaneamente).
+
+## 4. Modelos de previsão
+
+### 4.1 ARIMA e a sazonalidade por Fourier
+
+Um **ARIMA(p,d,q)** escreve-se, com $L$ o operador de defasagem,
+$$
+\phi(L)\,(1-L)^d y_t = \theta(L)\,\varepsilon_t,
+$$
+$$
+\phi(L)=1-\phi_1 L-\dots-\phi_p L^p,\qquad \theta(L)=1+\theta_1 L+\dots+\theta_q L^q.
+$$
+
+Com regressores externos, temos a **regressão com erros ARIMA** (ARIMAX):
+$$
+y_t = \boldsymbol{\beta}'\mathbf{x}_t + n_t, \qquad \phi(L)(1-L)^d n_t = \theta(L)\varepsilon_t .
+$$
+
+**Sazonalidade.** Em dados semanais o período é $m=52$. Um SARIMA sazonal clássico
+$(P,D,Q)_{52}$ é problemático (a diferenciação sazonal descarta um ano de dados; um
+termo no lag 52 não descreve uma curva anual suave; o espaço de estados fica enorme).
+A alternativa recomendada é a **regressão harmônica dinâmica**: sazonalidade
+determinística por **termos de Fourier** como exógenas,
+$$
+s_t=\sum_{k=1}^{K}\Big[\alpha_k\sin\!\Big(\tfrac{2\pi k\, d_t}{365.25}\Big)+\beta_k\cos\!\Big(\tfrac{2\pi k\, d_t}{365.25}\Big)\Big],
+$$
+com $d_t$ = dia do ano. Poucos harmônicos ($K=1$ ou $2$) costumam bastar.
+
+### 4.2 Modelos de Machine Learning
+
+Modelos como **gradient boosting** (LightGBM/XGBoost) aprendem $f$ de forma não
+linear a partir de atributos construídos (defasagens, janelas móveis, calendário).
+Brilham em **não linearidades e interações de limiar** (ex.: "preço alto **e**
+floração pesada há 16 semanas → espera queda"), mas precisam de previsão
+**recursiva** para múltiplos passos e são mais propensos a sobreajuste.
+
+### 4.3 O mapa das famílias (cada uma resolve uma dor)
+
+| Dor | Família |
+|---|---|
+| Muitas exógenas candidatas / sobreajuste | Regressão regularizada (LASSO/Elastic Net), BSTS |
+| Lags distribuídos e incertos | ADL / Almon / MIDAS |
+| Sazonalidade que muda no tempo | Modelos estruturais (componentes não observados) |
+| Caudas pesadas / heterocedasticidade | GARCH; regressão quantílica |
+| Séries correlacionadas (Palmer × Tommy) | VAR / VECM (cointegração) |
+| Regimes de boom-bust | Markov-switching; limiar (TAR/SETAR) |
+
+**Estatística × ML não são rivais — são complementares.** O ARIMAX dá
+interpretação e intervalos; o boosting capta não linearidades. O **ensemble**
+(média das previsões) costuma bater cada um isolado, por reduzir variância.
+
+## 5. Avaliação e armadilhas
+
+### 5.1 Viés × variância
+
+O erro esperado de previsão decompõe-se em
+$$
+\mathbb{E}\big[(y-\hat f)^2\big]=\underbrace{\big(\mathbb{E}[\hat f]-f\big)^2}_{\text{viés}^2}+\underbrace{\mathrm{Var}(\hat f)}_{\text{variância}}+\underbrace{\sigma^2_\varepsilon}_{\text{irredutível}}.
+$$
+Modelo **complexo**: baixo viés, **alta variância** (decora o ruído → ótimo no
+treino, ruim no teste). Modelo **simples/regularizado**: viés maior, **menor
+variância** (estável). Em série ruidosa, **reduzir variância** geralmente vence.
+
+### 5.2 O AIC pode enganar; a janela única também
+
+O **AIC** $=2k-2\ln\hat{L}$ mede ajuste *dentro* da amostra penalizado por
+parâmetros — mas **bom ajuste in-sample não é poder preditivo**. Uma variável pode
+melhorar o AIC e **piorar** o teste (overfitting). E uma **única** divisão
+treino/teste é ruído: pode ser sorte.
+
+### 5.3 Rolling-origin (validação de origem móvel)
+
+A avaliação honesta reestima o modelo em **várias origens** sucessivas e mede o
+erro fora da amostra em cada uma:
+
+```
+treino ──────────────|■■■■■■■■|                  (origem 1)
+treino ────────────────────|■■■■■■■■|            (origem 2)
+treino ──────────────────────────|■■■■■■■■|      (origem 3)  ...
+```
+
+Reporta-se o erro **médio** entre as origens. Regra de ouro: **uma variável só
+fica se pagar o aluguel no rolling-origin — não no AIC.** Hiperparâmetros se
+ajustam nas dobras de validação, **nunca** no conjunto de teste final.
+
+### 5.4 Métricas
+
+$$
+\mathrm{RMSE}=\sqrt{\tfrac{1}{N}\textstyle\sum (y_t-\hat y_t)^2},\quad
+\mathrm{MAPE}=\tfrac{100}{N}\textstyle\sum \big|\tfrac{y_t-\hat y_t}{y_t}\big|.
+$$
+
+E, crucialmente para preços, a **acurácia direcional** (acertou o *sentido* da
+mudança em relação ao último valor observado, $y_{c}$, no instante de origem):
+$$
+\mathrm{DA}=\frac{1}{N}\sum_t \mathbb{1}\!\big[\operatorname{sign}(\hat y_t-y_{c})=\operatorname{sign}(y_t-y_{c})\big].
+$$
+
+### 5.5 Regularização e seleção
+
+O **LASSO** seleciona variáveis encolhendo coeficientes a zero,
+$$
+\min_{\boldsymbol\beta}\ \sum_t\big(y_t-\boldsymbol\beta'\mathbf{x}_t\big)^2+\lambda\sum_j|\beta_j|,
+$$
+mecanismo essencial quando há muitas exógenas candidatas e poucos dados.
+
+## 6. O problema das viradas
+
+Modelos baseados em histórico de preço são **extrapoladores de momentum**: se está
+subindo, projetam alta; se caindo, queda. Eles **não antecipam a inflexão**, porque
+a virada vem de **informação nova** (um choque de oferta) que não está na
+trajetória passada — e a função de perda (RMSE) **recompensa** seguir a tendência,
+já que as viradas são poucas.
+
+A virada de chave: em **agricultura**, a inflexão é quase sempre um evento de
+**oferta**, e oferta tem **indicadores antecedentes** (floração de 16 semanas atrás,
+calendário dos outros polos, anomalia do Peru). **É justamente na virada que as
+exógenas de oferta podem agregar** — e, como seu valor se concentra em poucos
+pontos, o **RMSE médio o esconde**. Por isso medimos também **acurácia direcional**.
+
+---
+
+# Parte II — Implementação com Nixtla
+
+O ecossistema **open-source** da Nixtla (gratuito, local) oferece tudo de que
+precisamos: `StatsForecast` (AutoARIMA rápido, com exógenas), `MLForecast`
+(boosting com defasagens), `cross_validation` (rolling-origin de fábrica) e
+**intervalos conformais** (livres de distribuição).
+
+## 7. Dados e variáveis selecionadas
+
+A seleção de variáveis (rolling-origin incremental + Elastic Net/LASSO, ver §9)
+convergiu para um conjunto **enxuto e específico por variedade**, usando apenas
+exógenas **previsíveis no horizonte** $h=8$ (lag $\ge 8$, ou determinísticas, ou
+previsíveis como o ENSO):
+
+- **Palmer**: Fourier + **Niño** (1+2 e 3.4, lag 26) + **câmbio** (EUR, lag 8).
+- **Tommy**: Fourier + **Niño** (1+2 e 3.4, lag 26).
+
+O câmbio entra só na Palmer (mais exportadora); o clima local e os proxies regionais
+foram **descartados** pela seleção em $h=8$ (ver §9). A autocorrelação do preço é
+tratada internamente pelo AutoARIMA (parte AR) e pelo LightGBM (defasagens).
+
+```{python}
+import warnings; warnings.filterwarnings("ignore")
+import numpy as np
+import pandas as pd
+import plotnine as p9
+from great_tables import GT, md
+from statsforecast import StatsForecast
+from statsforecast.models import AutoARIMA, SeasonalNaive
+from statsforecast.utils import ConformalIntervals
+from mlforecast import MLForecast
+from mlforecast.utils import PredictionIntervals
+import lightgbm as lgb
+
+# Parâmetros do estudo
+H, N_WIN, STEP, NIVEL = 8, 20, 4, 80
+
+igpdi = pd.read_csv("dados/igpdi.csv", sep=";", decimal=".")
+exo = pd.read_csv("dados/df_exogenas.csv", parse_dates=["date"]).set_index("date")
+
+
+def construir_datas(precos):
+    """52 primeiros sabados de cada ano (convençao dos preços)."""
+    d = []
+    for ano, g in precos.groupby("ano"):
+        d.extend(pd.date_range(f"{ano}-01-01", f"{ano}-12-31", freq="W-SAT")[:len(g)])
+    return pd.DatetimeIndex(d)
+
+
+def carregar(arquivo, uid):
+    """Le precos, deflaciona e junta exógenas (câmbio/Niño) por data."""
+    p = pd.read_csv(arquivo, sep=";", decimal=".")
+    assert len(p) == len(igpdi), f"{arquivo}: preços e IGP-DI com tamanhos diferentes"
+    d = pd.DataFrame({"unique_id": uid, "fecha": construir_datas(p)})
+    d["y"] = (igpdi["igpdi"].iloc[-1] / igpdi["igpdi"].values) * p["preco"].values
+    return d.join(exo[["eur", "nino12_anom", "nino34_anom"]]
+                  .reindex(d["fecha"]).reset_index(drop=True))
+
+
+df = pd.concat([carregar("dados/dados_manga_palmer_semana.csv", "palmer"),
+                carregar("dados/dados_manga_tommy_semana.csv", "tommy")], ignore_index=True)
+df = df.sort_values(["unique_id", "fecha"])
+
+# Termos de Fourier (determinísticos) e exógenas em lags previsíveis (h=8)
+doy = df["fecha"].dt.dayofyear / 365.25
+for k in (1, 2):
+    df[f"sin{k}"] = np.sin(2 * np.pi * k * doy)
+    df[f"cos{k}"] = np.cos(2 * np.pi * k * doy)
+g = df.groupby("unique_id")
+df["nino12_lag26"] = g["nino12_anom"].shift(26)   # El Niño costero (~6 meses)
+df["nino34_lag26"] = g["nino34_anom"].shift(26)   # ENSO central
+df["eur_lag8"] = g["eur"].shift(8)                # câmbio (export), lag 8
+
+# Tempo INTEIRO alinhado entre as séries (robusto aos "buracos" da 53a semana)
+ds_de_fecha = {d: i for i, d in enumerate(np.sort(df["fecha"].unique()))}
+df["ds"] = df["fecha"].map(ds_de_fecha)
+
+FOUR = ["sin1", "cos1", "sin2", "cos2"]
+EXOG_VAR = {"palmer": FOUR + ["nino12_lag26", "nino34_lag26", "eur_lag8"],
+            "tommy":  FOUR + ["nino12_lag26", "nino34_lag26"]}
+print("Variáveis por série:")
+for k, v in EXOG_VAR.items():
+    print(f"  {k}: {v}")
+```
+
+```{python}
+# Visão geral das séries (preço real deflacionado)
+plot = (
+    p9.ggplot(df.dropna(subset=["y"]), p9.aes("fecha", "y", color="unique_id")) +
+    p9.geom_line() +
+    p9.scale_x_date(date_breaks="2 years", date_labels="%Y") +
+    p9.labs(title="Preço real da manga ao produtor — Vale do São Francisco",
+            x="", y="R$/kg (deflacionado pelo IGP-DI)", color="Variedade") +
+    p9.theme(legend_position="top")
+)
+plot.show()
+```
+
+## 8. Modelos e validação rolling-origin
+
+Quatro competidores por variedade: **naive sazonal** (baseline), **AutoARIMA** (com
+as exógenas selecionadas), **LightGBM** (defasagens + exógenas) e o **ensemble**
+(média de AutoARIMA e LightGBM). Tudo avaliado por `cross_validation` (origem móvel),
+com RMSE, MAPE e **acurácia direcional**.
+
+```{python}
+def metr(y, p, yc):
+    err = p - y
+    return (float(np.sqrt((err ** 2).mean())),
+            float((np.abs(err) / y).mean() * 100),
+            float((np.sign(p - yc) == np.sign(y - yc)).mean() * 100))
+
+
+def exog_futuro(sub, cols):
+    """Exógenas das próximas H semanas (todas conhecidas no horizonte h=8)."""
+    lf, lds = sub["fecha"].max(), int(sub["ds"].max())
+    fechas = pd.date_range(lf + pd.Timedelta(days=7), periods=H, freq="W-SAT")
+    linhas = []
+    for i, fc in enumerate(fechas, 1):
+        dd = fc.dayofyear / 365.25
+        linhas.append({"unique_id": sub["unique_id"].iloc[0], "ds": lds + i, "fecha": fc,
+                       "sin1": np.sin(2*np.pi*dd), "cos1": np.cos(2*np.pi*dd),
+                       "sin2": np.sin(4*np.pi*dd), "cos2": np.cos(4*np.pi*dd),
+                       "nino12_lag26": exo["nino12_anom"].asof(fc - pd.Timedelta(weeks=26)),
+                       "nino34_lag26": exo["nino34_anom"].asof(fc - pd.Timedelta(weeks=26)),
+                       "eur_lag8": exo["eur"].asof(fc - pd.Timedelta(weeks=8))})
+    return pd.DataFrame(linhas)
+
+
+metricas, previsoes = [], []
+for uid, cols in EXOG_VAR.items():
+    sub = df[df["unique_id"] == uid].dropna(subset=cols + ["y"]).reset_index(drop=True)
+    refy = sub.set_index("ds")["y"]
+
+    # --- rolling-origin ---
+    sf = StatsForecast(models=[SeasonalNaive(season_length=52), AutoARIMA(season_length=1)],
+                       freq=1, n_jobs=1)
+    cv_sf = sf.cross_validation(df=sub[["unique_id", "ds", "y"] + cols],
+                                h=H, n_windows=N_WIN, step_size=STEP)
+    mlf = MLForecast(models={"LightGBM": lgb.LGBMRegressor(
+        n_estimators=200, max_depth=3, learning_rate=0.05, verbosity=-1)},
+        freq=1, lags=[1, 2, 4, 52])
+    cv_ml = mlf.cross_validation(df=sub[["unique_id", "ds", "y"] + cols],
+                                 h=H, n_windows=N_WIN, step_size=STEP, static_features=[])
+    cv = cv_sf.merge(cv_ml[["unique_id", "ds", "cutoff", "LightGBM"]],
+                     on=["unique_id", "ds", "cutoff"])
+    cv["Ensemble"] = (cv["AutoARIMA"] + cv["LightGBM"]) / 2
+    cv["yc"] = cv["cutoff"].map(refy)
+    for m in ["SeasonalNaive", "AutoARIMA", "LightGBM", "Ensemble"]:
+        r = metr(cv["y"].values, cv[m].values, cv["yc"].values)
+        metricas.append({"Variedade": uid, "Modelo": m,
+                         "RMSE": r[0], "MAPE (%)": r[1], "Dir.Acc (%)": r[2]})
+
+    # --- previsão fora da amostra + intervalos conformais ---
+    Xf = exog_futuro(sub, cols)
+    sf.fit(df=sub[["unique_id", "ds", "y"] + cols],
+           prediction_intervals=ConformalIntervals(n_windows=N_WIN, h=H))
+    fsf = sf.predict(h=H, X_df=Xf[["unique_id", "ds"] + cols], level=[NIVEL])
+    mlf.fit(sub[["unique_id", "ds", "y"] + cols], static_features=[],
+            prediction_intervals=PredictionIntervals(n_windows=N_WIN, h=H))
+    fml = mlf.predict(h=H, X_df=Xf[["unique_id", "ds"] + cols], level=[NIVEL])
+    f = fsf.merge(fml, on=["unique_id", "ds"]).merge(Xf[["ds", "fecha"]], on="ds")
+    f["Ensemble"] = (f["AutoARIMA"] + f["LightGBM"]) / 2
+    previsoes.append(f)
+
+resumo = pd.DataFrame(metricas).sort_values(["Variedade", "RMSE"]).reset_index(drop=True)
+(GT(resumo)
+ .tab_header(title="Acurácia em rolling-origin (exógenas por variedade)",
+             subtitle=f"h={H} semanas, {N_WIN} origens, passo {STEP} (menor RMSE/MAPE = melhor)")
+ .fmt_number(columns=["RMSE", "MAPE (%)", "Dir.Acc (%)"], decimals=2))
+```
+
+## 9. Resultados e interpretação
+
+```{python}
+# Ganho de cada modelo vs naive sazonal (RMSE)
+piv = resumo.pivot(index="Variedade", columns="Modelo", values="RMSE")
+ganho = (1 - piv[["AutoARIMA", "LightGBM", "Ensemble"]].div(piv["SeasonalNaive"], axis=0)) * 100
+ganho = ganho.round(1).reset_index()
+(GT(ganho).tab_header(title="Redução de RMSE vs. naive sazonal (%)",
+                      subtitle="maior = melhor")
+ .fmt_number(columns=["AutoARIMA", "LightGBM", "Ensemble"], decimals=1))
+```
+
+**O que os números mostram** (consistente com a seleção de variáveis):
+
+- **A exógena vencedora difere por variedade.** Para a **Palmer**, o **câmbio** é o
+  maior ganho (variedade mais exportada); para a **Tommy**, é o **Niño** (oferta
+  global), e o câmbio chega a atrapalhar.
+- **O ENSO (Niño) é o canal exógeno robusto** para as duas — e oportuno, com El
+  Niño forte em 2026 (anomalia Niño 1+2 ≳ +2,5 °C).
+- **O AutoARIMA é o modelo mais forte**; o **ensemble** ajuda pouco (e pode piorar a
+  Tommy, onde o LightGBM vai mal). Coerente com a ideia de que, em série curta e
+  ruidosa, o modelo mais simples e regularizado tende a vencer.
+- **O clima local não sobreviveu à seleção em $h=8$** — em parte por restrição de
+  horizonte: o sinal da antracnose mora em 3–6 semanas, fora do alcance previsível
+  de 8 semanas (pode reaparecer em horizontes curtos, $h\le 4$).
+- A **acurácia direcional** segue modesta — as **viradas** continuam o ponto duro
+  (§6); ainda assim, as exógenas de oferta a melhoram um pouco.
+
+## 10. Previsão fora da amostra
+
+Reestimado com toda a amostra; banda **conformal** de 80% (livre de distribuição).
+
+```{python}
+fc = pd.concat(previsoes, ignore_index=True)
+hist = (df.dropna(subset=["y"]).groupby("unique_id").tail(52)
+        [["unique_id", "fecha", "y"]].rename(columns={"y": "valor"}))
+prev = fc[["unique_id", "fecha", "AutoARIMA",
+           f"AutoARIMA-lo-{NIVEL}", f"AutoARIMA-hi-{NIVEL}"]].rename(
+    columns={"AutoARIMA": "valor", f"AutoARIMA-lo-{NIVEL}": "lo", f"AutoARIMA-hi-{NIVEL}": "hi"})
+
+plot = (
+    p9.ggplot()
+    + p9.geom_ribbon(prev, p9.aes(x="fecha", ymin="lo", ymax="hi"), alpha=0.2, fill="blue")
+    + p9.geom_line(hist, p9.aes("fecha", "valor"))
+    + p9.geom_line(prev, p9.aes("fecha", "valor"), color="blue")
+    + p9.facet_wrap("unique_id", scales="free_y", ncol=1)
+    + p9.scale_x_date(date_breaks="2 months", date_labels="%b/%y")
+    + p9.labs(title=f"Previsão AutoARIMA — próximas {H} semanas (banda conformal {NIVEL}%)",
+              x="", y="R$/kg")
+    + p9.theme(axis_text_x=p9.element_text(angle=45, hjust=1))
+)
+plot.show()
+```
+
+```{python}
+tab = fc[["unique_id", "fecha", "AutoARIMA", "LightGBM", "Ensemble"]].copy()
+tab["fecha"] = tab["fecha"].dt.strftime("%Y-%m-%d")
+(GT(tab.rename(columns={"unique_id": "Variedade", "fecha": "Semana"}))
+ .tab_header(title="Previsões fora da amostra",
+             subtitle=f"Próximas {H} semanas — R$/kg")
+ .fmt_number(columns=["AutoARIMA", "LightGBM", "Ensemble"], decimals=2))
+```
+
+## 11. Próximos passos
+
+1. **Câmbio: nível vs. diferença.** No LASSO o `eur` saiu com sinal negativo,
+   provável confundimento com a tendência (real depreciou e preço real caiu).
+   Investigar a variação cambial em vez do nível, para limpar o efeito.
+2. **Antracnose em horizonte curto.** Reavaliar a chuva (janela 3–6) num modelo de
+   $h\le 4$, onde o sinal de doença é previsível.
+3. **Preço de atacado europeu** (Torres Tropical) como *nowcasting* — só há 2026,
+   então serve para decisão corrente, não para o backtest histórico.
+4. **Modelos por regime / quantílicos** para as viradas e para intervalos
+   assimétricos.
+
+::: {.callout-note}
+**Ambiente.** Este documento usa o kernel `manga-nixtla` (Python 3.12 isolado em
+`LOCALAPPDATA`, criado com `uv`). O Python 3.14 do sistema não tem wheels para o
+ecossistema científico. As bases são geradas por `python gerar_clima.py --aplicar`
+(clima) e `python gerar_exogenas.py --aplicar` (câmbio + Niño + anomalia Peru).
+:::
