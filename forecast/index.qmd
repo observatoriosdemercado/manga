@@ -514,6 +514,15 @@ tab["Ensemble"] = faixa((fc[f"AutoARIMA-lo-{NIVEL}"] + fc[f"XGBoost-lo-{NIVEL}"]
    então serve para decisão corrente, não para o backtest histórico.
 4. **Modelos por regime / quantílicos** para as viradas e para intervalos
    assimétricos.
+5. **Redes neurais — testadas e descartadas.** Um NHITS (`neuralforecast`) foi
+   avaliado no mesmo rolling-origin (20 origens, refit em cada uma) e ficou atrás
+   de todos os modelos, inclusive do XGBoost: RMSE 0,98 na Palmer e 1,13 na Tommy
+   (vs. 0,77 e 0,85 do AutoARIMA), com MAPE acima de 38%. Com ~2,7 milhões de
+   parâmetros para ~750 observações por série, a rede sobreajusta — confirma a
+   leitura do §5.1 (viés × variância) de que, em série curta e ruidosa, modelos
+   simples e regularizados vencem. Redes neurais voltam a fazer sentido se, no
+   futuro, o painel crescer (mais variedades/mercados) para treinar um modelo
+   global compartilhando padrões entre séries.
 
 ::: {.callout-note}
 **Ambiente.** Este documento usa o kernel `manga-nixtla` (Python 3.12 isolado em
