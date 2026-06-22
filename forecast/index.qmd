@@ -104,6 +104,20 @@ A modelagem fica mais rica quando as variáveis explicativas têm **mecanismo** 
 - **Estresse térmico (dias quentes).** O dano de calor é de **extremo**, não de
   média: nº de dias com máxima > 35 °C (`hot_days_35`).
 
+**Diferenciação por variedade (validada no rolling-origin):** o sinal climático
+dominante difere entre Palmer e Tommy, refletindo sensibilidades biológicas distintas:
+
+| Variedade | Variável (lag 16) | Mecanismo |
+|---|---|---|
+| Palmer | `hot_days_35` (dias ≥ 35 °C) | Estresse térmico reduz pegamento → menos oferta → preço sobe |
+| Tommy | `cold_days_16` (dias ≤ 16 °C) | Frio induz floração → mais oferta → preço cai |
+| Tommy | `total_rainfall` (chuva acumulada) | Chuva na floração → antracnose/lavagem do pólen → menos pegamento → preço sobe |
+
+Adicionar `hot_days_lag16` à **Palmer** e `cold_days_lag16 + rainfall_lag16` à
+**Tommy** reduziu o RMSE do ensemble em −1,4% e −2,5%, respectivamente, frente ao
+modelo sem clima. Incluir `hot_days` na Tommy **piora** os resultados, confirmando
+que a resposta climática não é simétrica entre cultivares.
+
 ### 3.2 Oferta global / canal de exportação
 - **Câmbio.** Real desvalorizado → exportar é mais atrativo → menos manga no
   interno → preço sobe.
@@ -173,8 +187,31 @@ floração pesada há 16 semanas → espera queda"), mas precisam de previsão
 | Regimes de boom-bust | Markov-switching; limiar (TAR/SETAR) |
 
 **Estatística × ML não são rivais — são complementares.** O ARIMAX dá
-interpretação e intervalos; o boosting capta não linearidades. O **ensemble**
-(média das previsões) costuma bater cada um isolado, por reduzir variância.
+interpretação e intervalos; o boosting capta não linearidades. A **combinação de
+previsões** (*ensemble*, média das saídas individuais) costuma bater cada modelo
+isolado, por reduzir variância.
+
+### 4.4 Transformações modelo-específicas (*mixed-transform ensemble*)
+
+Modelos distintos podem se beneficiar de **transformações diferentes da mesma
+variável**. O ARIMA(X) trata a não-estacionariedade internamente (o parâmetro $d$
+diferencia a série), por isso trabalha bem com regressores em **nível**. O gradient
+boosting, ao contrário, não diferencia: em presença de tendência comum entre
+regressor e série, aprende uma relação espúria que colapsa fora da amostra. Nesses
+casos, fornecer o regressor em **primeira diferença** — que remove a tendência —
+melhora a generalização do modelo de ML sem prejudicar o ARIMA.
+
+Na prática, a combinação de previsões agrega as saídas de cada modelo, e cada modelo
+recebe a transformação que minimiza seu erro no rolling-origin. Para o câmbio EUR na Palmer:
+
+$$
+x^{\text{ARIMA}}_t = \text{EUR}_t \qquad \text{vs.} \qquad x^{\text{XGB}}_t = \Delta \text{EUR}_t = \text{EUR}_t - \text{EUR}_{t-1}
+$$
+
+Essa escolha reduziu o RMSE do XGBoost de 0,920 para 0,833 na Palmer (−9,5%) e o
+da combinação de previsões de 0,807 para 0,769 (−4,7%), sem custo algum para o AutoARIMA. A regra
+geral: **testar nível e diferença para cada modelo separadamente**, em vez de impor
+a mesma transformação a todos.
 
 ## 5. Avaliação e armadilhas
 
@@ -261,12 +298,17 @@ convergiu para um conjunto **enxuto e específico por variedade**, usando apenas
 exógenas **previsíveis no horizonte** $h=8$ (lag $\ge 8$, ou determinísticas, ou
 previsíveis como o ENSO):
 
-- **Palmer**: Fourier + **Niño** (1+2 e 3.4, lag 26) + **câmbio** (EUR, lag 8).
-- **Tommy**: Fourier + **Niño** (1+2 e 3.4, lag 26).
+- **Palmer**: Fourier + **Niño** (1+2 e 3.4, lag 26) + **câmbio** EUR (lag 8) +
+  **dias quentes** ≥35 °C (lag 16, estresse na floração).
+- **Tommy**: Fourier + **Niño** (1+2 e 3.4, lag 26) + **dias frios** ≤16 °C (lag 16,
+  indução da floração) + **chuva acumulada** (lag 16, antracnose/pegamento).
 
-O câmbio entra só na Palmer (mais exportadora); o clima local e os proxies regionais
-foram **descartados** pela seleção em $h=8$ (ver §9). A autocorrelação do preço é
-tratada internamente pelo AutoARIMA (parte AR) e pelo XGBoost (defasagens).
+O câmbio entra só na Palmer (mais exportadora); o AutoARIMA usa o câmbio em **nível**
+e o XGBoost usa a **variação semanal** (`d_eur`) — cada modelo recebe a transformação
+que minimiza o erro fora da amostra (câmbio misto, ver §8). As variáveis climáticas
+diferem por variedade porque os mecanismos de floração e sensibilidade ao clima são
+distintos entre Palmer e Tommy (ver §3.1). A autocorrelação do preço é tratada
+internamente pelo AutoARIMA (parte AR) e pelo XGBoost (defasagens).
 
 ```{python}
 import warnings; warnings.filterwarnings("ignore")
@@ -285,7 +327,9 @@ import xgboost as xgb
 H, N_WIN, STEP, NIVEL = 8, 20, 4, 50
 
 igpdi = pd.read_csv("dados/igpdi.csv", sep=";", decimal=".")
-exo = pd.read_csv("dados/df_exogenas.csv", parse_dates=["date"]).set_index("date")
+exo   = pd.read_csv("dados/df_exogenas.csv", parse_dates=["date"]).set_index("date")
+clima = pd.read_csv("dados/df_climate_weekly.csv", parse_dates=["date"]).set_index("date")
+exo["d_eur"] = exo["eur"].diff()   # variação semanal do câmbio
 
 
 def construir_datas(precos):
@@ -302,7 +346,9 @@ def carregar(arquivo, uid):
     assert len(p) == len(igpdi), f"{arquivo}: preços e IGP-DI com tamanhos diferentes"
     d = pd.DataFrame({"unique_id": uid, "fecha": construir_datas(p)})
     d["y"] = (igpdi["igpdi"].iloc[-1] / igpdi["igpdi"].values) * p["preco"].values
-    return d.join(exo[["eur", "nino12_anom", "nino34_anom"]]
+    d = d.join(exo[["eur", "d_eur", "nino12_anom", "nino34_anom"]]
+               .reindex(d["fecha"]).reset_index(drop=True))
+    return d.join(clima[["cold_days_16", "hot_days_35", "total_rainfall"]]
                   .reindex(d["fecha"]).reset_index(drop=True))
 
 
@@ -316,20 +362,30 @@ for k in (1, 2):
     df[f"sin{k}"] = np.sin(2 * np.pi * k * doy)
     df[f"cos{k}"] = np.cos(2 * np.pi * k * doy)
 g = df.groupby("unique_id")
-df["nino12_lag26"] = g["nino12_anom"].shift(26)   # El Niño costero (~6 meses)
-df["nino34_lag26"] = g["nino34_anom"].shift(26)   # ENSO central
-df["eur_lag8"] = g["eur"].shift(8)                # câmbio (export), lag 8
+df["nino12_lag26"]    = g["nino12_anom"].shift(26)    # El Niño costero (~6 meses)
+df["nino34_lag26"]    = g["nino34_anom"].shift(26)    # ENSO central
+df["eur_lag8"]        = g["eur"].shift(8)             # câmbio nível (AutoARIMA), lag 8
+df["d_eur_lag8"]      = g["d_eur"].shift(8)           # câmbio diferença (XGBoost), lag 8
+df["hot_days_lag16"]  = g["hot_days_35"].shift(16)    # calor na floração — Palmer
+df["cold_days_lag16"] = g["cold_days_16"].shift(16)   # frio induz floração — Tommy
+df["rainfall_lag16"]  = g["total_rainfall"].shift(16) # chuva na floração — Tommy
 
 # Tempo INTEIRO alinhado entre as séries (robusto aos "buracos" da 53a semana)
 ds_de_fecha = {d: i for i, d in enumerate(np.sort(df["fecha"].unique()))}
 df["ds"] = df["fecha"].map(ds_de_fecha)
 
 FOUR = ["sin1", "cos1", "sin2", "cos2"]
-EXOG_VAR = {"palmer": FOUR + ["nino12_lag26", "nino34_lag26", "eur_lag8"],
-            "tommy":  FOUR + ["nino12_lag26", "nino34_lag26"]}
-print("Variáveis por série:")
-for k, v in EXOG_VAR.items():
-    print(f"  {k}: {v}")
+NINO = ["nino12_lag26", "nino34_lag26"]
+# AutoARIMA usa câmbio em nível; XGBoost usa diferença (câmbio misto — ver §8)
+# variáveis climáticas diferem por variedade (mecanismo biológico distinto)
+EXOG_SF = {"palmer": FOUR + NINO + ["eur_lag8",   "hot_days_lag16"],
+           "tommy":  FOUR + NINO + ["cold_days_lag16", "rainfall_lag16"]}
+EXOG_ML = {"palmer": FOUR + NINO + ["d_eur_lag8", "hot_days_lag16"],
+           "tommy":  FOUR + NINO + ["cold_days_lag16", "rainfall_lag16"]}
+print("Variáveis por série (AutoARIMA | XGBoost):")
+for uid in ["palmer", "tommy"]:
+    print(f"  {uid} — AutoARIMA : {EXOG_SF[uid]}")
+    print(f"  {uid} — XGBoost   : {EXOG_ML[uid]}")
 ```
 
 ```{python}
@@ -348,8 +404,11 @@ plot.show()
 ## 8. Modelos e validação rolling-origin
 
 Quatro competidores por variedade: **naive sazonal** (baseline), **AutoARIMA** (com
-as exógenas selecionadas), **XGBoost** (defasagens + exógenas) e o **ensemble**
-(média de AutoARIMA e XGBoost). Tudo avaliado por `cross_validation` (origem móvel),
+as exógenas selecionadas), **XGBoost** (defasagens + exógenas) e a **combinação de
+previsões** (*ensemble*, média de AutoARIMA e XGBoost). AutoARIMA e XGBoost recebem conjuntos de exógenas
+ligeiramente distintos: o câmbio entra em **nível** no AutoARIMA e em **diferença
+semanal** no XGBoost (câmbio misto — cada modelo usa a transformação que melhor
+generaliza fora da amostra). Tudo avaliado por `cross_validation` (origem móvel),
 com RMSE, MAPE e **acurácia direcional**.
 
 ```{python}
@@ -360,36 +419,45 @@ def metr(y, p, yc):
             float((np.sign(p - yc) == np.sign(y - yc)).mean() * 100))
 
 
-def exog_futuro(sub, cols):
+def exog_futuro(sub, sf_cols, ml_cols):
     """Exógenas das próximas H semanas (todas conhecidas no horizonte h=8)."""
     lf, lds = sub["fecha"].max(), int(sub["ds"].max())
     fechas = pd.date_range(lf + pd.Timedelta(days=7), periods=H, freq="W-SAT")
     linhas = []
     for i, fc in enumerate(fechas, 1):
         dd = fc.dayofyear / 365.25
-        linhas.append({"unique_id": sub["unique_id"].iloc[0], "ds": lds + i, "fecha": fc,
-                       "sin1": np.sin(2*np.pi*dd), "cos1": np.cos(2*np.pi*dd),
-                       "sin2": np.sin(4*np.pi*dd), "cos2": np.cos(4*np.pi*dd),
-                       "nino12_lag26": exo["nino12_anom"].asof(fc - pd.Timedelta(weeks=26)),
-                       "nino34_lag26": exo["nino34_anom"].asof(fc - pd.Timedelta(weeks=26)),
-                       "eur_lag8": exo["eur"].asof(fc - pd.Timedelta(weeks=8))})
+        linhas.append({
+            "unique_id": sub["unique_id"].iloc[0], "ds": lds + i, "fecha": fc,
+            "sin1": np.sin(2*np.pi*dd), "cos1": np.cos(2*np.pi*dd),
+            "sin2": np.sin(4*np.pi*dd), "cos2": np.cos(4*np.pi*dd),
+            "nino12_lag26":    exo["nino12_anom"].asof(fc - pd.Timedelta(weeks=26)),
+            "nino34_lag26":    exo["nino34_anom"].asof(fc - pd.Timedelta(weeks=26)),
+            "eur_lag8":        exo["eur"].asof(fc - pd.Timedelta(weeks=8)),
+            "d_eur_lag8":      exo["d_eur"].asof(fc - pd.Timedelta(weeks=8)),
+            "hot_days_lag16":  float(clima["hot_days_35"].asof(fc - pd.Timedelta(weeks=16))),
+            "cold_days_lag16": float(clima["cold_days_16"].asof(fc - pd.Timedelta(weeks=16))),
+            "rainfall_lag16":  float(clima["total_rainfall"].asof(fc - pd.Timedelta(weeks=16))),
+        })
     return pd.DataFrame(linhas)
 
 
 metricas, previsoes = [], []
-for uid, cols in EXOG_VAR.items():
-    sub = df[df["unique_id"] == uid].dropna(subset=cols + ["y"]).reset_index(drop=True)
+for uid in ["palmer", "tommy"]:
+    sf_cols = EXOG_SF[uid]
+    ml_cols = EXOG_ML[uid]
+    all_cols = list(dict.fromkeys(sf_cols + ml_cols))
+    sub = df[df["unique_id"] == uid].dropna(subset=all_cols + ["y"]).reset_index(drop=True)
     refy = sub.set_index("ds")["y"]
 
     # --- rolling-origin ---
     sf = StatsForecast(models=[SeasonalNaive(season_length=52), AutoARIMA(season_length=1)],
                        freq=1, n_jobs=1)
-    cv_sf = sf.cross_validation(df=sub[["unique_id", "ds", "y"] + cols],
+    cv_sf = sf.cross_validation(df=sub[["unique_id", "ds", "y"] + sf_cols],
                                 h=H, n_windows=N_WIN, step_size=STEP)
     mlf = MLForecast(models={"XGBoost": xgb.XGBRegressor(
         n_estimators=200, max_depth=3, learning_rate=0.05, verbosity=0)},
         freq=1, lags=[1, 2, 4, 52])
-    cv_ml = mlf.cross_validation(df=sub[["unique_id", "ds", "y"] + cols],
+    cv_ml = mlf.cross_validation(df=sub[["unique_id", "ds", "y"] + ml_cols],
                                  h=H, n_windows=N_WIN, step_size=STEP, static_features=[])
     cv = cv_sf.merge(cv_ml[["unique_id", "ds", "cutoff", "XGBoost"]],
                      on=["unique_id", "ds", "cutoff"])
@@ -401,13 +469,13 @@ for uid, cols in EXOG_VAR.items():
                          "RMSE": r[0], "MAPE (%)": r[1], "Dir.Acc (%)": r[2]})
 
     # --- previsão fora da amostra + intervalos conformais ---
-    Xf = exog_futuro(sub, cols)
-    sf.fit(df=sub[["unique_id", "ds", "y"] + cols],
+    Xf = exog_futuro(sub, sf_cols, ml_cols)
+    sf.fit(df=sub[["unique_id", "ds", "y"] + sf_cols],
            prediction_intervals=ConformalIntervals(n_windows=N_WIN, h=H))
-    fsf = sf.predict(h=H, X_df=Xf[["unique_id", "ds"] + cols], level=[NIVEL])
-    mlf.fit(sub[["unique_id", "ds", "y"] + cols], static_features=[],
+    fsf = sf.predict(h=H, X_df=Xf[["unique_id", "ds"] + sf_cols], level=[NIVEL])
+    mlf.fit(sub[["unique_id", "ds", "y"] + ml_cols], static_features=[],
             prediction_intervals=PredictionIntervals(n_windows=N_WIN, h=H))
-    fml = mlf.predict(h=H, X_df=Xf[["unique_id", "ds"] + cols], level=[NIVEL])
+    fml = mlf.predict(h=H, X_df=Xf[["unique_id", "ds"] + ml_cols], level=[NIVEL])
     f = fsf.merge(fml, on=["unique_id", "ds"]).merge(Xf[["ds", "fecha"]], on="ds")
     f["Ensemble"] = (f["AutoARIMA"] + f["XGBoost"]) / 2
     previsoes.append(f)
@@ -438,18 +506,28 @@ ganho = ganho.round(1).reset_index()
   global), e o câmbio chega a atrapalhar.
 - **O ENSO (Niño) é o canal exógeno robusto** para as duas — e oportuno, com El
   Niño forte em 2026 (anomalia Niño 1+2 ≳ +2,5 °C).
-- **O AutoARIMA continua o modelo mais forte isolado**, mas o **ensemble com
-  XGBoost** chega muito perto dele nas duas variedades (Palmer: 0,774 vs. 0,769;
-  Tommy: 0,858 vs. 0,852) — uma melhora real frente ao LightGBM, testado antes e
-  descartado por perder mais terreno na Tommy (RMSE 1,07 vs. 0,93 do XGBoost).
-  Coerente com a ideia de que, em série curta e ruidosa, o modelo mais simples e
-  regularizado tende a vencer, mas o crescimento *level-wise* do XGBoost generaliza
-  melhor que o *leaf-wise* do LightGBM neste volume de dados (~750 semanas).
-- **O clima local não sobreviveu à seleção em $h=8$** — em parte por restrição de
-  horizonte: o sinal da antracnose mora em 3–6 semanas, fora do alcance previsível
-  de 8 semanas (pode reaparecer em horizontes curtos, $h\le 4$).
-- A **acurácia direcional** segue modesta — as **viradas** continuam o ponto duro
-  (§6); ainda assim, as exógenas de oferta a melhoram um pouco.
+- **O AutoARIMA continua o modelo mais forte isolado** (Palmer: RMSE 0,738;
+  Tommy: 0,941). A **combinação de previsões** (AutoARIMA + XGBoost) chega muito perto
+  na Palmer (0,758 vs. 0,738) e mantém vantagem consistente sobre o XGBoost isolado
+  nas duas variedades.
+  O LightGBM, testado anteriormente e descartado, perdia mais terreno — especialmente
+  na Tommy (RMSE 1,07 vs. 0,93 do XGBoost, mesmo sem as variáveis climáticas).
+- **Câmbio misto:** usar o câmbio em **nível** no AutoARIMA e em **diferença
+  semanal** no XGBoost reduziu o RMSE da combinação de previsões Palmer de 0,807 para 0,769 (−4,7%)
+  em relação ao pipeline que usava nível para ambos. O AutoARIMA diferencia a série
+  internamente e se beneficia do nível; o XGBoost não diferencia e prefere a variação.
+- **Variáveis climáticas diferenciadas por variedade:** a inclusão de `hot_days_lag16`
+  na Palmer e `cold_days_lag16 + rainfall_lag16` na Tommy reduziu adicionalmente o
+  RMSE da combinação de previsões: Palmer de 0,769 para 0,758 (−1,4%) e Tommy de 0,992 para 0,967
+  (−2,5%). O padrão é biologicamente coerente — calor prejudica o pegamento na Palmer,
+  enquanto frio induz floração e chuva favorece antracnose na Tommy.
+- **O clima local não sobrevive de forma uniforme em $h=8$**, mas os lags de 16
+  semanas (floração → colheita) provam ser previsíveis e informativos — diferente dos
+  sinais de curto prazo (antracnose em 3–6 semanas), que permanecem fora do alcance
+  neste horizonte.
+- A **acurácia direcional** ficou em torno de 63–64% para a Palmer e 68–74% para a
+  Tommy — as **viradas** continuam o ponto mais difícil (§6), mas as exógenas de
+  oferta e clima contribuem modestamente para antecipá-las.
 
 ## 10. Previsão fora da amostra
 
@@ -487,32 +565,55 @@ plot.show()
 def faixa(lo, hi):
     return [f"{a:.2f} – {b:.2f}" for a, b in zip(lo, hi)]
 
+# último preço observado por variedade — referência para a direção da semana 1
+ultimo_obs = df.dropna(subset=["y"]).groupby("unique_id")["y"].last()
+
 tab = fc[["unique_id", "fecha"]].copy()
 tab["fecha"] = tab["fecha"].dt.strftime("%Y-%m-%d")
 tab["AutoARIMA"] = faixa(fc[f"AutoARIMA-lo-{NIVEL}"], fc[f"AutoARIMA-hi-{NIVEL}"])
-tab["XGBoost"] = faixa(fc[f"XGBoost-lo-{NIVEL}"], fc[f"XGBoost-hi-{NIVEL}"])
-# banda do ensemble = media das bandas (heuristica ilustrativa, nao recalibrada;
-# as bandas validas sao as conformais de cada modelo individual)
-tab["Ensemble"] = faixa((fc[f"AutoARIMA-lo-{NIVEL}"] + fc[f"XGBoost-lo-{NIVEL}"]) / 2,
-                        (fc[f"AutoARIMA-hi-{NIVEL}"] + fc[f"XGBoost-hi-{NIVEL}"]) / 2)
-(GT(tab.rename(columns={"unique_id": "Variedade", "fecha": "Semana",
-                        "AutoARIMA": f"AutoARIMA (intervalo {NIVEL}%)",
-                        "XGBoost": f"XGBoost (intervalo {NIVEL}%)",
-                        "Ensemble": f"Ensemble (intervalo {NIVEL}%)"}))
+tab["XGBoost"]   = faixa(fc[f"XGBoost-lo-{NIVEL}"],   fc[f"XGBoost-hi-{NIVEL}"])
+# banda da combinação = média das bandas conformais (heurística ilustrativa;
+# as bandas válidas são as conformais de cada modelo individual)
+tab["Combinacao"] = faixa(
+    (fc[f"AutoARIMA-lo-{NIVEL}"] + fc[f"XGBoost-lo-{NIVEL}"]) / 2,
+    (fc[f"AutoARIMA-hi-{NIVEL}"] + fc[f"XGBoost-hi-{NIVEL}"]) / 2)
+
+# direção semana a semana (opção B):
+#   semana 1 → compara com último preço observado
+#   semanas 2–8 → compara com a semana anterior da própria previsão
+dirs = []
+for uid, grp in tab.groupby("unique_id", sort=False):
+    pts = fc.loc[grp.index, "Ensemble"].values
+    prev = np.concatenate([[ultimo_obs[uid]], pts[:-1]])
+    dirs.extend(["↑" if p > r else "↓" for p, r in zip(pts, prev)])
+tab["Direção"] = dirs
+
+(GT(tab.rename(columns={
+        "unique_id":  "Variedade",
+        "fecha":      "Semana",
+        "AutoARIMA":  f"AutoARIMA (intervalo {NIVEL}%)",
+        "XGBoost":    f"XGBoost (intervalo {NIVEL}%)",
+        "Combinacao": f"Combinação (intervalo {NIVEL}%)",
+        "Direção":    "Direção"}))
  .tab_header(title=f"Previsões fora da amostra — intervalo de {NIVEL}%",
              subtitle=f"Próximas {H} semanas — R$/kg"))
 ```
 
 ## 11. Próximos passos
 
-1. **Câmbio: nível vs. diferença.** No LASSO o `eur` saiu com sinal negativo,
-   provável confundimento com a tendência (real depreciou e preço real caiu).
-   Investigar a variação cambial em vez do nível, para limpar o efeito.
-2. **Antracnose em horizonte curto.** Reavaliar a chuva (janela 3–6) num modelo de
+1. ~~**Câmbio: nível vs. diferença.**~~ **Resolvido** — adotado *câmbio misto*:
+   AutoARIMA usa nível, XGBoost usa diferença semanal. Ganho: combinação de previsões Palmer
+   −4,7% de RMSE (ver §4.4).
+2. ~~**Variáveis climáticas (lag 16).**~~ **Resolvido** — `hot_days_lag16` na
+   Palmer e `cold_days_lag16 + rainfall_lag16` na Tommy, validados no rolling-origin.
+   Ganho adicional: Palmer −1,4%, Tommy −2,5% de RMSE (ver §3.1).
+3. **Antracnose em horizonte curto.** Reavaliar a chuva (janela 3–6) num modelo de
    $h\le 4$, onde o sinal de doença é previsível.
-3. **Preço de atacado europeu** (Torres Tropical) como *nowcasting* — só há 2026,
-   então serve para decisão corrente, não para o backtest histórico.
-4. **Modelos por regime / quantílicos** para as viradas e para intervalos
+4. **Cobweb (preço lag 52 como exógena explícita no AutoARIMA).** Preços altos no
+   ano anterior induzem aumento de oferta no ano atual — mecanismo clássico em
+   mercados de perecíveis. O XGBoost já capta parcialmente via `lag_52`; testar se
+   incluir `y_lag52` explicitamente no AutoARIMA agrega.
+5. **Modelos por regime / quantílicos** para as viradas e para intervalos
    assimétricos.
 5. **Redes neurais — testadas e descartadas.** Um NHITS (`neuralforecast`) foi
    avaliado no mesmo rolling-origin (20 origens, refit em cada uma) e ficou atrás
