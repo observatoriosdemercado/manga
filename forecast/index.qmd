@@ -717,10 +717,13 @@ tab["Direção"] = dirs
    Ganho adicional: Palmer −1,4%, Tommy −2,5% de RMSE (ver §3.1).
 3. **Antracnose em horizonte curto.** Reavaliar a chuva (janela 3–6) num modelo de
    $h\le 4$, onde o sinal de doença é previsível.
-4. **Cobweb (preço lag 52 como exógena explícita no AutoARIMA).** Preços altos no
-   ano anterior induzem aumento de oferta no ano atual — mecanismo clássico em
-   mercados de perecíveis. O XGBoost já capta parcialmente via `lag_52`; testar se
-   incluir `y_lag52` explicitamente no AutoARIMA agrega.
+4. ~~**Cobweb (preço lag 52 como exógena explícita no AutoARIMA).**~~ **Testado e descartado.**
+   Em comparação limpa (mesmo dataset de 702 semanas, XGBoost idêntico nos dois cenários),
+   a adição de `y_lag52` no AutoARIMA gerou ganho de apenas +0,2% de RMSE na Palmer e
+   +0,3% na Tommy — dentro do ruído de variação entre janelas. Um resultado anterior de
+   +2,9% era espúrio (datasets de tamanhos diferentes contaminavam a comparação).
+   O mecanismo cobweb pode voltar a ser testado se a série crescer ou se houver
+   indicativo teórico mais forte para uma variedade específica.
 5. **Modelos por regime / quantílicos** para as viradas e para intervalos
    assimétricos.
 5. **Redes neurais — testadas e descartadas.** Um NHITS (`neuralforecast`) foi
