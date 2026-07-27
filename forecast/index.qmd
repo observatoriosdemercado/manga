@@ -460,7 +460,7 @@ precisamos: `StatsForecast` (AutoARIMA rápido, com exógenas), `MLForecast`
 
 A seleção de variáveis (rolling-origin incremental + Elastic Net/LASSO, ver §9)
 convergiu para um conjunto **enxuto e específico por variedade**, usando apenas
-exógenas **previsíveis no horizonte** $h=8$ (lag $\ge 8$, ou determinísticas, ou
+exógenas **previsíveis no horizonte** $h=6$ (lag $\ge h$, ou determinísticas, ou
 previsíveis como o ENSO):
 
 - **Palmer**: Fourier + **Niño** (1+2 e 3.4, lag 26) + **câmbio** EUR (lag 8) +
@@ -489,7 +489,7 @@ from mlforecast.utils import PredictionIntervals
 import xgboost as xgb
 
 # Parâmetros do estudo
-H, N_WIN, STEP, NIVEL = 8, 20, 4, 60
+H, N_WIN, STEP, NIVEL = 6, 20, 4, 60
 
 igpdi = pd.read_csv("dados/igpdi.csv", sep=";", decimal=".")
 exo   = pd.read_csv("dados/df_exogenas.csv", parse_dates=["date"]).set_index("date")
@@ -521,7 +521,7 @@ df = pd.concat([carregar("dados/dados_manga_palmer_semana.csv", "palmer"),
                 carregar("dados/dados_manga_tommy_semana.csv", "tommy")], ignore_index=True)
 df = df.sort_values(["unique_id", "fecha"])
 
-# Termos de Fourier (determinísticos) e exógenas em lags previsíveis (h=8)
+# Termos de Fourier (determinísticos) e exógenas em lags previsíveis (h=6)
 doy = df["fecha"].dt.dayofyear / 365.25
 for k in (1, 2):
     df[f"sin{k}"] = np.sin(2 * np.pi * k * doy)
@@ -619,18 +619,18 @@ semanal** no XGBoost (câmbio misto — cada modelo usa a transformação que me
 generaliza fora da amostra). Tudo avaliado por `cross_validation` (origem móvel),
 com RMSE, MAPE e **acurácia direcional**.
 
-A validação usa **20 janelas de avaliação**, com horizonte de **8 semanas** cada e
+A validação usa **20 janelas de avaliação**, com horizonte de **6 semanas** cada e
 passo de **4 semanas** entre origens — cobrindo, ao todo, aproximadamente os
 últimos 84 semanas (~21 meses) da série. Em cada janela o modelo é **reestimado do
-zero** com toda a informação disponível até aquela origem e prevê as 8 semanas
+zero** com toda a informação disponível até aquela origem e prevê as 6 semanas
 seguintes sem ver os dados futuros, exatamente como ocorreria em uso real semana a
 semana. O diagrama abaixo (da §5.3) resume a estrutura; os parâmetros desta
 avaliação mapeiam diretamente para ele:
 
 ```
-treino até semana T   |■■■■■■■■|  ← janela 1 (h=8 semanas)
-treino até semana T+4      |■■■■■■■■|  ← janela 2
-treino até semana T+8           |■■■■■■■■|  ← janela 3
+treino até semana T   |■■■■■■|  ← janela 1 (h=6 semanas)
+treino até semana T+4      |■■■■■■|  ← janela 2
+treino até semana T+8           |■■■■■■|  ← janela 3
 ... (20 janelas no total, passo=4)
 ```
 
@@ -648,7 +648,7 @@ def metr(y, p, yc, escala_mase):
 
 
 def exog_futuro(sub, sf_cols, ml_cols):
-    """Exógenas das próximas H semanas (todas conhecidas no horizonte h=8)."""
+    """Exógenas das próximas H semanas (todas conhecidas no horizonte h=6)."""
     lf, lds = sub["fecha"].max(), int(sub["ds"].max())
     fechas = pd.date_range(lf + pd.Timedelta(days=7), periods=H, freq="W-SAT")
     linhas = []
@@ -732,6 +732,23 @@ ganho = ganho.round(1).reset_index()
  .fmt_number(columns=["AutoARIMA", "XGBoost", "Ensemble"], decimals=1))
 ```
 
+::: {.callout-warning}
+**Horizonte alterado para $h=6$ — leitura desta seção.** As **tabelas** acima
+são recalculadas a cada render e já refletem $h=6$. Os **percentuais citados
+na prosa abaixo** (ganhos de −4,7%, −1,4%, −2,5%; RMSE 0,738/0,941 etc.)
+foram apurados na configuração anterior, $h=8$, e **ainda não foram
+revalidados** no novo horizonte. Enquanto essa revisão não é feita, tratar os
+números do texto como referência histórica e os das tabelas como os vigentes.
+
+Duas consequências da mudança merecem teste próprio: (i) com $h=6$, o lag
+mínimo admissível para exógenas cai de 8 para 6 semanas — `eur_lag6` passa a
+ser utilizável e traz câmbio **duas semanas mais fresco** que o `eur_lag8`
+atualmente em uso, o que pode melhorar o modelo (mudança de especificação:
+precisa pagar aluguel no rolling-origin antes de ser adotada); (ii) o sinal
+de antracnose em janela curta (3–6 semanas), até aqui fora de alcance,
+aproxima-se do horizonte e merece ser retestado.
+:::
+
 **O que os números mostram** (consistente com a seleção de variáveis):
 
 - **A exógena vencedora difere por variedade.** Para a **Palmer**, o **câmbio** é o
@@ -754,10 +771,12 @@ ganho = ganho.round(1).reset_index()
   RMSE da combinação de previsões: Palmer de 0,769 para 0,758 (−1,4%) e Tommy de 0,992 para 0,967
   (−2,5%). O padrão é biologicamente coerente — calor prejudica o pegamento na Palmer,
   enquanto frio induz floração e chuva favorece antracnose na Tommy.
-- **O clima local não sobrevive de forma uniforme em $h=8$**, mas os lags de 16
-  semanas (floração → colheita) provam ser previsíveis e informativos — diferente dos
-  sinais de curto prazo (antracnose em 3–6 semanas), que permanecem fora do alcance
-  neste horizonte.
+- **O clima local não sobrevivia de forma uniforme em $h=8$** (configuração
+  anterior), mas os lags de 16 semanas (floração → colheita) provaram ser
+  previsíveis e informativos — diferente dos sinais de curto prazo (antracnose
+  em 3–6 semanas), que ficavam fora do alcance naquele horizonte. Com $h=6$
+  essa fronteira se desloca: a janela de 3–6 semanas passa a ser parcialmente
+  alcançável, e o retorno desse sinal é um teste em aberto.
 - A **acurácia direcional** ficou em torno de 63–66% para a Palmer e 68–76% para a
   Tommy. Ao contrário do que a teoria sugere (§6), a análise por tipo de janela
   (ver §11, item 5) mostrou que as **viradas** são razoavelmente bem antecipadas
