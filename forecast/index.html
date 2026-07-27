@@ -2395,9 +2395,10 @@ window.Quarto = {
   <li><a href="#modelos-de-previsão" id="toc-modelos-de-previsão" class="nav-link" data-scroll-target="#modelos-de-previsão">4. Modelos de previsão</a>
   <ul class="collapse">
   <li><a href="#arima-e-a-sazonalidade-por-fourier" id="toc-arima-e-a-sazonalidade-por-fourier" class="nav-link" data-scroll-target="#arima-e-a-sazonalidade-por-fourier">4.1 ARIMA e a sazonalidade por Fourier</a></li>
-  <li><a href="#modelos-de-machine-learning" id="toc-modelos-de-machine-learning" class="nav-link" data-scroll-target="#modelos-de-machine-learning">4.2 Modelos de Machine Learning</a></li>
-  <li><a href="#o-mapa-das-famílias-cada-uma-resolve-uma-dor" id="toc-o-mapa-das-famílias-cada-uma-resolve-uma-dor" class="nav-link" data-scroll-target="#o-mapa-das-famílias-cada-uma-resolve-uma-dor">4.3 O mapa das famílias (cada uma resolve uma dor)</a></li>
-  <li><a href="#transformações-modelo-específicas-mixed-transform-ensemble" id="toc-transformações-modelo-específicas-mixed-transform-ensemble" class="nav-link" data-scroll-target="#transformações-modelo-específicas-mixed-transform-ensemble">4.4 Transformações modelo-específicas (<em>mixed-transform ensemble</em>)</a></li>
+  <li><a href="#modelos-de-machine-learning-gradient-boosting-e-xgboost" id="toc-modelos-de-machine-learning-gradient-boosting-e-xgboost" class="nav-link" data-scroll-target="#modelos-de-machine-learning-gradient-boosting-e-xgboost">4.2 Modelos de Machine Learning: gradient boosting e XGBoost</a></li>
+  <li><a href="#redes-neurais-para-séries-temporais-nhits" id="toc-redes-neurais-para-séries-temporais-nhits" class="nav-link" data-scroll-target="#redes-neurais-para-séries-temporais-nhits">4.3 Redes neurais para séries temporais: NHITS</a></li>
+  <li><a href="#o-mapa-das-famílias-cada-uma-resolve-uma-dor" id="toc-o-mapa-das-famílias-cada-uma-resolve-uma-dor" class="nav-link" data-scroll-target="#o-mapa-das-famílias-cada-uma-resolve-uma-dor">4.4 O mapa das famílias (cada uma resolve uma dor)</a></li>
+  <li><a href="#transformações-modelo-específicas-mixed-transform-ensemble" id="toc-transformações-modelo-específicas-mixed-transform-ensemble" class="nav-link" data-scroll-target="#transformações-modelo-específicas-mixed-transform-ensemble">4.5 Transformações modelo-específicas (<em>mixed-transform ensemble</em>)</a></li>
   </ul></li>
   <li><a href="#avaliação-e-armadilhas" id="toc-avaliação-e-armadilhas" class="nav-link" data-scroll-target="#avaliação-e-armadilhas">5. Avaliação e armadilhas</a>
   <ul class="collapse">
@@ -2573,12 +2574,53 @@ y_t = \boldsymbol{\beta}&#39;\mathbf{x}_t + n_t, \qquad \phi(L)(1-L)^d n_t = \th
 s_t=\sum_{k=1}^{K}\Big[\alpha_k\sin\!\Big(\tfrac{2\pi k\, d_t}{365.25}\Big)+\beta_k\cos\!\Big(\tfrac{2\pi k\, d_t}{365.25}\Big)\Big],
 \]</span> com <span class="math inline">\(d_t\)</span> = dia do ano. Poucos harmônicos (<span class="math inline">\(K=1\)</span> ou <span class="math inline">\(2\)</span>) costumam bastar.</p>
 </section>
-<section id="modelos-de-machine-learning" class="level3">
-<h3 class="anchored" data-anchor-id="modelos-de-machine-learning">4.2 Modelos de Machine Learning</h3>
-<p>Modelos como <strong>gradient boosting</strong> <span class="citation" data-cites="friedman2001 chen2016">(<a href="#ref-friedman2001" role="doc-biblioref">Friedman 2001</a>; <a href="#ref-chen2016" role="doc-biblioref">Chen e Guestrin 2016</a>)</span> aprendem <span class="math inline">\(f\)</span> de forma não linear a partir de atributos construídos (defasagens, janelas móveis, calendário). Brilham em <strong>não linearidades e interações de limiar</strong> (ex.: “preço alto <strong>e</strong> floração pesada há 16 semanas → espera queda”), mas precisam de previsão <strong>recursiva</strong> para múltiplos passos e são mais propensos a sobreajuste.</p>
+<section id="modelos-de-machine-learning-gradient-boosting-e-xgboost" class="level3">
+<h3 class="anchored" data-anchor-id="modelos-de-machine-learning-gradient-boosting-e-xgboost">4.2 Modelos de Machine Learning: gradient boosting e XGBoost</h3>
+<p>Um modelo de <strong>gradient boosting</strong> <span class="citation" data-cites="friedman2001">(<a href="#ref-friedman2001" role="doc-biblioref">Friedman 2001</a>)</span> aprende <span class="math inline">\(f\)</span> de forma aditiva, somando <span class="math inline">\(M\)</span> árvores de decisão simples (<em>weak learners</em>) treinadas em sequência, cada uma corrigindo o erro que sobrou da anterior: <span class="math display">\[
+\hat{y}_i^{(0)} = 0, \qquad \hat{y}_i^{(m)} = \hat{y}_i^{(m-1)} + \eta\, f_m(\mathbf{x}_i), \qquad m = 1,\dots,M,
+\]</span> onde <span class="math inline">\(\eta\in(0,1]\)</span> é a <strong>taxa de aprendizagem</strong> (<em>learning rate</em>/<em>shrinkage</em>): passos pequenos exigem mais árvores, mas generalizam melhor (menos overfitting).</p>
+<p>O <strong>XGBoost</strong> <span class="citation" data-cites="chen2016">(<a href="#ref-chen2016" role="doc-biblioref">Chen e Guestrin 2016</a>)</span> formaliza o ajuste de cada árvore <span class="math inline">\(f_m\)</span> como a minimização de uma função objetivo <strong>regularizada</strong>, <span class="math display">\[
+\mathcal{L}^{(m)} = \sum_{i=1}^n \ell\big(y_i,\, \hat{y}_i^{(m-1)} + f_m(\mathbf{x}_i)\big) + \Omega(f_m), \qquad
+\Omega(f) = \gamma T + \tfrac{1}{2}\lambda \sum_{j=1}^{T} w_j^2,
+\]</span> com <span class="math inline">\(T\)</span> o número de folhas da árvore, <span class="math inline">\(w_j\)</span> o valor previsto em cada folha, e <span class="math inline">\(\gamma,\lambda\)</span> penalizando árvores grandes e pesos extremos — o análogo, em ML, à parcimônia que o AIC impõe no ARIMA.</p>
+<p>Para otimizar rápido qualquer <span class="math inline">\(\ell\)</span> diferenciável, o XGBoost expande <span class="math inline">\(\mathcal{L}^{(m)}\)</span> em <strong>série de Taylor de 2ª ordem</strong> ao redor de <span class="math inline">\(\hat y^{(m-1)}\)</span>: <span class="math display">\[
+\mathcal{L}^{(m)} \approx \sum_{i=1}^n \Big[g_i\, f_m(\mathbf{x}_i) + \tfrac12 h_i\, f_m(\mathbf{x}_i)^2\Big] + \Omega(f_m),
+\qquad g_i = \partial_{\hat y}\ell(y_i,\hat y_i^{(m-1)}),\;\; h_i = \partial^2_{\hat y}\ell(y_i,\hat y_i^{(m-1)}),
+\]</span> gradiente e hessiana da perda (<span class="math inline">\(\ell\)</span>) — daí o apelido de <em>Newton boosting</em>. Para erro quadrático, <span class="math inline">\(g_i=\hat y_i^{(m-1)}-y_i\)</span> e <span class="math inline">\(h_i=1\)</span>, recuperando o gradient boosting clássico como caso particular.</p>
+<p>Fixada a estrutura da árvore, com <span class="math inline">\(I_j\)</span> as observações que caem na folha <span class="math inline">\(j\)</span>, o peso ótimo e o objetivo mínimo têm <strong>forma fechada</strong>: <span class="math display">\[
+w_j^\ast = -\frac{\sum_{i\in I_j} g_i}{\sum_{i\in I_j} h_i + \lambda}, \qquad
+\mathcal{L}^\ast = -\tfrac12\sum_{j=1}^{T} \frac{\big(\sum_{i\in I_j}g_i\big)^2}{\sum_{i\in I_j}h_i+\lambda} + \gamma T.
+\]</span> Essa mesma expressão decide <strong>onde dividir</strong> cada nó: o algoritmo escolhe a variável e o limiar que maximizam o <strong>ganho</strong> — a redução de <span class="math inline">\(\mathcal{L}^\ast\)</span> ao separar o nó pai (<span class="math inline">\(I = I_L \cup I_R\)</span>) em dois filhos, <span class="math display">\[
+\text{Gain} = \tfrac12\left[\frac{(\sum_{I_L}g_i)^2}{\sum_{I_L}h_i+\lambda} + \frac{(\sum_{I_R}g_i)^2}{\sum_{I_R}h_i+\lambda} - \frac{(\sum_{I}g_i)^2}{\sum_{I}h_i+\lambda}\right] - \gamma.
+\]</span> Um split só é aceito se o ganho superar <span class="math inline">\(\gamma\)</span> — é assim que o XGBoost <strong>poda</strong> divisões que não compensam a complexidade adicionada.</p>
+<p>Na prática (ver §8): <span class="math inline">\(M=200\)</span> árvores (<code>n_estimators</code>), profundidade máxima 3 (<code>max_depth</code> — limita quantas variáveis interagem por árvore), <span class="math inline">\(\eta=0.05\)</span> (<code>learning_rate</code>), e como atributos as defasagens <span class="math inline">\(y_{t-1}, y_{t-2}, y_{t-4},
+y_{t-52}\)</span> mais as exógenas (Fourier, Niño, câmbio) candidatas a cada split. Diferente do ARIMA(X), árvores <strong>não extrapolam</strong> tendência ou sazonalidade fora do range visto em treino (preveem médias dentro de partições) — por isso os termos de Fourier (determinísticos, logo sempre “conhecidos”) são o que dá sazonalidade ao XGBoost, e a previsão multi-passo é <strong>recursiva</strong>: cada horizonte usa as previsões dos horizontes anteriores como parte dos lags. Isso também explica por que XGBoost e AutoARIMA erram de formas diferentes — e por que a combinação dos dois (§4.5) tende a reduzir o erro combinado.</p>
+</section>
+<section id="redes-neurais-para-séries-temporais-nhits" class="level3">
+<h3 class="anchored" data-anchor-id="redes-neurais-para-séries-temporais-nhits">4.3 Redes neurais para séries temporais: NHITS</h3>
+<p>O <strong>NHITS</strong> (<em>Neural Hierarchical Interpolation for Time Series</em>) <span class="citation" data-cites="challu2023">(<a href="#ref-challu2023" role="doc-biblioref">Challu et al. 2023</a>)</span> é o sucessor do N-BEATS e, ao contrário do que o rótulo “rede neural” sugere, não usa recorrência (LSTM) nem atenção (Transformer): é uma pilha de <strong>MLPs simples</strong> organizada por duas ideias — decomposição por frequência e interpolação hierárquica. A previsão é <strong>direta multi-horizonte</strong>: os <span class="math inline">\(H\)</span> passos saem de uma só vez, sem realimentar previsão como insumo (ao contrário do XGBoost recursivo do §4.2, que propaga erro de um horizonte para o outro).</p>
+<p><strong>Arquitetura em stacks e resíduos.</strong> A rede tem <span class="math inline">\(S\)</span> <em>stacks</em> em série. O stack <span class="math inline">\(s\)</span> recebe o que sobrou da janela de entrada após os stacks anteriores (mecanismo de <em>backcast</em> residual, como no boosting: cada estágio modela o resíduo do anterior) e produz duas saídas — uma reconstrução do passado (<span class="math inline">\(\tilde{\mathbf{y}}^{(s)}\)</span>, <em>backcast</em>) e uma contribuição para o futuro (<span class="math inline">\(\hat{\mathbf{y}}^{(s)}\)</span>, <em>forecast</em>):</p>
+<p><span class="math display">\[
+\mathbf{r}^{(s)} = \mathbf{r}^{(s-1)} - \tilde{\mathbf{y}}^{(s)}, \qquad
+\hat{\mathbf{y}} = \sum_{s=1}^{S} \hat{\mathbf{y}}^{(s)},
+\]</span></p>
+<p>com <span class="math inline">\(\mathbf{r}^{(0)}\)</span> = janela de entrada (no nosso caso, <span class="math inline">\(L=104\)</span> semanas).</p>
+<p><strong>Decomposição por frequência (amostragem multi-taxa).</strong> Antes do MLP, cada stack aplica um <em>max-pooling</em> com núcleo <span class="math inline">\(k_s\)</span> sobre sua entrada:</p>
+<p><span class="math display">\[
+\mathbf{r}^{(s)}_{\text{pool}} = \mathrm{MaxPool}\big(\mathbf{r}^{(s)},\, k_s\big),
+\qquad k_1 &gt; k_2 &gt; \dots &gt; k_S .
+\]</span></p>
+<p>O primeiro stack (núcleo grande) só enxerga a série “borrada” — movimentos lentos, tendência; os seguintes veem resoluções progressivamente mais finas (ciclos e, por fim, o detalhe semanal). É o análogo neural de uma decomposição tendência + sazonalidade + resto, mas <strong>aprendida dos dados, sem impor período fixo</strong> — atrativo em preços agrícolas, em que o calendário de colheita desloca de um ano para outro e um período 52 rígido descreve mal a sazonalidade real.</p>
+<p><strong>Interpolação hierárquica.</strong> Em vez de prever os <span class="math inline">\(H\)</span> horizontes ponto a ponto, o MLP do stack <span class="math inline">\(s\)</span> produz apenas <span class="math inline">\(\lceil r_s H\rceil\)</span> “nós” (<span class="math inline">\(r_s\le 1\)</span> é a <em>razão de expressividade</em>), e a trajetória completa é obtida por <strong>interpolação</strong> entre eles:</p>
+<p><span class="math display">\[
+\hat{y}^{(s)}_{t+h} = \mathrm{Interp}\big(h;\ \boldsymbol{\theta}^{(s)}\big),
+\qquad \boldsymbol{\theta}^{(s)} = \mathrm{MLP}^{(s)}\big(\mathbf{r}^{(s)}_{\text{pool}}\big),
+\]</span></p>
+<p>com <span class="math inline">\(r_s\)</span> pequeno nos stacks de baixa frequência (poucos nós → curva suave) e maior nos de alta. Isso força suavidade em cada escala e reduz o número de parâmetros de saída — regularização estrutural que é justamente o que se busca em séries curtas, pelo argumento clássico de viés × variância (§5.1).</p>
+<p><strong>Resultado neste estudo.</strong> O NHITS foi avaliado no mesmo rolling-origin dos demais modelos, com reestimação em cada uma das 20 origens, e <strong>ficou atrás de todos</strong> — inclusive do XGBoost (§11, item 6). A regularização estrutural descrita acima não compensou a escala do modelo: são ~2,7 milhões de parâmetros para ~750 observações por série. O caso é ilustrativo do §5.1: sofisticação arquitetural não substitui parcimônia quando a razão sinal/ruído é baixa e a amostra é curta. Redes desse tipo voltariam a fazer sentido num painel maior (mais variedades e praças), treinando um modelo global que compartilha padrões entre séries.</p>
 </section>
 <section id="o-mapa-das-famílias-cada-uma-resolve-uma-dor" class="level3">
-<h3 class="anchored" data-anchor-id="o-mapa-das-famílias-cada-uma-resolve-uma-dor">4.3 O mapa das famílias (cada uma resolve uma dor)</h3>
+<h3 class="anchored" data-anchor-id="o-mapa-das-famílias-cada-uma-resolve-uma-dor">4.4 O mapa das famílias (cada uma resolve uma dor)</h3>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -2620,7 +2662,7 @@ s_t=\sum_{k=1}^{K}\Big[\alpha_k\sin\!\Big(\tfrac{2\pi k\, d_t}{365.25}\Big)+\bet
 <p><strong>Estatística × ML não são rivais — são complementares.</strong> O ARIMAX dá interpretação e intervalos; o boosting capta não linearidades. A <strong>combinação de previsões</strong> (<em>ensemble</em>, média das saídas individuais) costuma bater cada modelo isolado, por reduzir variância — resultado clássico desde <span class="citation" data-cites="bates1969">Bates e Granger (<a href="#ref-bates1969" role="doc-biblioref">1969</a>)</span>, consolidado em <span class="citation" data-cites="timmermann2006">Timmermann (<a href="#ref-timmermann2006" role="doc-biblioref">2006</a>)</span> e confirmado em larga escala na competição M4 <span class="citation" data-cites="makridakis2020">(<a href="#ref-makridakis2020" role="doc-biblioref">Makridakis et al. 2020</a>)</span>. A escolha de <strong>pesos iguais</strong> (média simples) em vez de pesos “ótimos” estimados tem justificativa própria: é o chamado <em>forecast combination puzzle</em> — pesos estimados carregam erro de estimação e, em amostras curtas, perdem sistematicamente para a média simples <span class="citation" data-cites="smith2009">(<a href="#ref-smith2009" role="doc-biblioref">Smith e Wallis 2009</a>)</span>.</p>
 </section>
 <section id="transformações-modelo-específicas-mixed-transform-ensemble" class="level3">
-<h3 class="anchored" data-anchor-id="transformações-modelo-específicas-mixed-transform-ensemble">4.4 Transformações modelo-específicas (<em>mixed-transform ensemble</em>)</h3>
+<h3 class="anchored" data-anchor-id="transformações-modelo-específicas-mixed-transform-ensemble">4.5 Transformações modelo-específicas (<em>mixed-transform ensemble</em>)</h3>
 <p>Modelos distintos podem se beneficiar de <strong>transformações diferentes da mesma variável</strong>. O ARIMA(X) trata a não-estacionariedade internamente (o parâmetro <span class="math inline">\(d\)</span> diferencia a série), por isso trabalha bem com regressores em <strong>nível</strong>. O gradient boosting, ao contrário, não diferencia: em presença de tendência comum entre regressor e série, aprende uma relação espúria que colapsa fora da amostra. Nesses casos, fornecer o regressor em <strong>primeira diferença</strong> — que remove a tendência — melhora a generalização do modelo de ML sem prejudicar o ARIMA.</p>
 <p>Na prática, a combinação de previsões agrega as saídas de cada modelo, e cada modelo recebe a transformação que minimiza seu erro no rolling-origin. Para o câmbio EUR na Palmer:</p>
 <p><span class="math display">\[
@@ -2697,7 +2739,7 @@ treino ────────────────────────�
 <li><strong>Tommy</strong>: Fourier + <strong>Niño</strong> (1+2 e 3.4, lag 26) + <strong>dias frios</strong> ≤16 °C (lag 16, indução da floração) + <strong>chuva acumulada</strong> (lag 16, antracnose/pegamento).</li>
 </ul>
 <p>O câmbio entra só na Palmer (mais exportadora); o AutoARIMA usa o câmbio em <strong>nível</strong> e o XGBoost usa a <strong>variação semanal</strong> (<code>d_eur</code>) — cada modelo recebe a transformação que minimiza o erro fora da amostra (câmbio misto, ver §8). As variáveis climáticas diferem por variedade porque os mecanismos de floração e sensibilidade ao clima são distintos entre Palmer e Tommy (ver §3.1). A autocorrelação do preço é tratada internamente pelo AutoARIMA (parte AR) e pelo XGBoost (defasagens).</p>
-<div id="bda6b2dc" class="cell" data-execution_count="1">
+<div id="2b19cd8c" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Código</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings<span class="op">;</span> warnings.filterwarnings(<span class="st">&quot;ignore&quot;</span>)</span>
@@ -2784,7 +2826,7 @@ treino ────────────────────────�
   tommy — XGBoost   : [&#39;sin1&#39;, &#39;cos1&#39;, &#39;sin2&#39;, &#39;cos2&#39;, &#39;nino12_lag26&#39;, &#39;nino34_lag26&#39;, &#39;cold_days_lag16&#39;, &#39;rainfall_lag16&#39;]</code></pre>
 </div>
 </div>
-<div id="2106d1a9" class="cell" data-execution_count="2">
+<div id="fbfc0523" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Código</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visão geral das séries (preço real deflacionado)</span></span>
@@ -2810,7 +2852,7 @@ treino ────────────────────────�
 <h3 class="anchored" data-anchor-id="descrição-dos-dados-e-estatísticas">7.1 Descrição dos dados e estatísticas</h3>
 <p>Os preços são <strong>médias semanais recebidas pelo produtor</strong> no polo Petrolina-PE/Juazeiro-BA (Vale do São Francisco), por variedade, coletados pelo <strong>CEPEA-Esalq/USP</strong> (Centro de Estudos Avançados em Economia Aplicada). Todos os valores são <strong>deflacionados pelo IGP-DI</strong> (FGV) para reais da última observação — para séries longas, trabalhar em termos reais evita confundir tendência inflacionária com dinâmica do mercado de manga. A convenção temporal adota os 52 primeiros sábados de cada ano (a eventual 53ª semana é tratada pelo índice inteiro de tempo, robusto a “buracos” no calendário).</p>
 <p>A tabela abaixo reporta estatísticas descritivas e testes de raiz unitária. O ADF testa <span class="math inline">\(H_0\)</span>: raiz unitária <span class="citation" data-cites="dickey1979">(<a href="#ref-dickey1979" role="doc-biblioref">Dickey e Fuller 1979</a>)</span>; o KPSS testa a hipótese oposta, <span class="math inline">\(H_0\)</span>: estacionariedade <span class="citation" data-cites="kwiatkowski1992">(<a href="#ref-kwiatkowski1992" role="doc-biblioref">Kwiatkowski et al. 1992</a>)</span> — usá-los em conjunto evita conclusões frágeis de um único teste. A decisão de diferenciação no pipeline permanece interna ao AutoARIMA (parâmetro <span class="math inline">\(d\)</span>, escolhido por testes sequenciais); a tabela documenta a evidência que fundamenta essa escolha.</p>
-<div id="bc826d8f" class="cell" data-execution_count="3">
+<div id="c1b49c84" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Código</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> statsmodels.tsa.stattools <span class="im">import</span> adfuller, kpss</span>
@@ -2837,61 +2879,61 @@ treino ────────────────────────�
 <span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a> .fmt_number(columns<span class="op">=</span>[<span class="st">&quot;ADF p (nível)&quot;</span>, <span class="st">&quot;KPSS p (nível)&quot;</span>, <span class="st">&quot;ADF p (Δy)&quot;</span>], decimals<span class="op">=</span><span class="dv">3</span>))</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="3">
-<div id="mppmdkbxko" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="cznusdskvp" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#mppmdkbxko table {
+#cznusdskvp table {
 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 -webkit-font-smoothing: antialiased;
 -moz-osx-font-smoothing: grayscale;
 }
-#mppmdkbxko thead, tbody, tfoot, tr, td, th { border-style: none; }
+#cznusdskvp thead, tbody, tfoot, tr, td, th { border-style: none; }
 tr { background-color: transparent; }
-#mppmdkbxko p { margin: 0; padding: 0; }
-#mppmdkbxko .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
-#mppmdkbxko .gt_caption { padding-top: 4px; padding-bottom: 4px; }
-#mppmdkbxko .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
-#mppmdkbxko .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
-#mppmdkbxko .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-#mppmdkbxko .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#mppmdkbxko .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-#mppmdkbxko .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
-#mppmdkbxko .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
-#mppmdkbxko .gt_column_spanner_outer:first-child { padding-left: 0; }
-#mppmdkbxko .gt_column_spanner_outer:last-child { padding-right: 0; }
-#mppmdkbxko .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
-#mppmdkbxko .gt_spanner_row { border-bottom-style: hidden; }
-#mppmdkbxko .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
-#mppmdkbxko .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
-#mppmdkbxko .gt_from_md> :first-child { margin-top: 0; }
-#mppmdkbxko .gt_from_md> :last-child { margin-bottom: 0; }
-#mppmdkbxko .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
-#mppmdkbxko .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
-#mppmdkbxko .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
-#mppmdkbxko .gt_row_group_first td { border-top-width: 2px; }
-#mppmdkbxko .gt_row_group_first th { border-top-width: 2px; }
-#mppmdkbxko .gt_striped { color: #333333; background-color: #F4F4F4; }
-#mppmdkbxko .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#mppmdkbxko .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
-#mppmdkbxko .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
-#mppmdkbxko .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#mppmdkbxko .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
-#mppmdkbxko .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
-#mppmdkbxko .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
-#mppmdkbxko .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#mppmdkbxko .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-#mppmdkbxko .gt_left { text-align: left; }
-#mppmdkbxko .gt_center { text-align: center; }
-#mppmdkbxko .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
-#mppmdkbxko .gt_font_normal { font-weight: normal; }
-#mppmdkbxko .gt_font_bold { font-weight: bold; }
-#mppmdkbxko .gt_font_italic { font-style: italic; }
-#mppmdkbxko .gt_super { font-size: 65%; }
-#mppmdkbxko .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#mppmdkbxko .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
-#mppmdkbxko .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#mppmdkbxko .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-#mppmdkbxko .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
-#mppmdkbxko .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#cznusdskvp p { margin: 0; padding: 0; }
+#cznusdskvp .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+#cznusdskvp .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+#cznusdskvp .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+#cznusdskvp .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+#cznusdskvp .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#cznusdskvp .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#cznusdskvp .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#cznusdskvp .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+#cznusdskvp .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+#cznusdskvp .gt_column_spanner_outer:first-child { padding-left: 0; }
+#cznusdskvp .gt_column_spanner_outer:last-child { padding-right: 0; }
+#cznusdskvp .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+#cznusdskvp .gt_spanner_row { border-bottom-style: hidden; }
+#cznusdskvp .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+#cznusdskvp .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+#cznusdskvp .gt_from_md> :first-child { margin-top: 0; }
+#cznusdskvp .gt_from_md> :last-child { margin-bottom: 0; }
+#cznusdskvp .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+#cznusdskvp .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+#cznusdskvp .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+#cznusdskvp .gt_row_group_first td { border-top-width: 2px; }
+#cznusdskvp .gt_row_group_first th { border-top-width: 2px; }
+#cznusdskvp .gt_striped { color: #333333; background-color: #F4F4F4; }
+#cznusdskvp .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#cznusdskvp .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#cznusdskvp .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+#cznusdskvp .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#cznusdskvp .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#cznusdskvp .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+#cznusdskvp .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+#cznusdskvp .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#cznusdskvp .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#cznusdskvp .gt_left { text-align: left; }
+#cznusdskvp .gt_center { text-align: center; }
+#cznusdskvp .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+#cznusdskvp .gt_font_normal { font-weight: normal; }
+#cznusdskvp .gt_font_bold { font-weight: bold; }
+#cznusdskvp .gt_font_italic { font-style: italic; }
+#cznusdskvp .gt_super { font-size: 65%; }
+#cznusdskvp .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#cznusdskvp .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+#cznusdskvp .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#cznusdskvp .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#cznusdskvp .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+#cznusdskvp .gt_asterisk { font-size: 100%; vertical-align: 0; }
 </style>
 
 <table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
@@ -2964,7 +3006,7 @@ treino até semana T+4      |■■■■■■■■|  ← janela 2
 treino até semana T+8           |■■■■■■■■|  ← janela 3
 ... (20 janelas no total, passo=4)</code></pre>
 <p>Os RMSE, MAPE e acurácia direcional reportados na tabela abaixo são a <strong>média sobre essas 20 avaliações fora da amostra</strong> — não de uma única divisão treino/teste, que seria estatisticamente ruidosa (ver §5.2).</p>
-<div id="029abe4d" class="cell" data-execution_count="4">
+<div id="81d4088a" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Código</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> metr(y, p, yc, escala_mase):</span>
@@ -3048,61 +3090,61 @@ treino até semana T+8           |■■■■■■■■|  ← janela 3
 <span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a> .fmt_number(columns<span class="op">=</span>[<span class="st">&quot;RMSE&quot;</span>, <span class="st">&quot;MAPE (%)&quot;</span>, <span class="st">&quot;MASE&quot;</span>, <span class="st">&quot;Dir.Acc (%)&quot;</span>], decimals<span class="op">=</span><span class="dv">2</span>))</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="4">
-<div id="qazlntksmo" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="zrmuohnfml" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#qazlntksmo table {
+#zrmuohnfml table {
 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 -webkit-font-smoothing: antialiased;
 -moz-osx-font-smoothing: grayscale;
 }
-#qazlntksmo thead, tbody, tfoot, tr, td, th { border-style: none; }
+#zrmuohnfml thead, tbody, tfoot, tr, td, th { border-style: none; }
 tr { background-color: transparent; }
-#qazlntksmo p { margin: 0; padding: 0; }
-#qazlntksmo .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
-#qazlntksmo .gt_caption { padding-top: 4px; padding-bottom: 4px; }
-#qazlntksmo .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
-#qazlntksmo .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
-#qazlntksmo .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-#qazlntksmo .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#qazlntksmo .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-#qazlntksmo .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
-#qazlntksmo .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
-#qazlntksmo .gt_column_spanner_outer:first-child { padding-left: 0; }
-#qazlntksmo .gt_column_spanner_outer:last-child { padding-right: 0; }
-#qazlntksmo .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
-#qazlntksmo .gt_spanner_row { border-bottom-style: hidden; }
-#qazlntksmo .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
-#qazlntksmo .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
-#qazlntksmo .gt_from_md> :first-child { margin-top: 0; }
-#qazlntksmo .gt_from_md> :last-child { margin-bottom: 0; }
-#qazlntksmo .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
-#qazlntksmo .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
-#qazlntksmo .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
-#qazlntksmo .gt_row_group_first td { border-top-width: 2px; }
-#qazlntksmo .gt_row_group_first th { border-top-width: 2px; }
-#qazlntksmo .gt_striped { color: #333333; background-color: #F4F4F4; }
-#qazlntksmo .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#qazlntksmo .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
-#qazlntksmo .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
-#qazlntksmo .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#qazlntksmo .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
-#qazlntksmo .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
-#qazlntksmo .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
-#qazlntksmo .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#qazlntksmo .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-#qazlntksmo .gt_left { text-align: left; }
-#qazlntksmo .gt_center { text-align: center; }
-#qazlntksmo .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
-#qazlntksmo .gt_font_normal { font-weight: normal; }
-#qazlntksmo .gt_font_bold { font-weight: bold; }
-#qazlntksmo .gt_font_italic { font-style: italic; }
-#qazlntksmo .gt_super { font-size: 65%; }
-#qazlntksmo .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#qazlntksmo .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
-#qazlntksmo .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#qazlntksmo .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-#qazlntksmo .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
-#qazlntksmo .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#zrmuohnfml p { margin: 0; padding: 0; }
+#zrmuohnfml .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+#zrmuohnfml .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+#zrmuohnfml .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+#zrmuohnfml .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+#zrmuohnfml .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#zrmuohnfml .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#zrmuohnfml .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#zrmuohnfml .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+#zrmuohnfml .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+#zrmuohnfml .gt_column_spanner_outer:first-child { padding-left: 0; }
+#zrmuohnfml .gt_column_spanner_outer:last-child { padding-right: 0; }
+#zrmuohnfml .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+#zrmuohnfml .gt_spanner_row { border-bottom-style: hidden; }
+#zrmuohnfml .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+#zrmuohnfml .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+#zrmuohnfml .gt_from_md> :first-child { margin-top: 0; }
+#zrmuohnfml .gt_from_md> :last-child { margin-bottom: 0; }
+#zrmuohnfml .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+#zrmuohnfml .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+#zrmuohnfml .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+#zrmuohnfml .gt_row_group_first td { border-top-width: 2px; }
+#zrmuohnfml .gt_row_group_first th { border-top-width: 2px; }
+#zrmuohnfml .gt_striped { color: #333333; background-color: #F4F4F4; }
+#zrmuohnfml .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#zrmuohnfml .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#zrmuohnfml .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+#zrmuohnfml .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#zrmuohnfml .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#zrmuohnfml .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+#zrmuohnfml .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+#zrmuohnfml .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#zrmuohnfml .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#zrmuohnfml .gt_left { text-align: left; }
+#zrmuohnfml .gt_center { text-align: center; }
+#zrmuohnfml .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+#zrmuohnfml .gt_font_normal { font-weight: normal; }
+#zrmuohnfml .gt_font_bold { font-weight: bold; }
+#zrmuohnfml .gt_font_italic { font-style: italic; }
+#zrmuohnfml .gt_super { font-size: 65%; }
+#zrmuohnfml .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#zrmuohnfml .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+#zrmuohnfml .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#zrmuohnfml .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#zrmuohnfml .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+#zrmuohnfml .gt_asterisk { font-size: 100%; vertical-align: 0; }
 </style>
 
 <table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
@@ -3197,7 +3239,7 @@ tr { background-color: transparent; }
 </section>
 <section id="resultados-e-interpretação" class="level2">
 <h2 class="anchored" data-anchor-id="resultados-e-interpretação">9. Resultados e interpretação</h2>
-<div id="2b827ff0" class="cell" data-execution_count="5">
+<div id="b7a032e0" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Código</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ganho de cada modelo vs naive sazonal (RMSE)</span></span>
@@ -3209,61 +3251,61 @@ tr { background-color: transparent; }
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a> .fmt_number(columns<span class="op">=</span>[<span class="st">&quot;AutoARIMA&quot;</span>, <span class="st">&quot;XGBoost&quot;</span>, <span class="st">&quot;Ensemble&quot;</span>], decimals<span class="op">=</span><span class="dv">1</span>))</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="5">
-<div id="orlhmbdyft" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="udxieganwt" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#orlhmbdyft table {
+#udxieganwt table {
 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 -webkit-font-smoothing: antialiased;
 -moz-osx-font-smoothing: grayscale;
 }
-#orlhmbdyft thead, tbody, tfoot, tr, td, th { border-style: none; }
+#udxieganwt thead, tbody, tfoot, tr, td, th { border-style: none; }
 tr { background-color: transparent; }
-#orlhmbdyft p { margin: 0; padding: 0; }
-#orlhmbdyft .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
-#orlhmbdyft .gt_caption { padding-top: 4px; padding-bottom: 4px; }
-#orlhmbdyft .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
-#orlhmbdyft .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
-#orlhmbdyft .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-#orlhmbdyft .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#orlhmbdyft .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-#orlhmbdyft .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
-#orlhmbdyft .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
-#orlhmbdyft .gt_column_spanner_outer:first-child { padding-left: 0; }
-#orlhmbdyft .gt_column_spanner_outer:last-child { padding-right: 0; }
-#orlhmbdyft .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
-#orlhmbdyft .gt_spanner_row { border-bottom-style: hidden; }
-#orlhmbdyft .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
-#orlhmbdyft .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
-#orlhmbdyft .gt_from_md> :first-child { margin-top: 0; }
-#orlhmbdyft .gt_from_md> :last-child { margin-bottom: 0; }
-#orlhmbdyft .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
-#orlhmbdyft .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
-#orlhmbdyft .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
-#orlhmbdyft .gt_row_group_first td { border-top-width: 2px; }
-#orlhmbdyft .gt_row_group_first th { border-top-width: 2px; }
-#orlhmbdyft .gt_striped { color: #333333; background-color: #F4F4F4; }
-#orlhmbdyft .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#orlhmbdyft .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
-#orlhmbdyft .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
-#orlhmbdyft .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#orlhmbdyft .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
-#orlhmbdyft .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
-#orlhmbdyft .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
-#orlhmbdyft .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#orlhmbdyft .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-#orlhmbdyft .gt_left { text-align: left; }
-#orlhmbdyft .gt_center { text-align: center; }
-#orlhmbdyft .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
-#orlhmbdyft .gt_font_normal { font-weight: normal; }
-#orlhmbdyft .gt_font_bold { font-weight: bold; }
-#orlhmbdyft .gt_font_italic { font-style: italic; }
-#orlhmbdyft .gt_super { font-size: 65%; }
-#orlhmbdyft .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#orlhmbdyft .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
-#orlhmbdyft .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#orlhmbdyft .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-#orlhmbdyft .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
-#orlhmbdyft .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#udxieganwt p { margin: 0; padding: 0; }
+#udxieganwt .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+#udxieganwt .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+#udxieganwt .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+#udxieganwt .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+#udxieganwt .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#udxieganwt .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#udxieganwt .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#udxieganwt .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+#udxieganwt .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+#udxieganwt .gt_column_spanner_outer:first-child { padding-left: 0; }
+#udxieganwt .gt_column_spanner_outer:last-child { padding-right: 0; }
+#udxieganwt .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+#udxieganwt .gt_spanner_row { border-bottom-style: hidden; }
+#udxieganwt .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+#udxieganwt .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+#udxieganwt .gt_from_md> :first-child { margin-top: 0; }
+#udxieganwt .gt_from_md> :last-child { margin-bottom: 0; }
+#udxieganwt .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+#udxieganwt .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+#udxieganwt .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+#udxieganwt .gt_row_group_first td { border-top-width: 2px; }
+#udxieganwt .gt_row_group_first th { border-top-width: 2px; }
+#udxieganwt .gt_striped { color: #333333; background-color: #F4F4F4; }
+#udxieganwt .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#udxieganwt .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#udxieganwt .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+#udxieganwt .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#udxieganwt .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#udxieganwt .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+#udxieganwt .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+#udxieganwt .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#udxieganwt .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#udxieganwt .gt_left { text-align: left; }
+#udxieganwt .gt_center { text-align: center; }
+#udxieganwt .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+#udxieganwt .gt_font_normal { font-weight: normal; }
+#udxieganwt .gt_font_bold { font-weight: bold; }
+#udxieganwt .gt_font_italic { font-style: italic; }
+#udxieganwt .gt_super { font-size: 65%; }
+#udxieganwt .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#udxieganwt .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+#udxieganwt .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#udxieganwt .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#udxieganwt .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+#udxieganwt .gt_asterisk { font-size: 100%; vertical-align: 0; }
 </style>
 
 <table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
@@ -3318,7 +3360,7 @@ tr { background-color: transparent; }
 <li><strong>Sobreajuste (<em>overfitting</em>):</strong> ajuste quase perfeito na amostra de treino, mas desempenho pior fora. O XGBoost, com acesso a <code>lag_1</code> (preço da semana imediatamente anterior), é o mais suscetível: com esse regressor, ele consegue “enxergar” o nível atual da série e tende a colar na curva observada.</li>
 <li><strong>Subajuste (<em>underfitting</em>):</strong> modelo que não captura padrões sistemáticos — por exemplo, ignorar a sazonalidade anual. Manifesta-se como uma curva suave e deslocada dos picos e vales sazonais.</li>
 </ul>
-<div id="3267ce00" class="cell" data-execution_count="6">
+<div id="74bff27b" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Código</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ajuste dentro da amostra — diagnóstico de over/underfitting por variedade</span></span>
@@ -3399,7 +3441,7 @@ tr { background-color: transparent; }
 <section id="significância-estatística-das-diferenças-dm-e-pt" class="level3">
 <h3 class="anchored" data-anchor-id="significância-estatística-das-diferenças-dm-e-pt">9.2 Significância estatística das diferenças (DM e PT)</h3>
 <p>As diferenças de RMSE da tabela do §8 são formalmente testadas com <strong>Diebold-Mariano</strong> (correção de Harvey-Leybourne-Newbold, variância HAC com defasagem <span class="math inline">\(h-1=7\)</span> — os erros multi-passo são autocorrelacionados por construção; como as janelas se sobrepõem parcialmente, os p-valores devem ser lidos como aproximações conservadoras). A <strong>acurácia direcional</strong> é testada com <strong>Pesaran-Timmermann</strong> contra a hipótese de ausência de conteúdo direcional.</p>
-<div id="e12b921d" class="cell" data-execution_count="7">
+<div id="a4446be8" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Código</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy <span class="im">import</span> stats</span>
@@ -3460,61 +3502,61 @@ tr { background-color: transparent; }
 <span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a> .fmt_number(columns<span class="op">=</span>[<span class="st">&quot;DM (HLN)&quot;</span>, <span class="st">&quot;p-valor&quot;</span>], decimals<span class="op">=</span><span class="dv">3</span>))</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="7">
-<div id="mprikyjmdi" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="akocbkvjly" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#mprikyjmdi table {
+#akocbkvjly table {
 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 -webkit-font-smoothing: antialiased;
 -moz-osx-font-smoothing: grayscale;
 }
-#mprikyjmdi thead, tbody, tfoot, tr, td, th { border-style: none; }
+#akocbkvjly thead, tbody, tfoot, tr, td, th { border-style: none; }
 tr { background-color: transparent; }
-#mprikyjmdi p { margin: 0; padding: 0; }
-#mprikyjmdi .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
-#mprikyjmdi .gt_caption { padding-top: 4px; padding-bottom: 4px; }
-#mprikyjmdi .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
-#mprikyjmdi .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
-#mprikyjmdi .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-#mprikyjmdi .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#mprikyjmdi .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-#mprikyjmdi .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
-#mprikyjmdi .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
-#mprikyjmdi .gt_column_spanner_outer:first-child { padding-left: 0; }
-#mprikyjmdi .gt_column_spanner_outer:last-child { padding-right: 0; }
-#mprikyjmdi .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
-#mprikyjmdi .gt_spanner_row { border-bottom-style: hidden; }
-#mprikyjmdi .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
-#mprikyjmdi .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
-#mprikyjmdi .gt_from_md> :first-child { margin-top: 0; }
-#mprikyjmdi .gt_from_md> :last-child { margin-bottom: 0; }
-#mprikyjmdi .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
-#mprikyjmdi .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
-#mprikyjmdi .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
-#mprikyjmdi .gt_row_group_first td { border-top-width: 2px; }
-#mprikyjmdi .gt_row_group_first th { border-top-width: 2px; }
-#mprikyjmdi .gt_striped { color: #333333; background-color: #F4F4F4; }
-#mprikyjmdi .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#mprikyjmdi .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
-#mprikyjmdi .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
-#mprikyjmdi .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#mprikyjmdi .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
-#mprikyjmdi .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
-#mprikyjmdi .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
-#mprikyjmdi .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#mprikyjmdi .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-#mprikyjmdi .gt_left { text-align: left; }
-#mprikyjmdi .gt_center { text-align: center; }
-#mprikyjmdi .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
-#mprikyjmdi .gt_font_normal { font-weight: normal; }
-#mprikyjmdi .gt_font_bold { font-weight: bold; }
-#mprikyjmdi .gt_font_italic { font-style: italic; }
-#mprikyjmdi .gt_super { font-size: 65%; }
-#mprikyjmdi .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#mprikyjmdi .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
-#mprikyjmdi .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#mprikyjmdi .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-#mprikyjmdi .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
-#mprikyjmdi .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#akocbkvjly p { margin: 0; padding: 0; }
+#akocbkvjly .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+#akocbkvjly .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+#akocbkvjly .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+#akocbkvjly .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+#akocbkvjly .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#akocbkvjly .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#akocbkvjly .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#akocbkvjly .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+#akocbkvjly .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+#akocbkvjly .gt_column_spanner_outer:first-child { padding-left: 0; }
+#akocbkvjly .gt_column_spanner_outer:last-child { padding-right: 0; }
+#akocbkvjly .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+#akocbkvjly .gt_spanner_row { border-bottom-style: hidden; }
+#akocbkvjly .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+#akocbkvjly .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+#akocbkvjly .gt_from_md> :first-child { margin-top: 0; }
+#akocbkvjly .gt_from_md> :last-child { margin-bottom: 0; }
+#akocbkvjly .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+#akocbkvjly .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+#akocbkvjly .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+#akocbkvjly .gt_row_group_first td { border-top-width: 2px; }
+#akocbkvjly .gt_row_group_first th { border-top-width: 2px; }
+#akocbkvjly .gt_striped { color: #333333; background-color: #F4F4F4; }
+#akocbkvjly .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#akocbkvjly .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#akocbkvjly .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+#akocbkvjly .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#akocbkvjly .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#akocbkvjly .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+#akocbkvjly .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+#akocbkvjly .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#akocbkvjly .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#akocbkvjly .gt_left { text-align: left; }
+#akocbkvjly .gt_center { text-align: center; }
+#akocbkvjly .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+#akocbkvjly .gt_font_normal { font-weight: normal; }
+#akocbkvjly .gt_font_bold { font-weight: bold; }
+#akocbkvjly .gt_font_italic { font-style: italic; }
+#akocbkvjly .gt_super { font-size: 65%; }
+#akocbkvjly .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#akocbkvjly .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+#akocbkvjly .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#akocbkvjly .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#akocbkvjly .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+#akocbkvjly .gt_asterisk { font-size: 100%; vertical-align: 0; }
 </style>
 
 <table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
@@ -3597,7 +3639,7 @@ tr { background-color: transparent; }
 </div>
 </div>
 </div>
-<div id="68e4cfc5" class="cell" data-execution_count="8">
+<div id="acba000d" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Código</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>(GT(pd.DataFrame(linhas_pt))</span>
@@ -3606,61 +3648,61 @@ tr { background-color: transparent; }
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a> .fmt_number(columns<span class="op">=</span>[<span class="st">&quot;PT (z)&quot;</span>, <span class="st">&quot;p-valor&quot;</span>], decimals<span class="op">=</span><span class="dv">3</span>))</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="8">
-<div id="afwqdxbczy" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="jisxlmtqww" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#afwqdxbczy table {
+#jisxlmtqww table {
 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 -webkit-font-smoothing: antialiased;
 -moz-osx-font-smoothing: grayscale;
 }
-#afwqdxbczy thead, tbody, tfoot, tr, td, th { border-style: none; }
+#jisxlmtqww thead, tbody, tfoot, tr, td, th { border-style: none; }
 tr { background-color: transparent; }
-#afwqdxbczy p { margin: 0; padding: 0; }
-#afwqdxbczy .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
-#afwqdxbczy .gt_caption { padding-top: 4px; padding-bottom: 4px; }
-#afwqdxbczy .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
-#afwqdxbczy .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
-#afwqdxbczy .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-#afwqdxbczy .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#afwqdxbczy .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-#afwqdxbczy .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
-#afwqdxbczy .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
-#afwqdxbczy .gt_column_spanner_outer:first-child { padding-left: 0; }
-#afwqdxbczy .gt_column_spanner_outer:last-child { padding-right: 0; }
-#afwqdxbczy .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
-#afwqdxbczy .gt_spanner_row { border-bottom-style: hidden; }
-#afwqdxbczy .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
-#afwqdxbczy .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
-#afwqdxbczy .gt_from_md> :first-child { margin-top: 0; }
-#afwqdxbczy .gt_from_md> :last-child { margin-bottom: 0; }
-#afwqdxbczy .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
-#afwqdxbczy .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
-#afwqdxbczy .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
-#afwqdxbczy .gt_row_group_first td { border-top-width: 2px; }
-#afwqdxbczy .gt_row_group_first th { border-top-width: 2px; }
-#afwqdxbczy .gt_striped { color: #333333; background-color: #F4F4F4; }
-#afwqdxbczy .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#afwqdxbczy .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
-#afwqdxbczy .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
-#afwqdxbczy .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#afwqdxbczy .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
-#afwqdxbczy .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
-#afwqdxbczy .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
-#afwqdxbczy .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#afwqdxbczy .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-#afwqdxbczy .gt_left { text-align: left; }
-#afwqdxbczy .gt_center { text-align: center; }
-#afwqdxbczy .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
-#afwqdxbczy .gt_font_normal { font-weight: normal; }
-#afwqdxbczy .gt_font_bold { font-weight: bold; }
-#afwqdxbczy .gt_font_italic { font-style: italic; }
-#afwqdxbczy .gt_super { font-size: 65%; }
-#afwqdxbczy .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#afwqdxbczy .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
-#afwqdxbczy .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#afwqdxbczy .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-#afwqdxbczy .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
-#afwqdxbczy .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#jisxlmtqww p { margin: 0; padding: 0; }
+#jisxlmtqww .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+#jisxlmtqww .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+#jisxlmtqww .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+#jisxlmtqww .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+#jisxlmtqww .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#jisxlmtqww .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#jisxlmtqww .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#jisxlmtqww .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+#jisxlmtqww .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+#jisxlmtqww .gt_column_spanner_outer:first-child { padding-left: 0; }
+#jisxlmtqww .gt_column_spanner_outer:last-child { padding-right: 0; }
+#jisxlmtqww .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+#jisxlmtqww .gt_spanner_row { border-bottom-style: hidden; }
+#jisxlmtqww .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+#jisxlmtqww .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+#jisxlmtqww .gt_from_md> :first-child { margin-top: 0; }
+#jisxlmtqww .gt_from_md> :last-child { margin-bottom: 0; }
+#jisxlmtqww .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+#jisxlmtqww .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+#jisxlmtqww .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+#jisxlmtqww .gt_row_group_first td { border-top-width: 2px; }
+#jisxlmtqww .gt_row_group_first th { border-top-width: 2px; }
+#jisxlmtqww .gt_striped { color: #333333; background-color: #F4F4F4; }
+#jisxlmtqww .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#jisxlmtqww .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#jisxlmtqww .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+#jisxlmtqww .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#jisxlmtqww .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#jisxlmtqww .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+#jisxlmtqww .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+#jisxlmtqww .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#jisxlmtqww .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#jisxlmtqww .gt_left { text-align: left; }
+#jisxlmtqww .gt_center { text-align: center; }
+#jisxlmtqww .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+#jisxlmtqww .gt_font_normal { font-weight: normal; }
+#jisxlmtqww .gt_font_bold { font-weight: bold; }
+#jisxlmtqww .gt_font_italic { font-style: italic; }
+#jisxlmtqww .gt_super { font-size: 65%; }
+#jisxlmtqww .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#jisxlmtqww .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+#jisxlmtqww .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#jisxlmtqww .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#jisxlmtqww .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+#jisxlmtqww .gt_asterisk { font-size: 100%; vertical-align: 0; }
 </style>
 
 <table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
@@ -3736,7 +3778,7 @@ tr { background-color: transparent; }
 <h2 class="anchored" data-anchor-id="previsão-fora-da-amostra">10. Previsão fora da amostra</h2>
 <p>Reestimado com toda a amostra; intervalos <strong>conformais</strong> — livres de distribuição, com garantia de cobertura sob a hipótese de trocabilidade dos erros <span class="citation" data-cites="vovk2005">(<a href="#ref-vovk2005" role="doc-biblioref">Vovk et al. 2005</a>)</span>. Para os modelos individuais usam-se as implementações nativas do ecossistema Nixtla; para a <strong>combinação de previsões</strong>, o intervalo é obtido por <strong>conformalização direta dos erros do próprio ensemble</strong> no rolling-origin do §8 (quantis por horizonte dos erros absolutos fora da amostra) — e não pela média das bandas individuais, que não teria garantia formal.</p>
 <p>Coerente com a discussão do §6 — o modelo não acerta o ponto, e fingir que acerta (“o preço da semana 752 será R$ 2,05”) é uma falsa precisão. Por isso a entrega abaixo é o <strong>intervalo</strong>, não o ponto. O gráfico apresenta duas faixas: a <strong>banda interna (60%)</strong> é a <strong>faixa central da distribuição</strong> de previsão — em três de cada cinco semanas históricas análogas, o preço real ficou dentro dessa faixa; a <strong>banda externa (80%)</strong> é mais conservadora e cobre quatro em cada cinco realizações históricas. Em preços de perecíveis, intervalos de 95% tendem a ser tão amplos que perdem utilidade prática para a tomada de decisão. A tabela abaixo reporta a faixa de 60% por modelo.</p>
-<div id="072abaf1" class="cell" data-execution_count="9">
+<div id="e5156d68" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Código</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fc <span class="op">=</span> pd.concat(previsoes, ignore_index<span class="op">=</span><span class="va">True</span>)</span>
@@ -3785,7 +3827,7 @@ tr { background-color: transparent; }
 </div>
 </div>
 </div>
-<div id="7508a677" class="cell" data-execution_count="10">
+<div id="c5143537" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Código</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> faixa(lo, hi):</span>
@@ -3822,61 +3864,61 @@ tr { background-color: transparent; }
 <span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>             subtitle<span class="op">=</span><span class="ss">f&quot;Próximas </span><span class="sc">{</span>H<span class="sc">}</span><span class="ss"> semanas — R$/kg&quot;</span>))</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="10">
-<div id="rubtfxbobe" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="iqiufrjehn" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#rubtfxbobe table {
+#iqiufrjehn table {
 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 -webkit-font-smoothing: antialiased;
 -moz-osx-font-smoothing: grayscale;
 }
-#rubtfxbobe thead, tbody, tfoot, tr, td, th { border-style: none; }
+#iqiufrjehn thead, tbody, tfoot, tr, td, th { border-style: none; }
 tr { background-color: transparent; }
-#rubtfxbobe p { margin: 0; padding: 0; }
-#rubtfxbobe .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
-#rubtfxbobe .gt_caption { padding-top: 4px; padding-bottom: 4px; }
-#rubtfxbobe .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
-#rubtfxbobe .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
-#rubtfxbobe .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-#rubtfxbobe .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#rubtfxbobe .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-#rubtfxbobe .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
-#rubtfxbobe .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
-#rubtfxbobe .gt_column_spanner_outer:first-child { padding-left: 0; }
-#rubtfxbobe .gt_column_spanner_outer:last-child { padding-right: 0; }
-#rubtfxbobe .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
-#rubtfxbobe .gt_spanner_row { border-bottom-style: hidden; }
-#rubtfxbobe .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
-#rubtfxbobe .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
-#rubtfxbobe .gt_from_md> :first-child { margin-top: 0; }
-#rubtfxbobe .gt_from_md> :last-child { margin-bottom: 0; }
-#rubtfxbobe .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
-#rubtfxbobe .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
-#rubtfxbobe .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
-#rubtfxbobe .gt_row_group_first td { border-top-width: 2px; }
-#rubtfxbobe .gt_row_group_first th { border-top-width: 2px; }
-#rubtfxbobe .gt_striped { color: #333333; background-color: #F4F4F4; }
-#rubtfxbobe .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#rubtfxbobe .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
-#rubtfxbobe .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
-#rubtfxbobe .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#rubtfxbobe .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
-#rubtfxbobe .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
-#rubtfxbobe .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
-#rubtfxbobe .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#rubtfxbobe .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-#rubtfxbobe .gt_left { text-align: left; }
-#rubtfxbobe .gt_center { text-align: center; }
-#rubtfxbobe .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
-#rubtfxbobe .gt_font_normal { font-weight: normal; }
-#rubtfxbobe .gt_font_bold { font-weight: bold; }
-#rubtfxbobe .gt_font_italic { font-style: italic; }
-#rubtfxbobe .gt_super { font-size: 65%; }
-#rubtfxbobe .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#rubtfxbobe .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
-#rubtfxbobe .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#rubtfxbobe .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-#rubtfxbobe .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
-#rubtfxbobe .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#iqiufrjehn p { margin: 0; padding: 0; }
+#iqiufrjehn .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+#iqiufrjehn .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+#iqiufrjehn .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+#iqiufrjehn .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+#iqiufrjehn .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#iqiufrjehn .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#iqiufrjehn .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#iqiufrjehn .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+#iqiufrjehn .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+#iqiufrjehn .gt_column_spanner_outer:first-child { padding-left: 0; }
+#iqiufrjehn .gt_column_spanner_outer:last-child { padding-right: 0; }
+#iqiufrjehn .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+#iqiufrjehn .gt_spanner_row { border-bottom-style: hidden; }
+#iqiufrjehn .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+#iqiufrjehn .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+#iqiufrjehn .gt_from_md> :first-child { margin-top: 0; }
+#iqiufrjehn .gt_from_md> :last-child { margin-bottom: 0; }
+#iqiufrjehn .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+#iqiufrjehn .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+#iqiufrjehn .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+#iqiufrjehn .gt_row_group_first td { border-top-width: 2px; }
+#iqiufrjehn .gt_row_group_first th { border-top-width: 2px; }
+#iqiufrjehn .gt_striped { color: #333333; background-color: #F4F4F4; }
+#iqiufrjehn .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#iqiufrjehn .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#iqiufrjehn .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+#iqiufrjehn .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#iqiufrjehn .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#iqiufrjehn .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+#iqiufrjehn .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+#iqiufrjehn .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#iqiufrjehn .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#iqiufrjehn .gt_left { text-align: left; }
+#iqiufrjehn .gt_center { text-align: center; }
+#iqiufrjehn .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+#iqiufrjehn .gt_font_normal { font-weight: normal; }
+#iqiufrjehn .gt_font_bold { font-weight: bold; }
+#iqiufrjehn .gt_font_italic { font-style: italic; }
+#iqiufrjehn .gt_super { font-size: 65%; }
+#iqiufrjehn .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#iqiufrjehn .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+#iqiufrjehn .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#iqiufrjehn .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#iqiufrjehn .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+#iqiufrjehn .gt_asterisk { font-size: 100%; vertical-align: 0; }
 </style>
 
 <table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
@@ -4035,7 +4077,7 @@ tr { background-color: transparent; }
 <section id="calibração-empírica-dos-intervalos" class="level3">
 <h3 class="anchored" data-anchor-id="calibração-empírica-dos-intervalos">10.1 Calibração empírica dos intervalos</h3>
 <p>Intervalo declarado precisa ser intervalo cumprido: a banda de 60% só é honesta se, fora da amostra, ela contiver o preço realizado em ≈60% das vezes. A verificação abaixo usa validação <em>leave-one-window-out</em> no rolling-origin do §8: para cada janela, o quantil conformal é calibrado <strong>apenas com os erros das outras 19 janelas</strong> (por horizonte) e testado nos erros da janela excluída — nenhuma janela participa da própria calibração. Cobertura empírica próxima da nominal valida o mecanismo conformal usado no §10.</p>
-<div id="e0179cd4" class="cell" data-execution_count="11">
+<div id="fb94cfd5" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Código</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cobertura_loo(cv, modelo, nivel):</span>
@@ -4065,61 +4107,61 @@ tr { background-color: transparent; }
 <span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a> .fmt_number(columns<span class="op">=</span>[<span class="st">&quot;Cobertura 60% (%)&quot;</span>, <span class="st">&quot;Cobertura 80% (%)&quot;</span>], decimals<span class="op">=</span><span class="dv">1</span>))</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="11">
-<div id="imfcvecuel" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="dvzsaesgzy" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#imfcvecuel table {
+#dvzsaesgzy table {
 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 -webkit-font-smoothing: antialiased;
 -moz-osx-font-smoothing: grayscale;
 }
-#imfcvecuel thead, tbody, tfoot, tr, td, th { border-style: none; }
+#dvzsaesgzy thead, tbody, tfoot, tr, td, th { border-style: none; }
 tr { background-color: transparent; }
-#imfcvecuel p { margin: 0; padding: 0; }
-#imfcvecuel .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
-#imfcvecuel .gt_caption { padding-top: 4px; padding-bottom: 4px; }
-#imfcvecuel .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
-#imfcvecuel .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
-#imfcvecuel .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-#imfcvecuel .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#imfcvecuel .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-#imfcvecuel .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
-#imfcvecuel .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
-#imfcvecuel .gt_column_spanner_outer:first-child { padding-left: 0; }
-#imfcvecuel .gt_column_spanner_outer:last-child { padding-right: 0; }
-#imfcvecuel .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
-#imfcvecuel .gt_spanner_row { border-bottom-style: hidden; }
-#imfcvecuel .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
-#imfcvecuel .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
-#imfcvecuel .gt_from_md> :first-child { margin-top: 0; }
-#imfcvecuel .gt_from_md> :last-child { margin-bottom: 0; }
-#imfcvecuel .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
-#imfcvecuel .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
-#imfcvecuel .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
-#imfcvecuel .gt_row_group_first td { border-top-width: 2px; }
-#imfcvecuel .gt_row_group_first th { border-top-width: 2px; }
-#imfcvecuel .gt_striped { color: #333333; background-color: #F4F4F4; }
-#imfcvecuel .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#imfcvecuel .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
-#imfcvecuel .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
-#imfcvecuel .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#imfcvecuel .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
-#imfcvecuel .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
-#imfcvecuel .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
-#imfcvecuel .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#imfcvecuel .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-#imfcvecuel .gt_left { text-align: left; }
-#imfcvecuel .gt_center { text-align: center; }
-#imfcvecuel .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
-#imfcvecuel .gt_font_normal { font-weight: normal; }
-#imfcvecuel .gt_font_bold { font-weight: bold; }
-#imfcvecuel .gt_font_italic { font-style: italic; }
-#imfcvecuel .gt_super { font-size: 65%; }
-#imfcvecuel .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#imfcvecuel .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
-#imfcvecuel .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#imfcvecuel .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-#imfcvecuel .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
-#imfcvecuel .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#dvzsaesgzy p { margin: 0; padding: 0; }
+#dvzsaesgzy .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+#dvzsaesgzy .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+#dvzsaesgzy .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+#dvzsaesgzy .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+#dvzsaesgzy .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#dvzsaesgzy .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#dvzsaesgzy .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#dvzsaesgzy .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+#dvzsaesgzy .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+#dvzsaesgzy .gt_column_spanner_outer:first-child { padding-left: 0; }
+#dvzsaesgzy .gt_column_spanner_outer:last-child { padding-right: 0; }
+#dvzsaesgzy .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+#dvzsaesgzy .gt_spanner_row { border-bottom-style: hidden; }
+#dvzsaesgzy .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+#dvzsaesgzy .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+#dvzsaesgzy .gt_from_md> :first-child { margin-top: 0; }
+#dvzsaesgzy .gt_from_md> :last-child { margin-bottom: 0; }
+#dvzsaesgzy .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+#dvzsaesgzy .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+#dvzsaesgzy .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+#dvzsaesgzy .gt_row_group_first td { border-top-width: 2px; }
+#dvzsaesgzy .gt_row_group_first th { border-top-width: 2px; }
+#dvzsaesgzy .gt_striped { color: #333333; background-color: #F4F4F4; }
+#dvzsaesgzy .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#dvzsaesgzy .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#dvzsaesgzy .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+#dvzsaesgzy .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#dvzsaesgzy .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#dvzsaesgzy .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+#dvzsaesgzy .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+#dvzsaesgzy .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#dvzsaesgzy .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#dvzsaesgzy .gt_left { text-align: left; }
+#dvzsaesgzy .gt_center { text-align: center; }
+#dvzsaesgzy .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+#dvzsaesgzy .gt_font_normal { font-weight: normal; }
+#dvzsaesgzy .gt_font_bold { font-weight: bold; }
+#dvzsaesgzy .gt_font_italic { font-style: italic; }
+#dvzsaesgzy .gt_super { font-size: 65%; }
+#dvzsaesgzy .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#dvzsaesgzy .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+#dvzsaesgzy .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#dvzsaesgzy .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#dvzsaesgzy .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+#dvzsaesgzy .gt_asterisk { font-size: 100%; vertical-align: 0; }
 </style>
 
 <table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
@@ -4186,12 +4228,12 @@ tr { background-color: transparent; }
 <section id="próximos-passos" class="level2">
 <h2 class="anchored" data-anchor-id="próximos-passos">11. Próximos passos</h2>
 <ol type="1">
-<li><del><strong>Câmbio: nível vs. diferença.</strong></del> <strong>Resolvido</strong> — adotado <em>câmbio misto</em>: AutoARIMA usa nível, XGBoost usa diferença semanal. Ganho: combinação de previsões Palmer −4,7% de RMSE (ver §4.4).</li>
+<li><del><strong>Câmbio: nível vs. diferença.</strong></del> <strong>Resolvido</strong> — adotado <em>câmbio misto</em>: AutoARIMA usa nível, XGBoost usa diferença semanal. Ganho: combinação de previsões Palmer −4,7% de RMSE (ver §4.5).</li>
 <li><del><strong>Variáveis climáticas (lag 16).</strong></del> <strong>Resolvido</strong> — <code>hot_days_lag16</code> na Palmer e <code>cold_days_lag16 + rainfall_lag16</code> na Tommy, validados no rolling-origin. Ganho adicional: Palmer −1,4%, Tommy −2,5% de RMSE (ver §3.1).</li>
 <li><strong>Antracnose em horizonte curto.</strong> Reavaliar a chuva (janela 3–6) num modelo de <span class="math inline">\(h\le 4\)</span>, onde o sinal de doença é previsível.</li>
 <li><del><strong>Cobweb (preço lag 52 como exógena explícita no AutoARIMA)</strong></del> <span class="citation" data-cites="ezekiel1938 nerlove1958">(<a href="#ref-ezekiel1938" role="doc-biblioref">Ezekiel 1938</a>; <a href="#ref-nerlove1958" role="doc-biblioref">Nerlove 1958</a>)</span>. <strong>Testado e descartado.</strong> Em comparação limpa (mesmo dataset de 702 semanas, XGBoost idêntico nos dois cenários), a adição de <code>y_lag52</code> no AutoARIMA gerou ganho de apenas +0,2% de RMSE na Palmer e +0,3% na Tommy — dentro do ruído de variação entre janelas. Um resultado anterior de +2,9% era espúrio (datasets de tamanhos diferentes contaminavam a comparação). O mecanismo cobweb pode voltar a ser testado se a série crescer ou se houver indicativo teórico mais forte para uma variedade específica.</li>
 <li><del><strong>Modelos por regime / quantílicos para as viradas.</strong></del> <strong>Testados e descartados — com reformulação do diagnóstico.</strong> Classificando cada janela do rolling-origin como <em>virada</em> (momentum pré-origem com sinal oposto ao pós-origem) ou <em>tendência</em>, descobriu-se que 13/20 (Palmer) e 14/20 (Tommy) das janelas contêm viradas — e que a acurácia direcional <strong>nas viradas já é boa</strong> (69% Palmer, 71% Tommy), superior à das janelas de tendência na Palmer (59%). O ponto fraco real não é antecipar a inflexão, mas <strong>reconhecer a persistência da tendência</strong> — o modelo às vezes prevê a virada <em>cedo demais</em> (ex.: semana 29/2026, queda prevista em plena alta). As variantes testadas no mesmo rolling-origin não superaram a especificação atual: <em>momentum</em> explícito no XGBoost (médias móveis 4/8 + EWM) piorou o RMSE em −9,8% (Palmer) e −5,5% (Tommy); XGBoost quantílico (mediana) deu +1,2% na Palmer mas −3,7% na Tommy (dentro do ruído); e o Theta dinâmico (DOT) como terceiro membro do ensemble degradou fortemente (−40% RMSE isolado na Tommy). <strong>Alvo aberto para trabalho futuro:</strong> melhorar a acurácia direcional nas janelas de tendência da Palmer (59%).</li>
-<li><strong>Redes neurais — testadas e descartadas.</strong> Um NHITS (<code>neuralforecast</code>) foi avaliado no mesmo rolling-origin (20 origens, refit em cada uma) e ficou atrás de todos os modelos, inclusive do XGBoost: RMSE 0,98 na Palmer e 1,13 na Tommy (vs. 0,77 e 0,85 do AutoARIMA), com MAPE acima de 38%. Com ~2,7 milhões de parâmetros para ~750 observações por série, a rede sobreajusta — confirma a leitura do §5.1 (viés × variância) de que, em série curta e ruidosa, modelos simples e regularizados vencem. Redes neurais voltam a fazer sentido se, no futuro, o painel crescer (mais variedades/mercados) para treinar um modelo global compartilhando padrões entre séries.</li>
+<li><strong>Redes neurais — testadas e descartadas.</strong> Um NHITS (<code>neuralforecast</code>; arquitetura descrita no §4.3) foi avaliado no mesmo rolling-origin (20 origens, refit em cada uma) e ficou atrás de todos os modelos, inclusive do XGBoost: RMSE 0,98 na Palmer e 1,13 na Tommy (vs. 0,77 e 0,85 do AutoARIMA), com MAPE acima de 38%. Com ~2,7 milhões de parâmetros para ~750 observações por série, a rede sobreajusta — confirma a leitura do §5.1 (viés × variância) de que, em série curta e ruidosa, modelos simples e regularizados vencem. Redes neurais voltam a fazer sentido se, no futuro, o painel crescer (mais variedades/ mercados) para treinar um modelo global compartilhando padrões entre séries.</li>
 <li><strong>Quebras estruturais.</strong> O §2 lista quebras de regime (novos pomares, mercados de exportação) como fonte de erro, mas a hipótese nunca foi testada formalmente. O procedimento de Bai-Perron <span class="citation" data-cites="bai2003">(<a href="#ref-bai2003" role="doc-biblioref">Bai e Perron 2003</a>)</span> permite datar quebras múltiplas na relação preço-sazonalidade; se houver quebra relevante, vale testar janela de estimação encurtada ou pesos decrescentes no tempo.</li>
 </ol>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -4207,7 +4249,7 @@ Nota
 <p><strong>Ambiente.</strong> Este documento usa o kernel <code>manga-nixtla</code> (Python 3.12 isolado em <code>LOCALAPPDATA</code>, criado com <code>uv</code>). O Python 3.14 do sistema não tem wheels para o ecossistema científico. As bases são geradas por <code>python gerar_clima.py --aplicar</code> (clima) e <code>python gerar_exogenas.py --aplicar</code> (câmbio + Niño + anomalia Peru). O XGBoost usa <code>random_state=42</code>; as versões abaixo garantem reprodutibilidade.</p>
 </div>
 </div>
-<div id="2c9a1681" class="cell" data-execution_count="12">
+<div id="9b99e24a" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Código</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys, statsforecast, mlforecast, plotnine, statsmodels, scipy</span>
@@ -4242,6 +4284,9 @@ Bergmeir, Christoph, e José M. Benítez. 2012. <span>«On the Use of Cross-Vali
 </div>
 <div id="ref-box2015" class="csl-entry" role="listitem">
 Box, George E. P., Gwilym M. Jenkins, Gregory C. Reinsel, e Greta M. Ljung. 2015. <em>Time Series Analysis: Forecasting and Control</em>. 5.ª ed. Wiley.
+</div>
+<div id="ref-challu2023" class="csl-entry" role="listitem">
+Challu, Cristian, Kin G. Olivares, Boris N. Oreshkin, Federico Garza Ramirez, Max Mergenthaler Canseco, e Artur Dubrawski. 2023. <span>«<span>NHITS</span>: Neural Hierarchical Interpolation for Time Series Forecasting»</span>. <em>Proceedings of the AAAI Conference on Artificial Intelligence</em> 37: 6989–97.
 </div>
 <div id="ref-chen2016" class="csl-entry" role="listitem">
 Chen, Tianqi, e Carlos Guestrin. 2016. <span>«<span>XGBoost</span>: A Scalable Tree Boosting System»</span>. <em>Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining</em>, 785–94.

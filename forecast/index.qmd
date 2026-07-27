@@ -172,15 +172,129 @@ s_t=\sum_{k=1}^{K}\Big[\alpha_k\sin\!\Big(\tfrac{2\pi k\, d_t}{365.25}\Big)+\bet
 $$
 com $d_t$ = dia do ano. Poucos harmônicos ($K=1$ ou $2$) costumam bastar.
 
-### 4.2 Modelos de Machine Learning
+### 4.2 Modelos de Machine Learning: gradient boosting e XGBoost
 
-Modelos como **gradient boosting** [@friedman2001; @chen2016] aprendem $f$ de forma
-não linear a partir de atributos construídos (defasagens, janelas móveis, calendário).
-Brilham em **não linearidades e interações de limiar** (ex.: "preço alto **e**
-floração pesada há 16 semanas → espera queda"), mas precisam de previsão
-**recursiva** para múltiplos passos e são mais propensos a sobreajuste.
+Um modelo de **gradient boosting** [@friedman2001] aprende $f$ de forma aditiva,
+somando $M$ árvores de decisão simples (*weak learners*) treinadas em sequência,
+cada uma corrigindo o erro que sobrou da anterior:
+$$
+\hat{y}_i^{(0)} = 0, \qquad \hat{y}_i^{(m)} = \hat{y}_i^{(m-1)} + \eta\, f_m(\mathbf{x}_i), \qquad m = 1,\dots,M,
+$$
+onde $\eta\in(0,1]$ é a **taxa de aprendizagem** (*learning rate*/*shrinkage*):
+passos pequenos exigem mais árvores, mas generalizam melhor (menos overfitting).
 
-### 4.3 O mapa das famílias (cada uma resolve uma dor)
+O **XGBoost** [@chen2016] formaliza o ajuste de cada árvore $f_m$ como a
+minimização de uma função objetivo **regularizada**,
+$$
+\mathcal{L}^{(m)} = \sum_{i=1}^n \ell\big(y_i,\, \hat{y}_i^{(m-1)} + f_m(\mathbf{x}_i)\big) + \Omega(f_m), \qquad
+\Omega(f) = \gamma T + \tfrac{1}{2}\lambda \sum_{j=1}^{T} w_j^2,
+$$
+com $T$ o número de folhas da árvore, $w_j$ o valor previsto em cada folha, e
+$\gamma,\lambda$ penalizando árvores grandes e pesos extremos — o análogo, em
+ML, à parcimônia que o AIC impõe no ARIMA.
+
+Para otimizar rápido qualquer $\ell$ diferenciável, o XGBoost expande
+$\mathcal{L}^{(m)}$ em **série de Taylor de 2ª ordem** ao redor de $\hat y^{(m-1)}$:
+$$
+\mathcal{L}^{(m)} \approx \sum_{i=1}^n \Big[g_i\, f_m(\mathbf{x}_i) + \tfrac12 h_i\, f_m(\mathbf{x}_i)^2\Big] + \Omega(f_m),
+\qquad g_i = \partial_{\hat y}\ell(y_i,\hat y_i^{(m-1)}),\;\; h_i = \partial^2_{\hat y}\ell(y_i,\hat y_i^{(m-1)}),
+$$
+gradiente e hessiana da perda ($\ell$) — daí o apelido de *Newton boosting*.
+Para erro quadrático, $g_i=\hat y_i^{(m-1)}-y_i$ e $h_i=1$, recuperando o
+gradient boosting clássico como caso particular.
+
+Fixada a estrutura da árvore, com $I_j$ as observações que caem na folha $j$, o
+peso ótimo e o objetivo mínimo têm **forma fechada**:
+$$
+w_j^\ast = -\frac{\sum_{i\in I_j} g_i}{\sum_{i\in I_j} h_i + \lambda}, \qquad
+\mathcal{L}^\ast = -\tfrac12\sum_{j=1}^{T} \frac{\big(\sum_{i\in I_j}g_i\big)^2}{\sum_{i\in I_j}h_i+\lambda} + \gamma T.
+$$
+Essa mesma expressão decide **onde dividir** cada nó: o algoritmo escolhe a
+variável e o limiar que maximizam o **ganho** — a redução de $\mathcal{L}^\ast$
+ao separar o nó pai ($I = I_L \cup I_R$) em dois filhos,
+$$
+\text{Gain} = \tfrac12\left[\frac{(\sum_{I_L}g_i)^2}{\sum_{I_L}h_i+\lambda} + \frac{(\sum_{I_R}g_i)^2}{\sum_{I_R}h_i+\lambda} - \frac{(\sum_{I}g_i)^2}{\sum_{I}h_i+\lambda}\right] - \gamma.
+$$
+Um split só é aceito se o ganho superar $\gamma$ — é assim que o XGBoost **poda**
+divisões que não compensam a complexidade adicionada.
+
+Na prática (ver §8): $M=200$ árvores (`n_estimators`), profundidade máxima 3
+(`max_depth` — limita quantas variáveis interagem por árvore), $\eta=0.05$
+(`learning_rate`), e como atributos as defasagens $y_{t-1}, y_{t-2}, y_{t-4},
+y_{t-52}$ mais as exógenas (Fourier, Niño, câmbio) candidatas a cada split.
+Diferente do ARIMA(X), árvores **não extrapolam** tendência ou sazonalidade
+fora do range visto em treino (preveem médias dentro de partições) — por isso
+os termos de Fourier (determinísticos, logo sempre "conhecidos") são o que dá
+sazonalidade ao XGBoost, e a previsão multi-passo é **recursiva**: cada horizonte
+usa as previsões dos horizontes anteriores como parte dos lags. Isso também
+explica por que XGBoost e AutoARIMA erram de formas diferentes — e por que a
+combinação dos dois (§4.5) tende a reduzir o erro combinado.
+
+### 4.3 Redes neurais para séries temporais: NHITS
+
+O **NHITS** (*Neural Hierarchical Interpolation for Time Series*) [@challu2023]
+é o sucessor do N-BEATS e, ao contrário do que o rótulo "rede neural" sugere,
+não usa recorrência (LSTM) nem atenção (Transformer): é uma pilha de **MLPs
+simples** organizada por duas ideias — decomposição por frequência e
+interpolação hierárquica. A previsão é **direta multi-horizonte**: os $H$
+passos saem de uma só vez, sem realimentar previsão como insumo (ao contrário
+do XGBoost recursivo do §4.2, que propaga erro de um horizonte para o outro).
+
+**Arquitetura em stacks e resíduos.** A rede tem $S$ *stacks* em série. O
+stack $s$ recebe o que sobrou da janela de entrada após os stacks anteriores
+(mecanismo de *backcast* residual, como no boosting: cada estágio modela o
+resíduo do anterior) e produz duas saídas — uma reconstrução do passado
+($\tilde{\mathbf{y}}^{(s)}$, *backcast*) e uma contribuição para o futuro
+($\hat{\mathbf{y}}^{(s)}$, *forecast*):
+
+$$
+\mathbf{r}^{(s)} = \mathbf{r}^{(s-1)} - \tilde{\mathbf{y}}^{(s)}, \qquad
+\hat{\mathbf{y}} = \sum_{s=1}^{S} \hat{\mathbf{y}}^{(s)},
+$$
+
+com $\mathbf{r}^{(0)}$ = janela de entrada (no nosso caso, $L=104$ semanas).
+
+**Decomposição por frequência (amostragem multi-taxa).** Antes do MLP, cada
+stack aplica um *max-pooling* com núcleo $k_s$ sobre sua entrada:
+
+$$
+\mathbf{r}^{(s)}_{\text{pool}} = \mathrm{MaxPool}\big(\mathbf{r}^{(s)},\, k_s\big),
+\qquad k_1 > k_2 > \dots > k_S .
+$$
+
+O primeiro stack (núcleo grande) só enxerga a série "borrada" — movimentos
+lentos, tendência; os seguintes veem resoluções progressivamente mais finas
+(ciclos e, por fim, o detalhe semanal). É o análogo neural de uma decomposição
+tendência + sazonalidade + resto, mas **aprendida dos dados, sem impor período
+fixo** — atrativo em preços agrícolas, em que o calendário de colheita desloca
+de um ano para outro e um período 52 rígido descreve mal a sazonalidade real.
+
+**Interpolação hierárquica.** Em vez de prever os $H$ horizontes ponto a
+ponto, o MLP do stack $s$ produz apenas $\lceil r_s H\rceil$ "nós"
+($r_s\le 1$ é a *razão de expressividade*), e a trajetória completa é obtida
+por **interpolação** entre eles:
+
+$$
+\hat{y}^{(s)}_{t+h} = \mathrm{Interp}\big(h;\ \boldsymbol{\theta}^{(s)}\big),
+\qquad \boldsymbol{\theta}^{(s)} = \mathrm{MLP}^{(s)}\big(\mathbf{r}^{(s)}_{\text{pool}}\big),
+$$
+
+com $r_s$ pequeno nos stacks de baixa frequência (poucos nós → curva suave) e
+maior nos de alta. Isso força suavidade em cada escala e reduz o número de
+parâmetros de saída — regularização estrutural que é justamente o que se busca
+em séries curtas, pelo argumento clássico de viés × variância (§5.1).
+
+**Resultado neste estudo.** O NHITS foi avaliado no mesmo rolling-origin dos
+demais modelos, com reestimação em cada uma das 20 origens, e **ficou atrás de
+todos** — inclusive do XGBoost (§11, item 6). A regularização estrutural
+descrita acima não compensou a escala do modelo: são ~2,7 milhões de parâmetros
+para ~750 observações por série. O caso é ilustrativo do §5.1: sofisticação
+arquitetural não substitui parcimônia quando a razão sinal/ruído é baixa e a
+amostra é curta. Redes desse tipo voltariam a fazer sentido num painel maior
+(mais variedades e praças), treinando um modelo global que compartilha padrões
+entre séries.
+
+### 4.4 O mapa das famílias (cada uma resolve uma dor)
 
 | Dor | Família |
 |---|---|
@@ -201,7 +315,7 @@ tem justificativa própria: é o chamado *forecast combination puzzle* — pesos
 estimados carregam erro de estimação e, em amostras curtas, perdem
 sistematicamente para a média simples [@smith2009].
 
-### 4.4 Transformações modelo-específicas (*mixed-transform ensemble*)
+### 4.5 Transformações modelo-específicas (*mixed-transform ensemble*)
 
 Modelos distintos podem se beneficiar de **transformações diferentes da mesma
 variável**. O ARIMA(X) trata a não-estacionariedade internamente (o parâmetro $d$
@@ -946,7 +1060,7 @@ for uid in ["palmer", "tommy"]:
 
 1. ~~**Câmbio: nível vs. diferença.**~~ **Resolvido** — adotado *câmbio misto*:
    AutoARIMA usa nível, XGBoost usa diferença semanal. Ganho: combinação de previsões Palmer
-   −4,7% de RMSE (ver §4.4).
+   −4,7% de RMSE (ver §4.5).
 2. ~~**Variáveis climáticas (lag 16).**~~ **Resolvido** — `hot_days_lag16` na
    Palmer e `cold_days_lag16 + rainfall_lag16` na Tommy, validados no rolling-origin.
    Ganho adicional: Palmer −1,4%, Tommy −2,5% de RMSE (ver §3.1).
@@ -974,15 +1088,15 @@ for uid in ["palmer", "tommy"]:
    na Tommy (dentro do ruído); e o Theta dinâmico (DOT) como terceiro membro do ensemble
    degradou fortemente (−40% RMSE isolado na Tommy). **Alvo aberto para trabalho futuro:**
    melhorar a acurácia direcional nas janelas de tendência da Palmer (59%).
-6. **Redes neurais — testadas e descartadas.** Um NHITS (`neuralforecast`) foi
-   avaliado no mesmo rolling-origin (20 origens, refit em cada uma) e ficou atrás
-   de todos os modelos, inclusive do XGBoost: RMSE 0,98 na Palmer e 1,13 na Tommy
-   (vs. 0,77 e 0,85 do AutoARIMA), com MAPE acima de 38%. Com ~2,7 milhões de
-   parâmetros para ~750 observações por série, a rede sobreajusta — confirma a
-   leitura do §5.1 (viés × variância) de que, em série curta e ruidosa, modelos
-   simples e regularizados vencem. Redes neurais voltam a fazer sentido se, no
-   futuro, o painel crescer (mais variedades/mercados) para treinar um modelo
-   global compartilhando padrões entre séries.
+6. **Redes neurais — testadas e descartadas.** Um NHITS (`neuralforecast`;
+   arquitetura descrita no §4.3) foi avaliado no mesmo rolling-origin (20 origens,
+   refit em cada uma) e ficou atrás de todos os modelos, inclusive do XGBoost:
+   RMSE 0,98 na Palmer e 1,13 na Tommy (vs. 0,77 e 0,85 do AutoARIMA), com MAPE
+   acima de 38%. Com ~2,7 milhões de parâmetros para ~750 observações por série,
+   a rede sobreajusta — confirma a leitura do §5.1 (viés × variância) de que, em
+   série curta e ruidosa, modelos simples e regularizados vencem. Redes neurais
+   voltam a fazer sentido se, no futuro, o painel crescer (mais variedades/
+   mercados) para treinar um modelo global compartilhando padrões entre séries.
 7. **Quebras estruturais.** O §2 lista quebras de regime (novos pomares, mercados
    de exportação) como fonte de erro, mas a hipótese nunca foi testada formalmente.
    O procedimento de Bai-Perron [@bai2003] permite datar quebras múltiplas na
