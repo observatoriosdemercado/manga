@@ -20,6 +20,7 @@ format:
     fig-align: center
     df-print: paged
     fontsize: 13pt
+bibliography: referencias.bib
 theme:
   light: flatly
 execute:
@@ -39,9 +40,10 @@ jupyter: manga-nixtla
 ## 1. Por que prever preços é difícil
 
 O motivo mais profundo é quase filosófico: **o preço de hoje já incorpora tudo o
-que o mercado sabe e espera.** Se fosse óbvio que o preço subiria na próxima
-semana, os agentes comprariam já, e a alta aconteceria agora. Esse mecanismo
-empurra os preços para perto de um **passeio aleatório** (*random walk*):
+que o mercado sabe e espera** [@samuelson1965; @fama1970]. Se fosse óbvio que o
+preço subiria na próxima semana, os agentes comprariam já, e a alta aconteceria
+agora. Esse mecanismo empurra os preços para perto de um **passeio aleatório**
+(*random walk*):
 
 $$
 P_{t+1} = P_t + \varepsilon_{t+1}, \qquad \mathbb{E}[\varepsilon_{t+1}\mid \mathcal{I}_t]=0
@@ -68,8 +70,9 @@ Sobre o problema geral, a manga acrescenta características que tornam o caso qu
 extremo:
 
 1. **Perecibilidade → sem estoque, sem arbitragem.** Grãos se guardam em silo, e o
-   estoque amortece o preço entre safras. Manga **se vende ou se perde**. Sem esse
-   colchão, o preço precisa equilibrar oferta e demanda *na semana*.
+   estoque amortece o preço entre safras — é o mecanismo central da teoria do
+   armazenamento de commodities [@deaton1992]. Manga **se vende ou se perde**. Sem
+   esse colchão, o preço precisa equilibrar oferta e demanda *na semana*.
 2. **Oferta e demanda inelásticas no curto prazo.** Sendo $\eta$ a elasticidade-preço,
    uma variação de quantidade se traduz em variação de preço aproximadamente por
    $$\%\Delta P \approx \frac{1}{\eta}\,\%\Delta Q.$$
@@ -126,6 +129,8 @@ que a resposta climática não é simétrica entre cultivares.
   safra deles cai (nov–abr) → puxão de exportação sobre o Brasil. **O gatilho é
   relativo**: usa-se a **anomalia** de temperatura do inverno (lag ~6 meses), que
   converge com o índice oceânico Niño 1+2 (e este é *previsível* meses à frente).
+  O papel do ENSO como preditor de preços de commodities agrícolas é documentado
+  sistematicamente por @ubilava2018.
 - **África (Costa do Marfim, Senegal…) — despriorizada.** Janela quase
   complementar (primavera do HN) e gargalo majoritariamente fitossanitário, não
   climático.
@@ -144,7 +149,7 @@ simultaneamente).
 
 ### 4.1 ARIMA e a sazonalidade por Fourier
 
-Um **ARIMA(p,d,q)** escreve-se, com $L$ o operador de defasagem,
+Um **ARIMA(p,d,q)** [@box2015] escreve-se, com $L$ o operador de defasagem,
 $$
 \phi(L)\,(1-L)^d y_t = \theta(L)\,\varepsilon_t,
 $$
@@ -160,8 +165,8 @@ $$
 **Sazonalidade.** Em dados semanais o período é $m=52$. Um SARIMA sazonal clássico
 $(P,D,Q)_{52}$ é problemático (a diferenciação sazonal descarta um ano de dados; um
 termo no lag 52 não descreve uma curva anual suave; o espaço de estados fica enorme).
-A alternativa recomendada é a **regressão harmônica dinâmica**: sazonalidade
-determinística por **termos de Fourier** como exógenas,
+A alternativa recomendada é a **regressão harmônica dinâmica** [@hyndman2021]:
+sazonalidade determinística por **termos de Fourier** como exógenas,
 $$
 s_t=\sum_{k=1}^{K}\Big[\alpha_k\sin\!\Big(\tfrac{2\pi k\, d_t}{365.25}\Big)+\beta_k\cos\!\Big(\tfrac{2\pi k\, d_t}{365.25}\Big)\Big],
 $$
@@ -169,8 +174,8 @@ com $d_t$ = dia do ano. Poucos harmônicos ($K=1$ ou $2$) costumam bastar.
 
 ### 4.2 Modelos de Machine Learning
 
-Modelos como **gradient boosting** (LightGBM/XGBoost) aprendem $f$ de forma não
-linear a partir de atributos construídos (defasagens, janelas móveis, calendário).
+Modelos como **gradient boosting** [@friedman2001; @chen2016] aprendem $f$ de forma
+não linear a partir de atributos construídos (defasagens, janelas móveis, calendário).
 Brilham em **não linearidades e interações de limiar** (ex.: "preço alto **e**
 floração pesada há 16 semanas → espera queda"), mas precisam de previsão
 **recursiva** para múltiplos passos e são mais propensos a sobreajuste.
@@ -189,7 +194,12 @@ floração pesada há 16 semanas → espera queda"), mas precisam de previsão
 **Estatística × ML não são rivais — são complementares.** O ARIMAX dá
 interpretação e intervalos; o boosting capta não linearidades. A **combinação de
 previsões** (*ensemble*, média das saídas individuais) costuma bater cada modelo
-isolado, por reduzir variância.
+isolado, por reduzir variância — resultado clássico desde @bates1969, consolidado
+em @timmermann2006 e confirmado em larga escala na competição M4 [@makridakis2020].
+A escolha de **pesos iguais** (média simples) em vez de pesos "ótimos" estimados
+tem justificativa própria: é o chamado *forecast combination puzzle* — pesos
+estimados carregam erro de estimação e, em amostras curtas, perdem
+sistematicamente para a média simples [@smith2009].
 
 ### 4.4 Transformações modelo-específicas (*mixed-transform ensemble*)
 
@@ -235,7 +245,7 @@ treino/teste é ruído: pode ser sorte.
 ### 5.3 Rolling-origin (validação de origem móvel)
 
 A avaliação honesta reestima o modelo em **várias origens** sucessivas e mede o
-erro fora da amostra em cada uma:
+erro fora da amostra em cada uma [@tashman2000; @bergmeir2012]:
 
 ```
 treino ──────────────|■■■■■■■■|                  (origem 1)
@@ -254,6 +264,17 @@ $$
 \mathrm{MAPE}=\tfrac{100}{N}\textstyle\sum \big|\tfrac{y_t-\hat y_t}{y_t}\big|.
 $$
 
+O MAPE tem limitações conhecidas: é assimétrico (penaliza mais a superestimação)
+e explode quando o preço se aproxima de zero [@hyndman2006]. Por isso reportamos
+também o **MASE** (*Mean Absolute Scaled Error*), que escala o erro absoluto pelo
+erro do *naive sazonal* dentro da amostra:
+$$
+\mathrm{MASE}=\frac{\tfrac{1}{N}\sum_t |y_t-\hat y_t|}{\tfrac{1}{T-m}\sum_{t=m+1}^{T} |y_t-y_{t-m}|},
+\qquad m=52.
+$$
+MASE < 1 significa que o modelo erra menos, em média, do que repetir o preço da
+mesma semana do ano anterior.
+
 E, crucialmente para preços, a **acurácia direcional** (acertou o *sentido* da
 mudança em relação ao último valor observado, $y_{c}$, no instante de origem):
 $$
@@ -268,6 +289,30 @@ $$
 $$
 mecanismo essencial quando há muitas exógenas candidatas e poucos dados.
 
+### 5.6 Diferenças de acurácia são significativas? (DM e PT)
+
+Comparar RMSEs médios não basta: com poucas janelas de avaliação, uma diferença
+de 2–3% pode ser sorte. Duas ferramentas formais:
+
+**Teste de Diebold-Mariano (DM).** Para dois modelos com erros $e_{1t}$ e
+$e_{2t}$, define-se o diferencial de perda $d_t = e_{1t}^2 - e_{2t}^2$ e
+testa-se $H_0:\mathbb{E}[d_t]=0$ com a estatística
+$$
+\mathrm{DM}=\frac{\bar d}{\sqrt{\widehat{\mathrm{Var}}(\bar d)}},
+$$
+em que a variância de $\bar d$ usa correção HAC (os erros de previsão
+multi-passo são autocorrelacionados por construção até a ordem $h-1$)
+[@diebold1995]. Em amostras pequenas aplica-se a correção de
+Harvey-Leybourne-Newbold, que ajusta a estatística e usa a distribuição
+$t_{n-1}$ em vez da normal [@harvey1997].
+
+**Teste de Pesaran-Timmermann (PT).** Para a acurácia direcional, o benchmark
+correto não é 50%: se a série sobe em 60% das semanas, um "modelo" que sempre
+prevê alta acerta 60% sem valor preditivo algum. O teste PT compara a taxa de
+acerto observada com a esperada sob independência entre direção prevista e
+realizada, dado o desbalanceamento de cada uma [@pesaran1992]. Rejeitar $H_0$
+significa que o modelo tem conteúdo direcional genuíno.
+
 ## 6. O problema das viradas
 
 Modelos baseados em histórico de preço são **extrapoladores de momentum**: se está
@@ -281,6 +326,12 @@ A virada de chave: em **agricultura**, a inflexão é quase sempre um evento de
 calendário dos outros polos, anomalia do Peru). **É justamente na virada que as
 exógenas de oferta podem agregar** — e, como seu valor se concentra em poucos
 pontos, o **RMSE médio o esconde**. Por isso medimos também **acurácia direcional**.
+
+*Nota empírica:* a validação por tipo de janela (§9, §11) confirmou o mecanismo,
+mas inverteu o diagnóstico esperado — com as exógenas de oferta no modelo, as
+viradas são razoavelmente bem antecipadas; o resíduo de erro direcional
+concentra-se nas janelas de **persistência de tendência**, em que o modelo por
+vezes antecipa uma inflexão que ainda não veio.
 
 ---
 
@@ -401,6 +452,49 @@ plot = (
 plot.show()
 ```
 
+### 7.1 Descrição dos dados e estatísticas
+
+Os preços são **médias semanais recebidas pelo produtor** no polo
+Petrolina-PE/Juazeiro-BA (Vale do São Francisco), por variedade, coletados pelo
+**CEPEA-Esalq/USP** (Centro de Estudos Avançados em Economia Aplicada). Todos os
+valores são **deflacionados pelo IGP-DI** (FGV) para reais da última observação
+— para séries longas, trabalhar em termos reais evita confundir tendência
+inflacionária com dinâmica do mercado de manga. A convenção temporal adota os
+52 primeiros sábados de cada ano (a eventual 53ª semana é tratada pelo índice
+inteiro de tempo, robusto a "buracos" no calendário).
+
+A tabela abaixo reporta estatísticas descritivas e testes de raiz unitária.
+O ADF testa $H_0$: raiz unitária [@dickey1979]; o KPSS testa a hipótese oposta,
+$H_0$: estacionariedade [@kwiatkowski1992] — usá-los em conjunto evita conclusões
+frágeis de um único teste. A decisão de diferenciação no pipeline permanece
+interna ao AutoARIMA (parâmetro $d$, escolhido por testes sequenciais); a tabela
+documenta a evidência que fundamenta essa escolha.
+
+```{python}
+from statsmodels.tsa.stattools import adfuller, kpss
+
+desc = []
+for uid in ["palmer", "tommy"]:
+    s = df[df["unique_id"] == uid].dropna(subset=["y"]).set_index("fecha")["y"]
+    adf_p  = adfuller(s, autolag="AIC")[1]
+    kpss_p = kpss(s, regression="c", nlags="auto")[1]
+    adf_d  = adfuller(s.diff().dropna(), autolag="AIC")[1]
+    desc.append({
+        "Variedade": uid, "N": len(s),
+        "Início": s.index.min().strftime("%Y-%m"),
+        "Fim": s.index.max().strftime("%Y-%m"),
+        "Média": s.mean(), "DP": s.std(),
+        "Mín": s.min(), "Máx": s.max(), "CV (%)": 100 * s.std() / s.mean(),
+        "ADF p (nível)": adf_p, "KPSS p (nível)": kpss_p, "ADF p (Δy)": adf_d})
+
+(GT(pd.DataFrame(desc))
+ .tab_header(title="Estatísticas descritivas — preço real (R$/kg)",
+             subtitle="ADF: H0 = raiz unitária | KPSS: H0 = estacionariedade "
+                      "(p do KPSS é limitado ao intervalo tabulado [0,01; 0,10])")
+ .fmt_number(columns=["Média", "DP", "Mín", "Máx", "CV (%)"], decimals=2)
+ .fmt_number(columns=["ADF p (nível)", "KPSS p (nível)", "ADF p (Δy)"], decimals=3))
+```
+
 ## 8. Modelos e validação rolling-origin
 
 Quatro competidores por variedade: **naive sazonal** (baseline), **AutoARIMA** (com
@@ -431,10 +525,11 @@ sobre essas 20 avaliações fora da amostra** — não de uma única divisão
 treino/teste, que seria estatisticamente ruidosa (ver §5.2).
 
 ```{python}
-def metr(y, p, yc):
+def metr(y, p, yc, escala_mase):
     err = p - y
     return (float(np.sqrt((err ** 2).mean())),
             float((np.abs(err) / y).mean() * 100),
+            float(np.abs(err).mean() / escala_mase),
             float((np.sign(p - yc) == np.sign(y - yc)).mean() * 100))
 
 
@@ -460,13 +555,15 @@ def exog_futuro(sub, sf_cols, ml_cols):
     return pd.DataFrame(linhas)
 
 
-metricas, previsoes = [], []
+metricas, previsoes, cvs, escalas = [], [], {}, {}
 for uid in ["palmer", "tommy"]:
     sf_cols = EXOG_SF[uid]
     ml_cols = EXOG_ML[uid]
     all_cols = list(dict.fromkeys(sf_cols + ml_cols))
     sub = df[df["unique_id"] == uid].dropna(subset=all_cols + ["y"]).reset_index(drop=True)
     refy = sub.set_index("ds")["y"]
+    # escala do MASE: MAE do naive sazonal (m=52) dentro da amostra
+    escalas[uid] = float(sub["y"].diff(52).abs().mean())
 
     # --- rolling-origin ---
     sf = StatsForecast(models=[SeasonalNaive(season_length=52), AutoARIMA(season_length=1)],
@@ -474,7 +571,8 @@ for uid in ["palmer", "tommy"]:
     cv_sf = sf.cross_validation(df=sub[["unique_id", "ds", "y"] + sf_cols],
                                 h=H, n_windows=N_WIN, step_size=STEP)
     mlf = MLForecast(models={"XGBoost": xgb.XGBRegressor(
-        n_estimators=200, max_depth=3, learning_rate=0.05, verbosity=0)},
+        n_estimators=200, max_depth=3, learning_rate=0.05, verbosity=0,
+        random_state=42)},
         freq=1, lags=[1, 2, 4, 52])
     cv_ml = mlf.cross_validation(df=sub[["unique_id", "ds", "y"] + ml_cols],
                                  h=H, n_windows=N_WIN, step_size=STEP, static_features=[])
@@ -482,10 +580,11 @@ for uid in ["palmer", "tommy"]:
                      on=["unique_id", "ds", "cutoff"])
     cv["Ensemble"] = (cv["AutoARIMA"] + cv["XGBoost"]) / 2
     cv["yc"] = cv["cutoff"].map(refy)
+    cvs[uid] = cv        # guardado para os testes DM/PT (§9.2) e calibração (§10)
     for m in ["SeasonalNaive", "AutoARIMA", "XGBoost", "Ensemble"]:
-        r = metr(cv["y"].values, cv[m].values, cv["yc"].values)
-        metricas.append({"Variedade": uid, "Modelo": m,
-                         "RMSE": r[0], "MAPE (%)": r[1], "Dir.Acc (%)": r[2]})
+        r = metr(cv["y"].values, cv[m].values, cv["yc"].values, escalas[uid])
+        metricas.append({"Variedade": uid, "Modelo": m, "RMSE": r[0],
+                         "MAPE (%)": r[1], "MASE": r[2], "Dir.Acc (%)": r[3]})
 
     # --- previsão fora da amostra + intervalos conformais ---
     Xf = exog_futuro(sub, sf_cols, ml_cols)
@@ -502,8 +601,9 @@ for uid in ["palmer", "tommy"]:
 resumo = pd.DataFrame(metricas).sort_values(["Variedade", "RMSE"]).reset_index(drop=True)
 (GT(resumo)
  .tab_header(title="Acurácia em rolling-origin (exógenas por variedade)",
-             subtitle=f"h={H} semanas, {N_WIN} origens, passo {STEP} (menor RMSE/MAPE = melhor)")
- .fmt_number(columns=["RMSE", "MAPE (%)", "Dir.Acc (%)"], decimals=2))
+             subtitle=f"h={H} semanas, {N_WIN} origens, passo {STEP} "
+                      "(menor RMSE/MAPE/MASE = melhor; MASE < 1 = bate o naive sazonal)")
+ .fmt_number(columns=["RMSE", "MAPE (%)", "MASE", "Dir.Acc (%)"], decimals=2))
 ```
 
 ## 9. Resultados e interpretação
@@ -544,9 +644,12 @@ ganho = ganho.round(1).reset_index()
   semanas (floração → colheita) provam ser previsíveis e informativos — diferente dos
   sinais de curto prazo (antracnose em 3–6 semanas), que permanecem fora do alcance
   neste horizonte.
-- A **acurácia direcional** ficou em torno de 63–64% para a Palmer e 68–74% para a
-  Tommy — as **viradas** continuam o ponto mais difícil (§6), mas as exógenas de
-  oferta e clima contribuem modestamente para antecipá-las.
+- A **acurácia direcional** ficou em torno de 63–66% para a Palmer e 68–76% para a
+  Tommy. Ao contrário do que a teoria sugere (§6), a análise por tipo de janela
+  (ver §11, item 5) mostrou que as **viradas** são razoavelmente bem antecipadas
+  (69–71% de acerto direcional) — as exógenas de oferta e clima cumprem esse papel.
+  O ponto fraco da Palmer está nas janelas de **tendência** (59%): o modelo por
+  vezes prevê a inflexão cedo demais, errando semanas em que a tendência persiste.
 
 ### 9.1 Diagnóstico de ajuste dentro da amostra
 
@@ -594,7 +697,8 @@ for uid in ["palmer", "tommy"]:
 
     mlf_is = MLForecast(
         models={"XGBoost": xgb.XGBRegressor(
-            n_estimators=200, max_depth=3, learning_rate=0.05, verbosity=0)},
+            n_estimators=200, max_depth=3, learning_rate=0.05, verbosity=0,
+            random_state=42)},
         freq=1, lags=[1, 2, 4, 52])
     mlf_is.fit(sub[["unique_id", "ds", "y"] + ml_cols], static_features=[], fitted=True)
     iml = mlf_is.forecast_fitted_values()
@@ -624,9 +728,96 @@ for uid in ["palmer", "tommy"]:
     plot.show()
 ```
 
+### 9.2 Significância estatística das diferenças (DM e PT)
+
+As diferenças de RMSE da tabela do §8 são formalmente testadas com
+**Diebold-Mariano** (correção de Harvey-Leybourne-Newbold, variância HAC com
+defasagem $h-1=7$ — os erros multi-passo são autocorrelacionados por construção;
+como as janelas se sobrepõem parcialmente, os p-valores devem ser lidos como
+aproximações conservadoras). A **acurácia direcional** é testada com
+**Pesaran-Timmermann** contra a hipótese de ausência de conteúdo direcional.
+
+```{python}
+from scipy import stats
+
+
+def dm_hln(e1, e2, h):
+    """Diebold-Mariano (perda quadrática) com correção HLN e HAC-Bartlett."""
+    d = e1**2 - e2**2
+    n = len(d)
+    dbar = float(d.mean())
+    dc = d - dbar
+    var = float(dc @ dc) / n
+    for k in range(1, h):
+        var += 2 * (1 - k / h) * float(dc[k:] @ dc[:-k]) / n
+    dm = dbar / np.sqrt(var / n)
+    hln = dm * np.sqrt((n + 1 - 2 * h + h * (h - 1) / n) / n)
+    return float(hln), float(2 * stats.t.sf(abs(hln), df=n - 1))
+
+
+def pt_test(pred, real, yc):
+    """Pesaran-Timmermann (unilateral) para direção vs. último observado."""
+    x = (pred > yc).astype(float)
+    y = (real > yc).astype(float)
+    n = len(x)
+    px, py = x.mean(), y.mean()
+    phat = float((x == y).mean())
+    pstar = px * py + (1 - px) * (1 - py)
+    v_hat = pstar * (1 - pstar) / n
+    v_star = ((2 * py - 1)**2 * px * (1 - px) + (2 * px - 1)**2 * py * (1 - py)
+              + 4 * px * py * (1 - px) * (1 - py) / n) / n
+    if v_hat - v_star <= 0:
+        return np.nan, np.nan
+    z = (phat - pstar) / np.sqrt(v_hat - v_star)
+    return float(z), float(stats.norm.sf(z))
+
+
+COMPARACOES = [("AutoARIMA", "SeasonalNaive"), ("XGBoost", "SeasonalNaive"),
+               ("Ensemble", "SeasonalNaive"), ("Ensemble", "AutoARIMA")]
+linhas_dm, linhas_pt = [], []
+for uid in ["palmer", "tommy"]:
+    cv = cvs[uid].sort_values(["cutoff", "ds"]).reset_index(drop=True)
+    for m1, m2 in COMPARACOES:
+        e1 = (cv[m1] - cv["y"]).values
+        e2 = (cv[m2] - cv["y"]).values
+        t, p = dm_hln(e1, e2, H)
+        linhas_dm.append({"Variedade": uid, "Comparação": f"{m1} vs {m2}",
+                          "DM (HLN)": t, "p-valor": p,
+                          "Conclusão": ("primeiro melhor" if t < 0 else "segundo melhor")
+                                       + (" *" if p < 0.10 else " (n.s.)")})
+    for m in ["AutoARIMA", "XGBoost", "Ensemble"]:
+        z, p = pt_test(cv[m].values, cv["y"].values, cv["yc"].values)
+        linhas_pt.append({"Variedade": uid, "Modelo": m, "PT (z)": z, "p-valor": p,
+                          "Conteúdo direcional": "sim *" if p < 0.10 else "não comprovado"})
+
+(GT(pd.DataFrame(linhas_dm))
+ .tab_header(title="Teste de Diebold-Mariano (perda quadrática, HLN)",
+             subtitle="DM < 0 favorece o primeiro modelo; * = significativo a 10%")
+ .fmt_number(columns=["DM (HLN)", "p-valor"], decimals=3))
+```
+
+```{python}
+(GT(pd.DataFrame(linhas_pt))
+ .tab_header(title="Teste de Pesaran-Timmermann (acurácia direcional)",
+             subtitle="H0: direção prevista independente da realizada; * = significativo a 10%")
+ .fmt_number(columns=["PT (z)", "p-valor"], decimals=3))
+```
+
+Com apenas 20 origens, o poder dos testes é limitado — diferenças pequenas de
+RMSE dificilmente serão significativas, e isso é informativo por si só: ganhos
+que não passam no DM não devem ser vendidos como superioridade de modelo, e é
+por esse critério que variantes testadas (cobweb, momentum, quantílico) foram
+descartadas nos §11.
+
 ## 10. Previsão fora da amostra
 
-Reestimado com toda a amostra; intervalos **conformais** (livres de distribuição).
+Reestimado com toda a amostra; intervalos **conformais** — livres de distribuição,
+com garantia de cobertura sob a hipótese de trocabilidade dos erros [@vovk2005].
+Para os modelos individuais usam-se as implementações nativas do ecossistema
+Nixtla; para a **combinação de previsões**, o intervalo é obtido por
+**conformalização direta dos erros do próprio ensemble** no rolling-origin do §8
+(quantis por horizonte dos erros absolutos fora da amostra) — e não pela média
+das bandas individuais, que não teria garantia formal.
 
 Coerente com a discussão do §6 — o modelo não acerta o ponto, e fingir que acerta
 ("o preço da semana 752 será R\$ 2,05") é uma falsa precisão. Por isso a entrega
@@ -643,13 +834,22 @@ fc = pd.concat(previsoes, ignore_index=True)
 hist = (df.dropna(subset=["y"]).groupby("unique_id").tail(52)
         [["unique_id", "fecha", "y"]].rename(columns={"y": "valor"}))
 
-# Bandas da combinação de previsões (média das bandas conformais de cada modelo)
-prev = fc[["unique_id", "fecha", "Ensemble"]].copy()
-prev["lo60"] = (fc["AutoARIMA-lo-60"] + fc["XGBoost-lo-60"]) / 2
-prev["hi60"] = (fc["AutoARIMA-hi-60"] + fc["XGBoost-hi-60"]) / 2
-prev["lo80"] = (fc["AutoARIMA-lo-80"] + fc["XGBoost-lo-80"]) / 2
-prev["hi80"] = (fc["AutoARIMA-hi-80"] + fc["XGBoost-hi-80"]) / 2
-prev = prev.rename(columns={"Ensemble": "valor"})
+# Bandas da combinação: conformalização direta dos erros do ensemble no CV
+# (quantil por horizonte do erro absoluto fora da amostra — split-conformal)
+fc["h"] = fc.groupby("unique_id").cumcount() + 1
+for uid in ["palmer", "tommy"]:
+    cv = cvs[uid]
+    err = np.abs(cv["Ensemble"] - cv["y"])
+    horiz = (cv["ds"] - cv["cutoff"]).astype(int)
+    for nivel in (60, 80):
+        q = err.groupby(horiz).quantile(nivel / 100)
+        m = fc["unique_id"] == uid
+        fc.loc[m, f"Ens-lo-{nivel}"] = fc.loc[m, "Ensemble"] - fc.loc[m, "h"].map(q)
+        fc.loc[m, f"Ens-hi-{nivel}"] = fc.loc[m, "Ensemble"] + fc.loc[m, "h"].map(q)
+
+prev = fc[["unique_id", "fecha", "Ensemble",
+           "Ens-lo-60", "Ens-hi-60", "Ens-lo-80", "Ens-hi-80"]].copy()
+prev.columns = ["unique_id", "fecha", "valor", "lo60", "hi60", "lo80", "hi80"]
 
 plot = (
     p9.ggplot()
@@ -680,11 +880,8 @@ tab = fc[["unique_id", "fecha"]].copy()
 tab["fecha"] = tab["fecha"].dt.strftime("%Y-%m-%d")
 tab["AutoARIMA"] = faixa(fc[f"AutoARIMA-lo-{NIVEL}"], fc[f"AutoARIMA-hi-{NIVEL}"])
 tab["XGBoost"]   = faixa(fc[f"XGBoost-lo-{NIVEL}"],   fc[f"XGBoost-hi-{NIVEL}"])
-# banda da combinação = média das bandas conformais (heurística ilustrativa;
-# as bandas válidas são as conformais de cada modelo individual)
-tab["Combinacao"] = faixa(
-    (fc[f"AutoARIMA-lo-{NIVEL}"] + fc[f"XGBoost-lo-{NIVEL}"]) / 2,
-    (fc[f"AutoARIMA-hi-{NIVEL}"] + fc[f"XGBoost-hi-{NIVEL}"]) / 2)
+# banda da combinação: conformal direta dos erros do ensemble no rolling-origin
+tab["Combinacao"] = faixa(fc[f"Ens-lo-{NIVEL}"], fc[f"Ens-hi-{NIVEL}"])
 
 # direção semana a semana (opção B):
 #   semana 1 → compara com último preço observado
@@ -707,6 +904,44 @@ tab["Direção"] = dirs
              subtitle=f"Próximas {H} semanas — R$/kg"))
 ```
 
+### 10.1 Calibração empírica dos intervalos
+
+Intervalo declarado precisa ser intervalo cumprido: a banda de 60% só é honesta
+se, fora da amostra, ela contiver o preço realizado em ≈60% das vezes. A
+verificação abaixo usa validação *leave-one-window-out* no rolling-origin do §8:
+para cada janela, o quantil conformal é calibrado **apenas com os erros das
+outras 19 janelas** (por horizonte) e testado nos erros da janela excluída —
+nenhuma janela participa da própria calibração. Cobertura empírica próxima da
+nominal valida o mecanismo conformal usado no §10.
+
+```{python}
+def cobertura_loo(cv, modelo, nivel):
+    err   = np.abs(cv[modelo] - cv["y"]).values
+    horiz = (cv["ds"] - cv["cutoff"]).astype(int).values
+    corte = cv["cutoff"].values
+    dentro = []
+    for w in np.unique(corte):
+        for k in np.unique(horiz):
+            cal = err[(corte != w) & (horiz == k)]
+            tst = err[(corte == w) & (horiz == k)]
+            if len(cal) and len(tst):
+                dentro.extend(tst <= np.quantile(cal, nivel / 100))
+    return 100 * float(np.mean(dentro))
+
+
+cob = []
+for uid in ["palmer", "tommy"]:
+    for m in ["AutoARIMA", "XGBoost", "Ensemble"]:
+        cob.append({"Variedade": uid, "Modelo": m,
+                    "Cobertura 60% (%)": cobertura_loo(cvs[uid], m, 60),
+                    "Cobertura 80% (%)": cobertura_loo(cvs[uid], m, 80)})
+
+(GT(pd.DataFrame(cob))
+ .tab_header(title="Cobertura empírica dos intervalos conformais (leave-one-window-out)",
+             subtitle="Valores próximos de 60 e 80 indicam intervalos bem calibrados")
+ .fmt_number(columns=["Cobertura 60% (%)", "Cobertura 80% (%)"], decimals=1))
+```
+
 ## 11. Próximos passos
 
 1. ~~**Câmbio: nível vs. diferença.**~~ **Resolvido** — adotado *câmbio misto*:
@@ -717,16 +952,29 @@ tab["Direção"] = dirs
    Ganho adicional: Palmer −1,4%, Tommy −2,5% de RMSE (ver §3.1).
 3. **Antracnose em horizonte curto.** Reavaliar a chuva (janela 3–6) num modelo de
    $h\le 4$, onde o sinal de doença é previsível.
-4. ~~**Cobweb (preço lag 52 como exógena explícita no AutoARIMA).**~~ **Testado e descartado.**
+4. ~~**Cobweb (preço lag 52 como exógena explícita no AutoARIMA)**~~
+   [@ezekiel1938; @nerlove1958]. **Testado e descartado.**
    Em comparação limpa (mesmo dataset de 702 semanas, XGBoost idêntico nos dois cenários),
    a adição de `y_lag52` no AutoARIMA gerou ganho de apenas +0,2% de RMSE na Palmer e
    +0,3% na Tommy — dentro do ruído de variação entre janelas. Um resultado anterior de
    +2,9% era espúrio (datasets de tamanhos diferentes contaminavam a comparação).
    O mecanismo cobweb pode voltar a ser testado se a série crescer ou se houver
    indicativo teórico mais forte para uma variedade específica.
-5. **Modelos por regime / quantílicos** para as viradas e para intervalos
-   assimétricos.
-5. **Redes neurais — testadas e descartadas.** Um NHITS (`neuralforecast`) foi
+5. ~~**Modelos por regime / quantílicos para as viradas.**~~ **Testados e descartados —
+   com reformulação do diagnóstico.** Classificando cada janela do rolling-origin como
+   *virada* (momentum pré-origem com sinal oposto ao pós-origem) ou *tendência*,
+   descobriu-se que 13/20 (Palmer) e 14/20 (Tommy) das janelas contêm viradas — e que a
+   acurácia direcional **nas viradas já é boa** (69% Palmer, 71% Tommy), superior à das
+   janelas de tendência na Palmer (59%). O ponto fraco real não é antecipar a inflexão,
+   mas **reconhecer a persistência da tendência** — o modelo às vezes prevê a virada
+   *cedo demais* (ex.: semana 29/2026, queda prevista em plena alta). As variantes
+   testadas no mesmo rolling-origin não superaram a especificação atual:
+   *momentum* explícito no XGBoost (médias móveis 4/8 + EWM) piorou o RMSE em −9,8%
+   (Palmer) e −5,5% (Tommy); XGBoost quantílico (mediana) deu +1,2% na Palmer mas −3,7%
+   na Tommy (dentro do ruído); e o Theta dinâmico (DOT) como terceiro membro do ensemble
+   degradou fortemente (−40% RMSE isolado na Tommy). **Alvo aberto para trabalho futuro:**
+   melhorar a acurácia direcional nas janelas de tendência da Palmer (59%).
+6. **Redes neurais — testadas e descartadas.** Um NHITS (`neuralforecast`) foi
    avaliado no mesmo rolling-origin (20 origens, refit em cada uma) e ficou atrás
    de todos os modelos, inclusive do XGBoost: RMSE 0,98 na Palmer e 1,13 na Tommy
    (vs. 0,77 e 0,85 do AutoARIMA), com MAPE acima de 38%. Com ~2,7 milhões de
@@ -735,10 +983,29 @@ tab["Direção"] = dirs
    simples e regularizados vencem. Redes neurais voltam a fazer sentido se, no
    futuro, o painel crescer (mais variedades/mercados) para treinar um modelo
    global compartilhando padrões entre séries.
+7. **Quebras estruturais.** O §2 lista quebras de regime (novos pomares, mercados
+   de exportação) como fonte de erro, mas a hipótese nunca foi testada formalmente.
+   O procedimento de Bai-Perron [@bai2003] permite datar quebras múltiplas na
+   relação preço-sazonalidade; se houver quebra relevante, vale testar janela de
+   estimação encurtada ou pesos decrescentes no tempo.
 
 ::: {.callout-note}
 **Ambiente.** Este documento usa o kernel `manga-nixtla` (Python 3.12 isolado em
 `LOCALAPPDATA`, criado com `uv`). O Python 3.14 do sistema não tem wheels para o
 ecossistema científico. As bases são geradas por `python gerar_clima.py --aplicar`
 (clima) e `python gerar_exogenas.py --aplicar` (câmbio + Niño + anomalia Peru).
+O XGBoost usa `random_state=42`; as versões abaixo garantem reprodutibilidade.
+:::
+
+```{python}
+#| code-fold: true
+import sys, statsforecast, mlforecast, plotnine, statsmodels, scipy
+print(f"Python       {sys.version.split()[0]}")
+for pacote in (np, pd, statsforecast, mlforecast, xgb, plotnine, statsmodels, scipy):
+    print(f"{pacote.__name__:<12} {pacote.__version__}")
+```
+
+## Referências
+
+::: {#refs}
 :::
