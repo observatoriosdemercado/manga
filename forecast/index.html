@@ -2426,6 +2426,7 @@ window.Quarto = {
   <li><a href="#previsão-fora-da-amostra" id="toc-previsão-fora-da-amostra" class="nav-link" data-scroll-target="#previsão-fora-da-amostra">10. Previsão fora da amostra</a>
   <ul class="collapse">
   <li><a href="#calibração-empírica-dos-intervalos" id="toc-calibração-empírica-dos-intervalos" class="nav-link" data-scroll-target="#calibração-empírica-dos-intervalos">10.1 Calibração empírica dos intervalos</a></li>
+  <li><a href="#acompanhamento-contínuo-previsto-observado-semana-a-semana" id="toc-acompanhamento-contínuo-previsto-observado-semana-a-semana" class="nav-link" data-scroll-target="#acompanhamento-contínuo-previsto-observado-semana-a-semana">10.2 Acompanhamento contínuo (previsto × observado, semana a semana)</a></li>
   </ul></li>
   <li><a href="#próximos-passos" id="toc-próximos-passos" class="nav-link" data-scroll-target="#próximos-passos">11. Próximos passos</a></li>
   <li><a href="#referências" id="toc-referências" class="nav-link" data-scroll-target="#referências">Referências</a></li>
@@ -2739,7 +2740,7 @@ treino ────────────────────────�
 <li><strong>Tommy</strong>: Fourier + <strong>Niño</strong> (1+2 e 3.4, lag 26) + <strong>dias frios</strong> ≤16 °C (lag 16, indução da floração) + <strong>chuva acumulada</strong> (lag 16, antracnose/pegamento).</li>
 </ul>
 <p>O câmbio entra só na Palmer (mais exportadora); o AutoARIMA usa o câmbio em <strong>nível</strong> e o XGBoost usa a <strong>variação semanal</strong> (<code>d_eur</code>) — cada modelo recebe a transformação que minimiza o erro fora da amostra (câmbio misto, ver §8). As variáveis climáticas diferem por variedade porque os mecanismos de floração e sensibilidade ao clima são distintos entre Palmer e Tommy (ver §3.1). A autocorrelação do preço é tratada internamente pelo AutoARIMA (parte AR) e pelo XGBoost (defasagens).</p>
-<div id="7928f948" class="cell" data-execution_count="1">
+<div id="24182230" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Código</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings<span class="op">;</span> warnings.filterwarnings(<span class="st">&quot;ignore&quot;</span>)</span>
@@ -2826,7 +2827,7 @@ treino ────────────────────────�
   tommy — XGBoost   : [&#39;sin1&#39;, &#39;cos1&#39;, &#39;sin2&#39;, &#39;cos2&#39;, &#39;nino12_lag26&#39;, &#39;nino34_lag26&#39;, &#39;cold_days_lag16&#39;, &#39;rainfall_lag16&#39;]</code></pre>
 </div>
 </div>
-<div id="eabdbcfc" class="cell" data-execution_count="2">
+<div id="b9c68a3b" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Código</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visão geral das séries (preço real deflacionado)</span></span>
@@ -2852,7 +2853,7 @@ treino ────────────────────────�
 <h3 class="anchored" data-anchor-id="descrição-dos-dados-e-estatísticas">7.1 Descrição dos dados e estatísticas</h3>
 <p>Os preços são <strong>médias semanais recebidas pelo produtor</strong> no polo Petrolina-PE/Juazeiro-BA (Vale do São Francisco), por variedade, coletados pelo <strong>CEPEA-Esalq/USP</strong> (Centro de Estudos Avançados em Economia Aplicada). Todos os valores são <strong>deflacionados pelo IGP-DI</strong> (FGV) para reais da última observação — para séries longas, trabalhar em termos reais evita confundir tendência inflacionária com dinâmica do mercado de manga. A convenção temporal adota os 52 primeiros sábados de cada ano (a eventual 53ª semana é tratada pelo índice inteiro de tempo, robusto a “buracos” no calendário).</p>
 <p>A tabela abaixo reporta estatísticas descritivas e testes de raiz unitária. O ADF testa <span class="math inline">\(H_0\)</span>: raiz unitária <span class="citation" data-cites="dickey1979">(<a href="#ref-dickey1979" role="doc-biblioref">Dickey e Fuller 1979</a>)</span>; o KPSS testa a hipótese oposta, <span class="math inline">\(H_0\)</span>: estacionariedade <span class="citation" data-cites="kwiatkowski1992">(<a href="#ref-kwiatkowski1992" role="doc-biblioref">Kwiatkowski et al. 1992</a>)</span> — usá-los em conjunto evita conclusões frágeis de um único teste. A decisão de diferenciação no pipeline permanece interna ao AutoARIMA (parâmetro <span class="math inline">\(d\)</span>, escolhido por testes sequenciais); a tabela documenta a evidência que fundamenta essa escolha.</p>
-<div id="5bc6cba1" class="cell" data-execution_count="3">
+<div id="e0972388" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Código</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> statsmodels.tsa.stattools <span class="im">import</span> adfuller, kpss</span>
@@ -2879,61 +2880,61 @@ treino ────────────────────────�
 <span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a> .fmt_number(columns<span class="op">=</span>[<span class="st">&quot;ADF p (nível)&quot;</span>, <span class="st">&quot;KPSS p (nível)&quot;</span>, <span class="st">&quot;ADF p (Δy)&quot;</span>], decimals<span class="op">=</span><span class="dv">3</span>))</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="3">
-<div id="dkcneiphax" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="siblexgtev" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#dkcneiphax table {
+#siblexgtev table {
 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 -webkit-font-smoothing: antialiased;
 -moz-osx-font-smoothing: grayscale;
 }
-#dkcneiphax thead, tbody, tfoot, tr, td, th { border-style: none; }
+#siblexgtev thead, tbody, tfoot, tr, td, th { border-style: none; }
 tr { background-color: transparent; }
-#dkcneiphax p { margin: 0; padding: 0; }
-#dkcneiphax .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
-#dkcneiphax .gt_caption { padding-top: 4px; padding-bottom: 4px; }
-#dkcneiphax .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
-#dkcneiphax .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
-#dkcneiphax .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-#dkcneiphax .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#dkcneiphax .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-#dkcneiphax .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
-#dkcneiphax .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
-#dkcneiphax .gt_column_spanner_outer:first-child { padding-left: 0; }
-#dkcneiphax .gt_column_spanner_outer:last-child { padding-right: 0; }
-#dkcneiphax .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
-#dkcneiphax .gt_spanner_row { border-bottom-style: hidden; }
-#dkcneiphax .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
-#dkcneiphax .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
-#dkcneiphax .gt_from_md> :first-child { margin-top: 0; }
-#dkcneiphax .gt_from_md> :last-child { margin-bottom: 0; }
-#dkcneiphax .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
-#dkcneiphax .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
-#dkcneiphax .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
-#dkcneiphax .gt_row_group_first td { border-top-width: 2px; }
-#dkcneiphax .gt_row_group_first th { border-top-width: 2px; }
-#dkcneiphax .gt_striped { color: #333333; background-color: #F4F4F4; }
-#dkcneiphax .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#dkcneiphax .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
-#dkcneiphax .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
-#dkcneiphax .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#dkcneiphax .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
-#dkcneiphax .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
-#dkcneiphax .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
-#dkcneiphax .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#dkcneiphax .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-#dkcneiphax .gt_left { text-align: left; }
-#dkcneiphax .gt_center { text-align: center; }
-#dkcneiphax .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
-#dkcneiphax .gt_font_normal { font-weight: normal; }
-#dkcneiphax .gt_font_bold { font-weight: bold; }
-#dkcneiphax .gt_font_italic { font-style: italic; }
-#dkcneiphax .gt_super { font-size: 65%; }
-#dkcneiphax .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#dkcneiphax .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
-#dkcneiphax .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#dkcneiphax .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-#dkcneiphax .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
-#dkcneiphax .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#siblexgtev p { margin: 0; padding: 0; }
+#siblexgtev .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+#siblexgtev .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+#siblexgtev .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+#siblexgtev .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+#siblexgtev .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#siblexgtev .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#siblexgtev .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#siblexgtev .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+#siblexgtev .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+#siblexgtev .gt_column_spanner_outer:first-child { padding-left: 0; }
+#siblexgtev .gt_column_spanner_outer:last-child { padding-right: 0; }
+#siblexgtev .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+#siblexgtev .gt_spanner_row { border-bottom-style: hidden; }
+#siblexgtev .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+#siblexgtev .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+#siblexgtev .gt_from_md> :first-child { margin-top: 0; }
+#siblexgtev .gt_from_md> :last-child { margin-bottom: 0; }
+#siblexgtev .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+#siblexgtev .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+#siblexgtev .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+#siblexgtev .gt_row_group_first td { border-top-width: 2px; }
+#siblexgtev .gt_row_group_first th { border-top-width: 2px; }
+#siblexgtev .gt_striped { color: #333333; background-color: #F4F4F4; }
+#siblexgtev .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#siblexgtev .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#siblexgtev .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+#siblexgtev .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#siblexgtev .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#siblexgtev .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+#siblexgtev .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+#siblexgtev .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#siblexgtev .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#siblexgtev .gt_left { text-align: left; }
+#siblexgtev .gt_center { text-align: center; }
+#siblexgtev .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+#siblexgtev .gt_font_normal { font-weight: normal; }
+#siblexgtev .gt_font_bold { font-weight: bold; }
+#siblexgtev .gt_font_italic { font-style: italic; }
+#siblexgtev .gt_super { font-size: 65%; }
+#siblexgtev .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#siblexgtev .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+#siblexgtev .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#siblexgtev .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#siblexgtev .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+#siblexgtev .gt_asterisk { font-size: 100%; vertical-align: 0; }
 </style>
 
 <table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
@@ -3006,7 +3007,7 @@ treino até semana T+4      |■■■■■■|  ← janela 2
 treino até semana T+8           |■■■■■■|  ← janela 3
 ... (20 janelas no total, passo=4)</code></pre>
 <p>Os RMSE, MAPE e acurácia direcional reportados na tabela abaixo são a <strong>média sobre essas 20 avaliações fora da amostra</strong> — não de uma única divisão treino/teste, que seria estatisticamente ruidosa (ver §5.2).</p>
-<div id="ef774166" class="cell" data-execution_count="4">
+<div id="f807fcb1" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Código</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> metr(y, p, yc, escala_mase):</span>
@@ -3090,61 +3091,61 @@ treino até semana T+8           |■■■■■■|  ← janela 3
 <span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a> .fmt_number(columns<span class="op">=</span>[<span class="st">&quot;RMSE&quot;</span>, <span class="st">&quot;MAPE (%)&quot;</span>, <span class="st">&quot;MASE&quot;</span>, <span class="st">&quot;Dir.Acc (%)&quot;</span>], decimals<span class="op">=</span><span class="dv">2</span>))</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="4">
-<div id="omrqggdbyd" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="fhagtaxwie" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#omrqggdbyd table {
+#fhagtaxwie table {
 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 -webkit-font-smoothing: antialiased;
 -moz-osx-font-smoothing: grayscale;
 }
-#omrqggdbyd thead, tbody, tfoot, tr, td, th { border-style: none; }
+#fhagtaxwie thead, tbody, tfoot, tr, td, th { border-style: none; }
 tr { background-color: transparent; }
-#omrqggdbyd p { margin: 0; padding: 0; }
-#omrqggdbyd .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
-#omrqggdbyd .gt_caption { padding-top: 4px; padding-bottom: 4px; }
-#omrqggdbyd .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
-#omrqggdbyd .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
-#omrqggdbyd .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-#omrqggdbyd .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#omrqggdbyd .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-#omrqggdbyd .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
-#omrqggdbyd .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
-#omrqggdbyd .gt_column_spanner_outer:first-child { padding-left: 0; }
-#omrqggdbyd .gt_column_spanner_outer:last-child { padding-right: 0; }
-#omrqggdbyd .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
-#omrqggdbyd .gt_spanner_row { border-bottom-style: hidden; }
-#omrqggdbyd .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
-#omrqggdbyd .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
-#omrqggdbyd .gt_from_md> :first-child { margin-top: 0; }
-#omrqggdbyd .gt_from_md> :last-child { margin-bottom: 0; }
-#omrqggdbyd .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
-#omrqggdbyd .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
-#omrqggdbyd .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
-#omrqggdbyd .gt_row_group_first td { border-top-width: 2px; }
-#omrqggdbyd .gt_row_group_first th { border-top-width: 2px; }
-#omrqggdbyd .gt_striped { color: #333333; background-color: #F4F4F4; }
-#omrqggdbyd .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#omrqggdbyd .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
-#omrqggdbyd .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
-#omrqggdbyd .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#omrqggdbyd .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
-#omrqggdbyd .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
-#omrqggdbyd .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
-#omrqggdbyd .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#omrqggdbyd .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-#omrqggdbyd .gt_left { text-align: left; }
-#omrqggdbyd .gt_center { text-align: center; }
-#omrqggdbyd .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
-#omrqggdbyd .gt_font_normal { font-weight: normal; }
-#omrqggdbyd .gt_font_bold { font-weight: bold; }
-#omrqggdbyd .gt_font_italic { font-style: italic; }
-#omrqggdbyd .gt_super { font-size: 65%; }
-#omrqggdbyd .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#omrqggdbyd .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
-#omrqggdbyd .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#omrqggdbyd .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-#omrqggdbyd .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
-#omrqggdbyd .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#fhagtaxwie p { margin: 0; padding: 0; }
+#fhagtaxwie .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+#fhagtaxwie .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+#fhagtaxwie .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+#fhagtaxwie .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+#fhagtaxwie .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#fhagtaxwie .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#fhagtaxwie .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#fhagtaxwie .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+#fhagtaxwie .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+#fhagtaxwie .gt_column_spanner_outer:first-child { padding-left: 0; }
+#fhagtaxwie .gt_column_spanner_outer:last-child { padding-right: 0; }
+#fhagtaxwie .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+#fhagtaxwie .gt_spanner_row { border-bottom-style: hidden; }
+#fhagtaxwie .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+#fhagtaxwie .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+#fhagtaxwie .gt_from_md> :first-child { margin-top: 0; }
+#fhagtaxwie .gt_from_md> :last-child { margin-bottom: 0; }
+#fhagtaxwie .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+#fhagtaxwie .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+#fhagtaxwie .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+#fhagtaxwie .gt_row_group_first td { border-top-width: 2px; }
+#fhagtaxwie .gt_row_group_first th { border-top-width: 2px; }
+#fhagtaxwie .gt_striped { color: #333333; background-color: #F4F4F4; }
+#fhagtaxwie .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#fhagtaxwie .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#fhagtaxwie .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+#fhagtaxwie .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#fhagtaxwie .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#fhagtaxwie .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+#fhagtaxwie .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+#fhagtaxwie .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#fhagtaxwie .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#fhagtaxwie .gt_left { text-align: left; }
+#fhagtaxwie .gt_center { text-align: center; }
+#fhagtaxwie .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+#fhagtaxwie .gt_font_normal { font-weight: normal; }
+#fhagtaxwie .gt_font_bold { font-weight: bold; }
+#fhagtaxwie .gt_font_italic { font-style: italic; }
+#fhagtaxwie .gt_super { font-size: 65%; }
+#fhagtaxwie .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#fhagtaxwie .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+#fhagtaxwie .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#fhagtaxwie .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#fhagtaxwie .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+#fhagtaxwie .gt_asterisk { font-size: 100%; vertical-align: 0; }
 </style>
 
 <table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
@@ -3239,7 +3240,7 @@ tr { background-color: transparent; }
 </section>
 <section id="resultados-e-interpretação" class="level2">
 <h2 class="anchored" data-anchor-id="resultados-e-interpretação">9. Resultados e interpretação</h2>
-<div id="51f186eb" class="cell" data-execution_count="5">
+<div id="ba3a6232" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Código</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ganho de cada modelo vs naive sazonal (RMSE)</span></span>
@@ -3251,61 +3252,61 @@ tr { background-color: transparent; }
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a> .fmt_number(columns<span class="op">=</span>[<span class="st">&quot;AutoARIMA&quot;</span>, <span class="st">&quot;XGBoost&quot;</span>, <span class="st">&quot;Ensemble&quot;</span>], decimals<span class="op">=</span><span class="dv">1</span>))</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="5">
-<div id="imowsnzbgi" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="erftbxxzpz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#imowsnzbgi table {
+#erftbxxzpz table {
 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 -webkit-font-smoothing: antialiased;
 -moz-osx-font-smoothing: grayscale;
 }
-#imowsnzbgi thead, tbody, tfoot, tr, td, th { border-style: none; }
+#erftbxxzpz thead, tbody, tfoot, tr, td, th { border-style: none; }
 tr { background-color: transparent; }
-#imowsnzbgi p { margin: 0; padding: 0; }
-#imowsnzbgi .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
-#imowsnzbgi .gt_caption { padding-top: 4px; padding-bottom: 4px; }
-#imowsnzbgi .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
-#imowsnzbgi .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
-#imowsnzbgi .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-#imowsnzbgi .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#imowsnzbgi .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-#imowsnzbgi .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
-#imowsnzbgi .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
-#imowsnzbgi .gt_column_spanner_outer:first-child { padding-left: 0; }
-#imowsnzbgi .gt_column_spanner_outer:last-child { padding-right: 0; }
-#imowsnzbgi .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
-#imowsnzbgi .gt_spanner_row { border-bottom-style: hidden; }
-#imowsnzbgi .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
-#imowsnzbgi .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
-#imowsnzbgi .gt_from_md> :first-child { margin-top: 0; }
-#imowsnzbgi .gt_from_md> :last-child { margin-bottom: 0; }
-#imowsnzbgi .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
-#imowsnzbgi .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
-#imowsnzbgi .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
-#imowsnzbgi .gt_row_group_first td { border-top-width: 2px; }
-#imowsnzbgi .gt_row_group_first th { border-top-width: 2px; }
-#imowsnzbgi .gt_striped { color: #333333; background-color: #F4F4F4; }
-#imowsnzbgi .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#imowsnzbgi .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
-#imowsnzbgi .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
-#imowsnzbgi .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#imowsnzbgi .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
-#imowsnzbgi .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
-#imowsnzbgi .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
-#imowsnzbgi .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#imowsnzbgi .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-#imowsnzbgi .gt_left { text-align: left; }
-#imowsnzbgi .gt_center { text-align: center; }
-#imowsnzbgi .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
-#imowsnzbgi .gt_font_normal { font-weight: normal; }
-#imowsnzbgi .gt_font_bold { font-weight: bold; }
-#imowsnzbgi .gt_font_italic { font-style: italic; }
-#imowsnzbgi .gt_super { font-size: 65%; }
-#imowsnzbgi .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#imowsnzbgi .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
-#imowsnzbgi .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#imowsnzbgi .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-#imowsnzbgi .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
-#imowsnzbgi .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#erftbxxzpz p { margin: 0; padding: 0; }
+#erftbxxzpz .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+#erftbxxzpz .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+#erftbxxzpz .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+#erftbxxzpz .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+#erftbxxzpz .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#erftbxxzpz .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#erftbxxzpz .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#erftbxxzpz .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+#erftbxxzpz .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+#erftbxxzpz .gt_column_spanner_outer:first-child { padding-left: 0; }
+#erftbxxzpz .gt_column_spanner_outer:last-child { padding-right: 0; }
+#erftbxxzpz .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+#erftbxxzpz .gt_spanner_row { border-bottom-style: hidden; }
+#erftbxxzpz .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+#erftbxxzpz .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+#erftbxxzpz .gt_from_md> :first-child { margin-top: 0; }
+#erftbxxzpz .gt_from_md> :last-child { margin-bottom: 0; }
+#erftbxxzpz .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+#erftbxxzpz .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+#erftbxxzpz .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+#erftbxxzpz .gt_row_group_first td { border-top-width: 2px; }
+#erftbxxzpz .gt_row_group_first th { border-top-width: 2px; }
+#erftbxxzpz .gt_striped { color: #333333; background-color: #F4F4F4; }
+#erftbxxzpz .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#erftbxxzpz .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#erftbxxzpz .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+#erftbxxzpz .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#erftbxxzpz .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#erftbxxzpz .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+#erftbxxzpz .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+#erftbxxzpz .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#erftbxxzpz .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#erftbxxzpz .gt_left { text-align: left; }
+#erftbxxzpz .gt_center { text-align: center; }
+#erftbxxzpz .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+#erftbxxzpz .gt_font_normal { font-weight: normal; }
+#erftbxxzpz .gt_font_bold { font-weight: bold; }
+#erftbxxzpz .gt_font_italic { font-style: italic; }
+#erftbxxzpz .gt_super { font-size: 65%; }
+#erftbxxzpz .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#erftbxxzpz .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+#erftbxxzpz .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#erftbxxzpz .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#erftbxxzpz .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+#erftbxxzpz .gt_asterisk { font-size: 100%; vertical-align: 0; }
 </style>
 
 <table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
@@ -3374,7 +3375,7 @@ Aviso
 <li><strong>Sobreajuste (<em>overfitting</em>):</strong> ajuste quase perfeito na amostra de treino, mas desempenho pior fora. O XGBoost, com acesso a <code>lag_1</code> (preço da semana imediatamente anterior), é o mais suscetível: com esse regressor, ele consegue “enxergar” o nível atual da série e tende a colar na curva observada.</li>
 <li><strong>Subajuste (<em>underfitting</em>):</strong> modelo que não captura padrões sistemáticos — por exemplo, ignorar a sazonalidade anual. Manifesta-se como uma curva suave e deslocada dos picos e vales sazonais.</li>
 </ul>
-<div id="ba82fe58" class="cell" data-execution_count="6">
+<div id="51e9e479" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Código</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ajuste dentro da amostra — diagnóstico de over/underfitting por variedade</span></span>
@@ -3455,7 +3456,7 @@ Aviso
 <section id="significância-estatística-das-diferenças-dm-e-pt" class="level3">
 <h3 class="anchored" data-anchor-id="significância-estatística-das-diferenças-dm-e-pt">9.2 Significância estatística das diferenças (DM e PT)</h3>
 <p>As diferenças de RMSE da tabela do §8 são formalmente testadas com <strong>Diebold-Mariano</strong> (correção de Harvey-Leybourne-Newbold, variância HAC com defasagem <span class="math inline">\(h-1=7\)</span> — os erros multi-passo são autocorrelacionados por construção; como as janelas se sobrepõem parcialmente, os p-valores devem ser lidos como aproximações conservadoras). A <strong>acurácia direcional</strong> é testada com <strong>Pesaran-Timmermann</strong> contra a hipótese de ausência de conteúdo direcional.</p>
-<div id="96e9e51f" class="cell" data-execution_count="7">
+<div id="a7996a8a" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Código</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy <span class="im">import</span> stats</span>
@@ -3516,61 +3517,61 @@ Aviso
 <span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a> .fmt_number(columns<span class="op">=</span>[<span class="st">&quot;DM (HLN)&quot;</span>, <span class="st">&quot;p-valor&quot;</span>], decimals<span class="op">=</span><span class="dv">3</span>))</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="7">
-<div id="pjfelhrjua" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="lhsrsvadrl" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#pjfelhrjua table {
+#lhsrsvadrl table {
 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 -webkit-font-smoothing: antialiased;
 -moz-osx-font-smoothing: grayscale;
 }
-#pjfelhrjua thead, tbody, tfoot, tr, td, th { border-style: none; }
+#lhsrsvadrl thead, tbody, tfoot, tr, td, th { border-style: none; }
 tr { background-color: transparent; }
-#pjfelhrjua p { margin: 0; padding: 0; }
-#pjfelhrjua .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
-#pjfelhrjua .gt_caption { padding-top: 4px; padding-bottom: 4px; }
-#pjfelhrjua .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
-#pjfelhrjua .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
-#pjfelhrjua .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-#pjfelhrjua .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#pjfelhrjua .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-#pjfelhrjua .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
-#pjfelhrjua .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
-#pjfelhrjua .gt_column_spanner_outer:first-child { padding-left: 0; }
-#pjfelhrjua .gt_column_spanner_outer:last-child { padding-right: 0; }
-#pjfelhrjua .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
-#pjfelhrjua .gt_spanner_row { border-bottom-style: hidden; }
-#pjfelhrjua .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
-#pjfelhrjua .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
-#pjfelhrjua .gt_from_md> :first-child { margin-top: 0; }
-#pjfelhrjua .gt_from_md> :last-child { margin-bottom: 0; }
-#pjfelhrjua .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
-#pjfelhrjua .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
-#pjfelhrjua .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
-#pjfelhrjua .gt_row_group_first td { border-top-width: 2px; }
-#pjfelhrjua .gt_row_group_first th { border-top-width: 2px; }
-#pjfelhrjua .gt_striped { color: #333333; background-color: #F4F4F4; }
-#pjfelhrjua .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#pjfelhrjua .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
-#pjfelhrjua .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
-#pjfelhrjua .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#pjfelhrjua .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
-#pjfelhrjua .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
-#pjfelhrjua .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
-#pjfelhrjua .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#pjfelhrjua .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-#pjfelhrjua .gt_left { text-align: left; }
-#pjfelhrjua .gt_center { text-align: center; }
-#pjfelhrjua .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
-#pjfelhrjua .gt_font_normal { font-weight: normal; }
-#pjfelhrjua .gt_font_bold { font-weight: bold; }
-#pjfelhrjua .gt_font_italic { font-style: italic; }
-#pjfelhrjua .gt_super { font-size: 65%; }
-#pjfelhrjua .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#pjfelhrjua .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
-#pjfelhrjua .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#pjfelhrjua .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-#pjfelhrjua .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
-#pjfelhrjua .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#lhsrsvadrl p { margin: 0; padding: 0; }
+#lhsrsvadrl .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+#lhsrsvadrl .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+#lhsrsvadrl .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+#lhsrsvadrl .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+#lhsrsvadrl .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#lhsrsvadrl .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#lhsrsvadrl .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#lhsrsvadrl .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+#lhsrsvadrl .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+#lhsrsvadrl .gt_column_spanner_outer:first-child { padding-left: 0; }
+#lhsrsvadrl .gt_column_spanner_outer:last-child { padding-right: 0; }
+#lhsrsvadrl .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+#lhsrsvadrl .gt_spanner_row { border-bottom-style: hidden; }
+#lhsrsvadrl .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+#lhsrsvadrl .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+#lhsrsvadrl .gt_from_md> :first-child { margin-top: 0; }
+#lhsrsvadrl .gt_from_md> :last-child { margin-bottom: 0; }
+#lhsrsvadrl .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+#lhsrsvadrl .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+#lhsrsvadrl .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+#lhsrsvadrl .gt_row_group_first td { border-top-width: 2px; }
+#lhsrsvadrl .gt_row_group_first th { border-top-width: 2px; }
+#lhsrsvadrl .gt_striped { color: #333333; background-color: #F4F4F4; }
+#lhsrsvadrl .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#lhsrsvadrl .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#lhsrsvadrl .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+#lhsrsvadrl .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#lhsrsvadrl .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#lhsrsvadrl .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+#lhsrsvadrl .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+#lhsrsvadrl .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#lhsrsvadrl .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#lhsrsvadrl .gt_left { text-align: left; }
+#lhsrsvadrl .gt_center { text-align: center; }
+#lhsrsvadrl .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+#lhsrsvadrl .gt_font_normal { font-weight: normal; }
+#lhsrsvadrl .gt_font_bold { font-weight: bold; }
+#lhsrsvadrl .gt_font_italic { font-style: italic; }
+#lhsrsvadrl .gt_super { font-size: 65%; }
+#lhsrsvadrl .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#lhsrsvadrl .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+#lhsrsvadrl .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#lhsrsvadrl .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#lhsrsvadrl .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+#lhsrsvadrl .gt_asterisk { font-size: 100%; vertical-align: 0; }
 </style>
 
 <table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
@@ -3653,7 +3654,7 @@ tr { background-color: transparent; }
 </div>
 </div>
 </div>
-<div id="1c56b9c2" class="cell" data-execution_count="8">
+<div id="c2a49eff" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Código</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>(GT(pd.DataFrame(linhas_pt))</span>
@@ -3662,61 +3663,61 @@ tr { background-color: transparent; }
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a> .fmt_number(columns<span class="op">=</span>[<span class="st">&quot;PT (z)&quot;</span>, <span class="st">&quot;p-valor&quot;</span>], decimals<span class="op">=</span><span class="dv">3</span>))</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="8">
-<div id="cuumifydhr" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="qwulhjjkmv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#cuumifydhr table {
+#qwulhjjkmv table {
 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 -webkit-font-smoothing: antialiased;
 -moz-osx-font-smoothing: grayscale;
 }
-#cuumifydhr thead, tbody, tfoot, tr, td, th { border-style: none; }
+#qwulhjjkmv thead, tbody, tfoot, tr, td, th { border-style: none; }
 tr { background-color: transparent; }
-#cuumifydhr p { margin: 0; padding: 0; }
-#cuumifydhr .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
-#cuumifydhr .gt_caption { padding-top: 4px; padding-bottom: 4px; }
-#cuumifydhr .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
-#cuumifydhr .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
-#cuumifydhr .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-#cuumifydhr .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#cuumifydhr .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-#cuumifydhr .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
-#cuumifydhr .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
-#cuumifydhr .gt_column_spanner_outer:first-child { padding-left: 0; }
-#cuumifydhr .gt_column_spanner_outer:last-child { padding-right: 0; }
-#cuumifydhr .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
-#cuumifydhr .gt_spanner_row { border-bottom-style: hidden; }
-#cuumifydhr .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
-#cuumifydhr .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
-#cuumifydhr .gt_from_md> :first-child { margin-top: 0; }
-#cuumifydhr .gt_from_md> :last-child { margin-bottom: 0; }
-#cuumifydhr .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
-#cuumifydhr .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
-#cuumifydhr .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
-#cuumifydhr .gt_row_group_first td { border-top-width: 2px; }
-#cuumifydhr .gt_row_group_first th { border-top-width: 2px; }
-#cuumifydhr .gt_striped { color: #333333; background-color: #F4F4F4; }
-#cuumifydhr .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#cuumifydhr .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
-#cuumifydhr .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
-#cuumifydhr .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#cuumifydhr .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
-#cuumifydhr .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
-#cuumifydhr .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
-#cuumifydhr .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#cuumifydhr .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-#cuumifydhr .gt_left { text-align: left; }
-#cuumifydhr .gt_center { text-align: center; }
-#cuumifydhr .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
-#cuumifydhr .gt_font_normal { font-weight: normal; }
-#cuumifydhr .gt_font_bold { font-weight: bold; }
-#cuumifydhr .gt_font_italic { font-style: italic; }
-#cuumifydhr .gt_super { font-size: 65%; }
-#cuumifydhr .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#cuumifydhr .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
-#cuumifydhr .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#cuumifydhr .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-#cuumifydhr .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
-#cuumifydhr .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#qwulhjjkmv p { margin: 0; padding: 0; }
+#qwulhjjkmv .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+#qwulhjjkmv .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+#qwulhjjkmv .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+#qwulhjjkmv .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+#qwulhjjkmv .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#qwulhjjkmv .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#qwulhjjkmv .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#qwulhjjkmv .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+#qwulhjjkmv .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+#qwulhjjkmv .gt_column_spanner_outer:first-child { padding-left: 0; }
+#qwulhjjkmv .gt_column_spanner_outer:last-child { padding-right: 0; }
+#qwulhjjkmv .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+#qwulhjjkmv .gt_spanner_row { border-bottom-style: hidden; }
+#qwulhjjkmv .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+#qwulhjjkmv .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+#qwulhjjkmv .gt_from_md> :first-child { margin-top: 0; }
+#qwulhjjkmv .gt_from_md> :last-child { margin-bottom: 0; }
+#qwulhjjkmv .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+#qwulhjjkmv .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+#qwulhjjkmv .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+#qwulhjjkmv .gt_row_group_first td { border-top-width: 2px; }
+#qwulhjjkmv .gt_row_group_first th { border-top-width: 2px; }
+#qwulhjjkmv .gt_striped { color: #333333; background-color: #F4F4F4; }
+#qwulhjjkmv .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#qwulhjjkmv .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#qwulhjjkmv .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+#qwulhjjkmv .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#qwulhjjkmv .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#qwulhjjkmv .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+#qwulhjjkmv .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+#qwulhjjkmv .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#qwulhjjkmv .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#qwulhjjkmv .gt_left { text-align: left; }
+#qwulhjjkmv .gt_center { text-align: center; }
+#qwulhjjkmv .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+#qwulhjjkmv .gt_font_normal { font-weight: normal; }
+#qwulhjjkmv .gt_font_bold { font-weight: bold; }
+#qwulhjjkmv .gt_font_italic { font-style: italic; }
+#qwulhjjkmv .gt_super { font-size: 65%; }
+#qwulhjjkmv .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#qwulhjjkmv .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+#qwulhjjkmv .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#qwulhjjkmv .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#qwulhjjkmv .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+#qwulhjjkmv .gt_asterisk { font-size: 100%; vertical-align: 0; }
 </style>
 
 <table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
@@ -3792,7 +3793,7 @@ tr { background-color: transparent; }
 <h2 class="anchored" data-anchor-id="previsão-fora-da-amostra">10. Previsão fora da amostra</h2>
 <p>Reestimado com toda a amostra; intervalos <strong>conformais</strong> — livres de distribuição, com garantia de cobertura sob a hipótese de trocabilidade dos erros <span class="citation" data-cites="vovk2005">(<a href="#ref-vovk2005" role="doc-biblioref">Vovk et al. 2005</a>)</span>. Para os modelos individuais usam-se as implementações nativas do ecossistema Nixtla; para a <strong>combinação de previsões</strong>, o intervalo é obtido por <strong>conformalização direta dos erros do próprio ensemble</strong> no rolling-origin do §8 (quantis por horizonte dos erros absolutos fora da amostra) — e não pela média das bandas individuais, que não teria garantia formal.</p>
 <p>Coerente com a discussão do §6 — o modelo não acerta o ponto, e fingir que acerta (“o preço da semana 752 será R$ 2,05”) é uma falsa precisão. Por isso a entrega abaixo é o <strong>intervalo</strong>, não o ponto. O gráfico apresenta duas faixas: a <strong>banda interna (60%)</strong> é a <strong>faixa central da distribuição</strong> de previsão — em três de cada cinco semanas históricas análogas, o preço real ficou dentro dessa faixa; a <strong>banda externa (80%)</strong> é mais conservadora e cobre quatro em cada cinco realizações históricas. Em preços de perecíveis, intervalos de 95% tendem a ser tão amplos que perdem utilidade prática para a tomada de decisão. A tabela abaixo reporta a faixa de 60% por modelo.</p>
-<div id="f54e9452" class="cell" data-execution_count="9">
+<div id="7ce5b725" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Código</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fc <span class="op">=</span> pd.concat(previsoes, ignore_index<span class="op">=</span><span class="va">True</span>)</span>
@@ -3841,7 +3842,7 @@ tr { background-color: transparent; }
 </div>
 </div>
 </div>
-<div id="00355b83" class="cell" data-execution_count="10">
+<div id="511b3176" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Código</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> faixa(lo, hi):</span>
@@ -3878,61 +3879,61 @@ tr { background-color: transparent; }
 <span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>             subtitle<span class="op">=</span><span class="ss">f&quot;Próximas </span><span class="sc">{</span>H<span class="sc">}</span><span class="ss"> semanas — R$/kg&quot;</span>))</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="10">
-<div id="coewwibcfx" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="vjqqdxchvk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#coewwibcfx table {
+#vjqqdxchvk table {
 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 -webkit-font-smoothing: antialiased;
 -moz-osx-font-smoothing: grayscale;
 }
-#coewwibcfx thead, tbody, tfoot, tr, td, th { border-style: none; }
+#vjqqdxchvk thead, tbody, tfoot, tr, td, th { border-style: none; }
 tr { background-color: transparent; }
-#coewwibcfx p { margin: 0; padding: 0; }
-#coewwibcfx .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
-#coewwibcfx .gt_caption { padding-top: 4px; padding-bottom: 4px; }
-#coewwibcfx .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
-#coewwibcfx .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
-#coewwibcfx .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-#coewwibcfx .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#coewwibcfx .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-#coewwibcfx .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
-#coewwibcfx .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
-#coewwibcfx .gt_column_spanner_outer:first-child { padding-left: 0; }
-#coewwibcfx .gt_column_spanner_outer:last-child { padding-right: 0; }
-#coewwibcfx .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
-#coewwibcfx .gt_spanner_row { border-bottom-style: hidden; }
-#coewwibcfx .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
-#coewwibcfx .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
-#coewwibcfx .gt_from_md> :first-child { margin-top: 0; }
-#coewwibcfx .gt_from_md> :last-child { margin-bottom: 0; }
-#coewwibcfx .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
-#coewwibcfx .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
-#coewwibcfx .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
-#coewwibcfx .gt_row_group_first td { border-top-width: 2px; }
-#coewwibcfx .gt_row_group_first th { border-top-width: 2px; }
-#coewwibcfx .gt_striped { color: #333333; background-color: #F4F4F4; }
-#coewwibcfx .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#coewwibcfx .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
-#coewwibcfx .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
-#coewwibcfx .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#coewwibcfx .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
-#coewwibcfx .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
-#coewwibcfx .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
-#coewwibcfx .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#coewwibcfx .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-#coewwibcfx .gt_left { text-align: left; }
-#coewwibcfx .gt_center { text-align: center; }
-#coewwibcfx .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
-#coewwibcfx .gt_font_normal { font-weight: normal; }
-#coewwibcfx .gt_font_bold { font-weight: bold; }
-#coewwibcfx .gt_font_italic { font-style: italic; }
-#coewwibcfx .gt_super { font-size: 65%; }
-#coewwibcfx .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#coewwibcfx .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
-#coewwibcfx .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#coewwibcfx .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-#coewwibcfx .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
-#coewwibcfx .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#vjqqdxchvk p { margin: 0; padding: 0; }
+#vjqqdxchvk .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+#vjqqdxchvk .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+#vjqqdxchvk .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+#vjqqdxchvk .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+#vjqqdxchvk .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#vjqqdxchvk .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#vjqqdxchvk .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#vjqqdxchvk .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+#vjqqdxchvk .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+#vjqqdxchvk .gt_column_spanner_outer:first-child { padding-left: 0; }
+#vjqqdxchvk .gt_column_spanner_outer:last-child { padding-right: 0; }
+#vjqqdxchvk .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+#vjqqdxchvk .gt_spanner_row { border-bottom-style: hidden; }
+#vjqqdxchvk .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+#vjqqdxchvk .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+#vjqqdxchvk .gt_from_md> :first-child { margin-top: 0; }
+#vjqqdxchvk .gt_from_md> :last-child { margin-bottom: 0; }
+#vjqqdxchvk .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+#vjqqdxchvk .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+#vjqqdxchvk .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+#vjqqdxchvk .gt_row_group_first td { border-top-width: 2px; }
+#vjqqdxchvk .gt_row_group_first th { border-top-width: 2px; }
+#vjqqdxchvk .gt_striped { color: #333333; background-color: #F4F4F4; }
+#vjqqdxchvk .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#vjqqdxchvk .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#vjqqdxchvk .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+#vjqqdxchvk .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#vjqqdxchvk .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#vjqqdxchvk .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+#vjqqdxchvk .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+#vjqqdxchvk .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#vjqqdxchvk .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#vjqqdxchvk .gt_left { text-align: left; }
+#vjqqdxchvk .gt_center { text-align: center; }
+#vjqqdxchvk .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+#vjqqdxchvk .gt_font_normal { font-weight: normal; }
+#vjqqdxchvk .gt_font_bold { font-weight: bold; }
+#vjqqdxchvk .gt_font_italic { font-style: italic; }
+#vjqqdxchvk .gt_super { font-size: 65%; }
+#vjqqdxchvk .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#vjqqdxchvk .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+#vjqqdxchvk .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#vjqqdxchvk .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#vjqqdxchvk .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+#vjqqdxchvk .gt_asterisk { font-size: 100%; vertical-align: 0; }
 </style>
 
 <table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
@@ -4059,7 +4060,7 @@ tr { background-color: transparent; }
 <section id="calibração-empírica-dos-intervalos" class="level3">
 <h3 class="anchored" data-anchor-id="calibração-empírica-dos-intervalos">10.1 Calibração empírica dos intervalos</h3>
 <p>Intervalo declarado precisa ser intervalo cumprido: a banda de 60% só é honesta se, fora da amostra, ela contiver o preço realizado em ≈60% das vezes. A verificação abaixo usa validação <em>leave-one-window-out</em> no rolling-origin do §8: para cada janela, o quantil conformal é calibrado <strong>apenas com os erros das outras 19 janelas</strong> (por horizonte) e testado nos erros da janela excluída — nenhuma janela participa da própria calibração. Cobertura empírica próxima da nominal valida o mecanismo conformal usado no §10.</p>
-<div id="d8a510c9" class="cell" data-execution_count="11">
+<div id="cd904441" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Código</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cobertura_loo(cv, modelo, nivel):</span>
@@ -4089,61 +4090,61 @@ tr { background-color: transparent; }
 <span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a> .fmt_number(columns<span class="op">=</span>[<span class="st">&quot;Cobertura 60% (%)&quot;</span>, <span class="st">&quot;Cobertura 80% (%)&quot;</span>], decimals<span class="op">=</span><span class="dv">1</span>))</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="11">
-<div id="xuocjcywkz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="adglhkaywg" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#xuocjcywkz table {
+#adglhkaywg table {
 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 -webkit-font-smoothing: antialiased;
 -moz-osx-font-smoothing: grayscale;
 }
-#xuocjcywkz thead, tbody, tfoot, tr, td, th { border-style: none; }
+#adglhkaywg thead, tbody, tfoot, tr, td, th { border-style: none; }
 tr { background-color: transparent; }
-#xuocjcywkz p { margin: 0; padding: 0; }
-#xuocjcywkz .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
-#xuocjcywkz .gt_caption { padding-top: 4px; padding-bottom: 4px; }
-#xuocjcywkz .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
-#xuocjcywkz .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
-#xuocjcywkz .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-#xuocjcywkz .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#xuocjcywkz .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
-#xuocjcywkz .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
-#xuocjcywkz .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
-#xuocjcywkz .gt_column_spanner_outer:first-child { padding-left: 0; }
-#xuocjcywkz .gt_column_spanner_outer:last-child { padding-right: 0; }
-#xuocjcywkz .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
-#xuocjcywkz .gt_spanner_row { border-bottom-style: hidden; }
-#xuocjcywkz .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
-#xuocjcywkz .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
-#xuocjcywkz .gt_from_md> :first-child { margin-top: 0; }
-#xuocjcywkz .gt_from_md> :last-child { margin-bottom: 0; }
-#xuocjcywkz .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
-#xuocjcywkz .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
-#xuocjcywkz .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
-#xuocjcywkz .gt_row_group_first td { border-top-width: 2px; }
-#xuocjcywkz .gt_row_group_first th { border-top-width: 2px; }
-#xuocjcywkz .gt_striped { color: #333333; background-color: #F4F4F4; }
-#xuocjcywkz .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#xuocjcywkz .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
-#xuocjcywkz .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
-#xuocjcywkz .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
-#xuocjcywkz .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
-#xuocjcywkz .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
-#xuocjcywkz .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
-#xuocjcywkz .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#xuocjcywkz .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-#xuocjcywkz .gt_left { text-align: left; }
-#xuocjcywkz .gt_center { text-align: center; }
-#xuocjcywkz .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
-#xuocjcywkz .gt_font_normal { font-weight: normal; }
-#xuocjcywkz .gt_font_bold { font-weight: bold; }
-#xuocjcywkz .gt_font_italic { font-style: italic; }
-#xuocjcywkz .gt_super { font-size: 65%; }
-#xuocjcywkz .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#xuocjcywkz .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
-#xuocjcywkz .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
-#xuocjcywkz .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
-#xuocjcywkz .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
-#xuocjcywkz .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#adglhkaywg p { margin: 0; padding: 0; }
+#adglhkaywg .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+#adglhkaywg .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+#adglhkaywg .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+#adglhkaywg .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+#adglhkaywg .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#adglhkaywg .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#adglhkaywg .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#adglhkaywg .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+#adglhkaywg .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+#adglhkaywg .gt_column_spanner_outer:first-child { padding-left: 0; }
+#adglhkaywg .gt_column_spanner_outer:last-child { padding-right: 0; }
+#adglhkaywg .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+#adglhkaywg .gt_spanner_row { border-bottom-style: hidden; }
+#adglhkaywg .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+#adglhkaywg .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+#adglhkaywg .gt_from_md> :first-child { margin-top: 0; }
+#adglhkaywg .gt_from_md> :last-child { margin-bottom: 0; }
+#adglhkaywg .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+#adglhkaywg .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+#adglhkaywg .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+#adglhkaywg .gt_row_group_first td { border-top-width: 2px; }
+#adglhkaywg .gt_row_group_first th { border-top-width: 2px; }
+#adglhkaywg .gt_striped { color: #333333; background-color: #F4F4F4; }
+#adglhkaywg .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#adglhkaywg .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#adglhkaywg .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+#adglhkaywg .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#adglhkaywg .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#adglhkaywg .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+#adglhkaywg .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+#adglhkaywg .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#adglhkaywg .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#adglhkaywg .gt_left { text-align: left; }
+#adglhkaywg .gt_center { text-align: center; }
+#adglhkaywg .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+#adglhkaywg .gt_font_normal { font-weight: normal; }
+#adglhkaywg .gt_font_bold { font-weight: bold; }
+#adglhkaywg .gt_font_italic { font-style: italic; }
+#adglhkaywg .gt_super { font-size: 65%; }
+#adglhkaywg .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#adglhkaywg .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+#adglhkaywg .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#adglhkaywg .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#adglhkaywg .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+#adglhkaywg .gt_asterisk { font-size: 100%; vertical-align: 0; }
 </style>
 
 <table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
@@ -4206,17 +4207,372 @@ tr { background-color: transparent; }
 </div>
 </div>
 </section>
+<section id="acompanhamento-contínuo-previsto-observado-semana-a-semana" class="level3">
+<h3 class="anchored" data-anchor-id="acompanhamento-contínuo-previsto-observado-semana-a-semana">10.2 Acompanhamento contínuo (previsto × observado, semana a semana)</h3>
+<p>A calibração da §10.1 é <strong>interna ao rolling-origin</strong>: mede cobertura sobre janelas retiradas da própria amostra histórica. É necessária, mas não substitui o teste mais duro — confrontar a previsão <strong>publicada</strong> com o preço que de fato ocorreu depois, sem qualquer chance de contaminação.</p>
+<p>Esta seção mantém esse registro. A cada render o documento grava sua própria previsão em <code>forecast/historico_previsoes.csv</code> (origem, semana-alvo, horizonte, ponto e bandas) e só então procura o observado. Uma previsão gravada <strong>nunca é recalculada</strong>: quando o preço chega, é comparado ao que estava registrado.</p>
+<p><em>Origem do histórico inicial:</em> as primeiras linhas foram recuperadas dos HTMLs arquivados semanalmente em <code>forecast/</code> (<code>index_DDMMYYYY.html</code>), que preservam as previsões efetivamente publicadas. Elas vêm da especificação <strong>anterior</strong> (AutoARIMA + XGBoost com exógenas, <span class="math inline">\(h=8\)</span>) e estão marcadas como tal — misturá-las com as novas exige cautela na leitura, mas descartá-las seria jogar fora o único registro fora da amostra que já existe. As bandas de 80% não constavam da tabela publicada e ficam vazias nessas linhas.</p>
+<div id="7940c759" class="cell" data-execution_count="12">
+<details class="code-fold">
+<summary>Código</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>HIST <span class="op">=</span> <span class="st">&quot;forecast/historico_previsoes.csv&quot;</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>ult_igp <span class="op">=</span> <span class="bu">float</span>(igpdi[<span class="st">&quot;igpdi&quot;</span>].iloc[<span class="op">-</span><span class="dv">1</span>])</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>novas <span class="op">=</span> []</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> uid <span class="kw">in</span> [<span class="st">&quot;palmer&quot;</span>, <span class="st">&quot;tommy&quot;</span>]:</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    g <span class="op">=</span> fc[fc[<span class="st">&quot;unique_id&quot;</span>] <span class="op">==</span> uid]</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    origem <span class="op">=</span> df[df[<span class="st">&quot;unique_id&quot;</span>] <span class="op">==</span> uid][<span class="st">&quot;fecha&quot;</span>].<span class="bu">max</span>()</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _, r <span class="kw">in</span> g.iterrows():</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>        novas.append({<span class="st">&quot;origem_fecha&quot;</span>: origem.strftime(<span class="st">&quot;%Y-%m-</span><span class="sc">%d</span><span class="st">&quot;</span>),</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>                      <span class="st">&quot;alvo_fecha&quot;</span>: r[<span class="st">&quot;fecha&quot;</span>].strftime(<span class="st">&quot;%Y-%m-</span><span class="sc">%d</span><span class="st">&quot;</span>),</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>                      <span class="st">&quot;h&quot;</span>: <span class="bu">int</span>(r[<span class="st">&quot;h&quot;</span>]), <span class="st">&quot;variedade&quot;</span>: uid,</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>                      <span class="st">&quot;previsto&quot;</span>: <span class="bu">round</span>(<span class="bu">float</span>(r[<span class="st">&quot;Ensemble&quot;</span>]), <span class="dv">4</span>),</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>                      <span class="st">&quot;lo60&quot;</span>: <span class="bu">round</span>(<span class="bu">float</span>(r[<span class="st">&quot;Ens-lo-60&quot;</span>]), <span class="dv">4</span>),</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>                      <span class="st">&quot;hi60&quot;</span>: <span class="bu">round</span>(<span class="bu">float</span>(r[<span class="st">&quot;Ens-hi-60&quot;</span>]), <span class="dv">4</span>),</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>                      <span class="st">&quot;lo80&quot;</span>: <span class="bu">round</span>(<span class="bu">float</span>(r[<span class="st">&quot;Ens-lo-80&quot;</span>]), <span class="dv">4</span>),</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>                      <span class="st">&quot;hi80&quot;</span>: <span class="bu">round</span>(<span class="bu">float</span>(r[<span class="st">&quot;Ens-hi-80&quot;</span>]), <span class="dv">4</span>),</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>                      <span class="st">&quot;igpdi_base&quot;</span>: ult_igp,</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>                      <span class="st">&quot;spec&quot;</span>: <span class="st">&quot;AutoARIMA+XGB com exogenas h=6&quot;</span>})</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>hist <span class="op">=</span> pd.concat([pd.read_csv(HIST), pd.DataFrame(novas)], ignore_index<span class="op">=</span><span class="va">True</span>) <span class="op">\</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>       <span class="cf">if</span> os.path.exists(HIST) <span class="cf">else</span> pd.DataFrame(novas)</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>hist <span class="op">=</span> hist.drop_duplicates(subset<span class="op">=</span>[<span class="st">&quot;origem_fecha&quot;</span>, <span class="st">&quot;alvo_fecha&quot;</span>, <span class="st">&quot;variedade&quot;</span>],</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>                            keep<span class="op">=</span><span class="st">&quot;first&quot;</span>).sort_values([<span class="st">&quot;alvo_fecha&quot;</span>, <span class="st">&quot;variedade&quot;</span>, <span class="st">&quot;h&quot;</span>])</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>hist.to_csv(HIST, index<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>obs <span class="op">=</span> df[[<span class="st">&quot;unique_id&quot;</span>, <span class="st">&quot;fecha&quot;</span>, <span class="st">&quot;y&quot;</span>]].dropna(subset<span class="op">=</span>[<span class="st">&quot;y&quot;</span>]).copy()</span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>obs[<span class="st">&quot;alvo_fecha&quot;</span>] <span class="op">=</span> obs[<span class="st">&quot;fecha&quot;</span>].dt.strftime(<span class="st">&quot;%Y-%m-</span><span class="sc">%d</span><span class="st">&quot;</span>)</span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>obs <span class="op">=</span> obs.rename(columns<span class="op">=</span>{<span class="st">&quot;unique_id&quot;</span>: <span class="st">&quot;variedade&quot;</span>, <span class="st">&quot;y&quot;</span>: <span class="st">&quot;observado&quot;</span>})</span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>av <span class="op">=</span> hist.merge(obs[[<span class="st">&quot;variedade&quot;</span>, <span class="st">&quot;alvo_fecha&quot;</span>, <span class="st">&quot;observado&quot;</span>]],</span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>                on<span class="op">=</span>[<span class="st">&quot;variedade&quot;</span>, <span class="st">&quot;alvo_fecha&quot;</span>], how<span class="op">=</span><span class="st">&quot;left&quot;</span>)</span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>av[<span class="st">&quot;observado&quot;</span>] <span class="op">=</span> av[<span class="st">&quot;observado&quot;</span>] <span class="op">*</span> (av[<span class="st">&quot;igpdi_base&quot;</span>] <span class="op">/</span> ult_igp)</span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>av <span class="op">=</span> av.dropna(subset<span class="op">=</span>[<span class="st">&quot;observado&quot;</span>])</span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="bu">len</span>(av) <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;Ainda não há semana-alvo com preço observado; o registro começa na &quot;</span></span>
+<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a>          <span class="st">&quot;próxima atualização.&quot;</span>)</span>
+<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
+<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a>    av[<span class="st">&quot;erro&quot;</span>] <span class="op">=</span> av[<span class="st">&quot;observado&quot;</span>] <span class="op">-</span> av[<span class="st">&quot;previsto&quot;</span>]</span>
+<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a>    av[<span class="st">&quot;dentro60&quot;</span>] <span class="op">=</span> (av[<span class="st">&quot;observado&quot;</span>] <span class="op">&gt;=</span> av[<span class="st">&quot;lo60&quot;</span>]) <span class="op">&amp;</span> (av[<span class="st">&quot;observado&quot;</span>] <span class="op">&lt;=</span> av[<span class="st">&quot;hi60&quot;</span>])</span>
+<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a>    <span class="co"># bandas de 80% podem nao existir nas linhas historicas recuperadas dos</span></span>
+<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a>    <span class="co"># HTMLs arquivados (a tabela publicada so trazia a de 60%). Comparar com</span></span>
+<span id="cb15-42"><a href="#cb15-42" aria-hidden="true" tabindex="-1"></a>    <span class="co"># NaN devolveria False e contaria como &quot;fora&quot;; marcamos como ausente para</span></span>
+<span id="cb15-43"><a href="#cb15-43" aria-hidden="true" tabindex="-1"></a>    <span class="co"># que a media simplesmente ignore essas linhas.</span></span>
+<span id="cb15-44"><a href="#cb15-44" aria-hidden="true" tabindex="-1"></a>    m80 <span class="op">=</span> av[<span class="st">&quot;lo80&quot;</span>].notna() <span class="op">&amp;</span> av[<span class="st">&quot;hi80&quot;</span>].notna()</span>
+<span id="cb15-45"><a href="#cb15-45" aria-hidden="true" tabindex="-1"></a>    av[<span class="st">&quot;dentro80&quot;</span>] <span class="op">=</span> np.nan</span>
+<span id="cb15-46"><a href="#cb15-46" aria-hidden="true" tabindex="-1"></a>    av.loc[m80, <span class="st">&quot;dentro80&quot;</span>] <span class="op">=</span> ((av.loc[m80, <span class="st">&quot;observado&quot;</span>] <span class="op">&gt;=</span> av.loc[m80, <span class="st">&quot;lo80&quot;</span>]) <span class="op">&amp;</span></span>
+<span id="cb15-47"><a href="#cb15-47" aria-hidden="true" tabindex="-1"></a>                               (av.loc[m80, <span class="st">&quot;observado&quot;</span>] <span class="op">&lt;=</span> av.loc[m80, <span class="st">&quot;hi80&quot;</span>])).astype(<span class="bu">float</span>)</span>
+<span id="cb15-48"><a href="#cb15-48" aria-hidden="true" tabindex="-1"></a>    tabela <span class="op">=</span> av.sort_values([<span class="st">&quot;alvo_fecha&quot;</span>, <span class="st">&quot;variedade&quot;</span>]).copy()</span>
+<span id="cb15-49"><a href="#cb15-49" aria-hidden="true" tabindex="-1"></a>    tabela[<span class="st">&quot;Faixa 60%&quot;</span>] <span class="op">=</span> [<span class="ss">f&quot;</span><span class="sc">{</span>a<span class="sc">:.2f}</span><span class="ss"> – </span><span class="sc">{</span>b<span class="sc">:.2f}</span><span class="ss">&quot;</span> <span class="cf">for</span> a, b <span class="kw">in</span> <span class="bu">zip</span>(tabela[<span class="st">&quot;lo60&quot;</span>], tabela[<span class="st">&quot;hi60&quot;</span>])]</span>
+<span id="cb15-50"><a href="#cb15-50" aria-hidden="true" tabindex="-1"></a>    tabela[<span class="st">&quot;Acerto&quot;</span>] <span class="op">=</span> np.where(tabela[<span class="st">&quot;dentro60&quot;</span>], <span class="st">&quot;dentro&quot;</span>, <span class="st">&quot;FORA&quot;</span>)</span>
+<span id="cb15-51"><a href="#cb15-51" aria-hidden="true" tabindex="-1"></a>    <span class="co"># display() explicito: expressao dentro de bloco if/else NAO e auto-exibida</span></span>
+<span id="cb15-52"><a href="#cb15-52" aria-hidden="true" tabindex="-1"></a>    display((GT(tabela[[<span class="st">&quot;alvo_fecha&quot;</span>, <span class="st">&quot;variedade&quot;</span>, <span class="st">&quot;h&quot;</span>, <span class="st">&quot;previsto&quot;</span>, <span class="st">&quot;Faixa 60%&quot;</span>,</span>
+<span id="cb15-53"><a href="#cb15-53" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;observado&quot;</span>, <span class="st">&quot;erro&quot;</span>, <span class="st">&quot;Acerto&quot;</span>]]</span>
+<span id="cb15-54"><a href="#cb15-54" aria-hidden="true" tabindex="-1"></a>        .rename(columns<span class="op">=</span>{<span class="st">&quot;alvo_fecha&quot;</span>: <span class="st">&quot;Semana-alvo&quot;</span>, <span class="st">&quot;variedade&quot;</span>: <span class="st">&quot;Variedade&quot;</span>,</span>
+<span id="cb15-55"><a href="#cb15-55" aria-hidden="true" tabindex="-1"></a>                         <span class="st">&quot;previsto&quot;</span>: <span class="st">&quot;Previsto&quot;</span>, <span class="st">&quot;observado&quot;</span>: <span class="st">&quot;Observado&quot;</span>,</span>
+<span id="cb15-56"><a href="#cb15-56" aria-hidden="true" tabindex="-1"></a>                         <span class="st">&quot;erro&quot;</span>: <span class="st">&quot;Erro&quot;</span>}))</span>
+<span id="cb15-57"><a href="#cb15-57" aria-hidden="true" tabindex="-1"></a>     .tab_header(title<span class="op">=</span><span class="st">&quot;Previsto × observado — histórico acumulado&quot;</span>,</span>
+<span id="cb15-58"><a href="#cb15-58" aria-hidden="true" tabindex="-1"></a>                 subtitle<span class="op">=</span><span class="st">&quot;Cada linha foi registrada ANTES de o preço ser conhecido&quot;</span>)</span>
+<span id="cb15-59"><a href="#cb15-59" aria-hidden="true" tabindex="-1"></a>     .fmt_number(columns<span class="op">=</span>[<span class="st">&quot;Previsto&quot;</span>, <span class="st">&quot;Observado&quot;</span>, <span class="st">&quot;Erro&quot;</span>], decimals<span class="op">=</span><span class="dv">2</span>)))</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="cetkzgjpym" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+#cetkzgjpym table {
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+}
+#cetkzgjpym thead, tbody, tfoot, tr, td, th { border-style: none; }
+tr { background-color: transparent; }
+#cetkzgjpym p { margin: 0; padding: 0; }
+#cetkzgjpym .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+#cetkzgjpym .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+#cetkzgjpym .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+#cetkzgjpym .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+#cetkzgjpym .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#cetkzgjpym .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#cetkzgjpym .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#cetkzgjpym .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+#cetkzgjpym .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+#cetkzgjpym .gt_column_spanner_outer:first-child { padding-left: 0; }
+#cetkzgjpym .gt_column_spanner_outer:last-child { padding-right: 0; }
+#cetkzgjpym .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+#cetkzgjpym .gt_spanner_row { border-bottom-style: hidden; }
+#cetkzgjpym .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+#cetkzgjpym .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+#cetkzgjpym .gt_from_md> :first-child { margin-top: 0; }
+#cetkzgjpym .gt_from_md> :last-child { margin-bottom: 0; }
+#cetkzgjpym .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+#cetkzgjpym .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+#cetkzgjpym .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+#cetkzgjpym .gt_row_group_first td { border-top-width: 2px; }
+#cetkzgjpym .gt_row_group_first th { border-top-width: 2px; }
+#cetkzgjpym .gt_striped { color: #333333; background-color: #F4F4F4; }
+#cetkzgjpym .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#cetkzgjpym .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#cetkzgjpym .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+#cetkzgjpym .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#cetkzgjpym .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#cetkzgjpym .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+#cetkzgjpym .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+#cetkzgjpym .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#cetkzgjpym .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#cetkzgjpym .gt_left { text-align: left; }
+#cetkzgjpym .gt_center { text-align: center; }
+#cetkzgjpym .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+#cetkzgjpym .gt_font_normal { font-weight: normal; }
+#cetkzgjpym .gt_font_bold { font-weight: bold; }
+#cetkzgjpym .gt_font_italic { font-style: italic; }
+#cetkzgjpym .gt_super { font-size: 65%; }
+#cetkzgjpym .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#cetkzgjpym .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+#cetkzgjpym .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#cetkzgjpym .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#cetkzgjpym .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+#cetkzgjpym .gt_asterisk { font-size: 100%; vertical-align: 0; }
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_heading header">
+<td colspan="8" class="gt_heading gt_title gt_font_normal">Previsto × observado — histórico acumulado</td>
+</tr>
+<tr class="gt_heading even">
+<td colspan="8" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Cada linha foi registrada ANTES de o preço ser conhecido</td>
+</tr>
+<tr class="gt_col_headings header">
+<th id="Semana-alvo" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Semana-alvo</th>
+<th id="Variedade" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Variedade</th>
+<th id="h" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">h</th>
+<th id="Previsto" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Previsto</th>
+<th id="Faixa-60%" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Faixa 60%</th>
+<th id="Observado" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Observado</th>
+<th id="Erro" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Erro</th>
+<th id="Acerto" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Acerto</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_right">2026-07-04</td>
+<td class="gt_row gt_left">palmer</td>
+<td class="gt_row gt_right">1</td>
+<td class="gt_row gt_right">2.81</td>
+<td class="gt_row gt_left">2.54 – 3.08</td>
+<td class="gt_row gt_right">2.99</td>
+<td class="gt_row gt_right">0.18</td>
+<td class="gt_row gt_left">dentro</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right">2026-07-04</td>
+<td class="gt_row gt_left">tommy</td>
+<td class="gt_row gt_right">1</td>
+<td class="gt_row gt_right">4.68</td>
+<td class="gt_row gt_left">4.11 – 5.25</td>
+<td class="gt_row gt_right">5.18</td>
+<td class="gt_row gt_right">0.50</td>
+<td class="gt_row gt_left">dentro</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right">2026-07-18</td>
+<td class="gt_row gt_left">palmer</td>
+<td class="gt_row gt_right">1</td>
+<td class="gt_row gt_right">3.21</td>
+<td class="gt_row gt_left">2.98 – 3.44</td>
+<td class="gt_row gt_right">3.68</td>
+<td class="gt_row gt_right">0.47</td>
+<td class="gt_row gt_left">FORA</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right">2026-07-18</td>
+<td class="gt_row gt_left">tommy</td>
+<td class="gt_row gt_right">1</td>
+<td class="gt_row gt_right">4.29</td>
+<td class="gt_row gt_left">3.96 – 4.62</td>
+<td class="gt_row gt_right">4.19</td>
+<td class="gt_row gt_right">−0.10</td>
+<td class="gt_row gt_left">dentro</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right">2026-07-25</td>
+<td class="gt_row gt_left">palmer</td>
+<td class="gt_row gt_right">1</td>
+<td class="gt_row gt_right">3.61</td>
+<td class="gt_row gt_left">3.41 – 3.81</td>
+<td class="gt_row gt_right">3.80</td>
+<td class="gt_row gt_right">0.19</td>
+<td class="gt_row gt_left">dentro</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right">2026-07-25</td>
+<td class="gt_row gt_left">tommy</td>
+<td class="gt_row gt_right">1</td>
+<td class="gt_row gt_right">3.48</td>
+<td class="gt_row gt_left">3.04 – 3.91</td>
+<td class="gt_row gt_right">3.68</td>
+<td class="gt_row gt_right">0.21</td>
+<td class="gt_row gt_left">dentro</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right">2026-08-01</td>
+<td class="gt_row gt_left">palmer</td>
+<td class="gt_row gt_right">1</td>
+<td class="gt_row gt_right">3.81</td>
+<td class="gt_row gt_left">3.57 – 4.06</td>
+<td class="gt_row gt_right">3.75</td>
+<td class="gt_row gt_right">−0.06</td>
+<td class="gt_row gt_left">dentro</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right">2026-08-01</td>
+<td class="gt_row gt_left">tommy</td>
+<td class="gt_row gt_right">1</td>
+<td class="gt_row gt_right">3.15</td>
+<td class="gt_row gt_left">2.79 – 3.50</td>
+<td class="gt_row gt_right">2.53</td>
+<td class="gt_row gt_right">−0.62</td>
+<td class="gt_row gt_left">FORA</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+</div>
+<div id="3bee5502" class="cell" data-execution_count="13">
+<details class="code-fold">
+<summary>Código</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="bu">len</span>(av) <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    resumo_ac <span class="op">=</span> (av.groupby(<span class="st">&quot;variedade&quot;</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>                 .agg(<span class="op">**</span>{<span class="st">&quot;N semanas&quot;</span>: (<span class="st">&quot;erro&quot;</span>, <span class="st">&quot;size&quot;</span>),</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>                         <span class="st">&quot;MAE&quot;</span>: (<span class="st">&quot;erro&quot;</span>, <span class="kw">lambda</span> s: s.<span class="bu">abs</span>().mean()),</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>                         <span class="st">&quot;Cobertura 60% (%)&quot;</span>: (<span class="st">&quot;dentro60&quot;</span>, <span class="kw">lambda</span> s: <span class="dv">100</span> <span class="op">*</span> s.mean()),</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>                         <span class="st">&quot;N (80%)&quot;</span>: (<span class="st">&quot;dentro80&quot;</span>, <span class="st">&quot;count&quot;</span>),</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>                         <span class="st">&quot;Cobertura 80% (%)&quot;</span>: (<span class="st">&quot;dentro80&quot;</span>, <span class="kw">lambda</span> s: <span class="dv">100</span> <span class="op">*</span> s.mean())})</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>                 .reset_index().rename(columns<span class="op">=</span>{<span class="st">&quot;variedade&quot;</span>: <span class="st">&quot;Variedade&quot;</span>}))</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    display((GT(resumo_ac)</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>             .tab_header(title<span class="op">=</span><span class="st">&quot;Desempenho acumulado fora da amostra&quot;</span>,</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>                         subtitle<span class="op">=</span><span class="st">&quot;A cobertura só se torna informativa depois de &quot;</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">&quot;algumas dezenas de semanas&quot;</span>)</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>             .fmt_number(columns<span class="op">=</span>[<span class="st">&quot;MAE&quot;</span>, <span class="st">&quot;Cobertura 60% (%)&quot;</span>, <span class="st">&quot;Cobertura 80% (%)&quot;</span>],</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>                         decimals<span class="op">=</span><span class="dv">2</span>)))</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="rjpqfqwara" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+#rjpqfqwara table {
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+}
+#rjpqfqwara thead, tbody, tfoot, tr, td, th { border-style: none; }
+tr { background-color: transparent; }
+#rjpqfqwara p { margin: 0; padding: 0; }
+#rjpqfqwara .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+#rjpqfqwara .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+#rjpqfqwara .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+#rjpqfqwara .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+#rjpqfqwara .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#rjpqfqwara .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#rjpqfqwara .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+#rjpqfqwara .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+#rjpqfqwara .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+#rjpqfqwara .gt_column_spanner_outer:first-child { padding-left: 0; }
+#rjpqfqwara .gt_column_spanner_outer:last-child { padding-right: 0; }
+#rjpqfqwara .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+#rjpqfqwara .gt_spanner_row { border-bottom-style: hidden; }
+#rjpqfqwara .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+#rjpqfqwara .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+#rjpqfqwara .gt_from_md> :first-child { margin-top: 0; }
+#rjpqfqwara .gt_from_md> :last-child { margin-bottom: 0; }
+#rjpqfqwara .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+#rjpqfqwara .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+#rjpqfqwara .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+#rjpqfqwara .gt_row_group_first td { border-top-width: 2px; }
+#rjpqfqwara .gt_row_group_first th { border-top-width: 2px; }
+#rjpqfqwara .gt_striped { color: #333333; background-color: #F4F4F4; }
+#rjpqfqwara .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#rjpqfqwara .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#rjpqfqwara .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+#rjpqfqwara .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+#rjpqfqwara .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+#rjpqfqwara .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+#rjpqfqwara .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+#rjpqfqwara .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#rjpqfqwara .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#rjpqfqwara .gt_left { text-align: left; }
+#rjpqfqwara .gt_center { text-align: center; }
+#rjpqfqwara .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+#rjpqfqwara .gt_font_normal { font-weight: normal; }
+#rjpqfqwara .gt_font_bold { font-weight: bold; }
+#rjpqfqwara .gt_font_italic { font-style: italic; }
+#rjpqfqwara .gt_super { font-size: 65%; }
+#rjpqfqwara .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#rjpqfqwara .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+#rjpqfqwara .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+#rjpqfqwara .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+#rjpqfqwara .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+#rjpqfqwara .gt_asterisk { font-size: 100%; vertical-align: 0; }
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_heading header">
+<td colspan="6" class="gt_heading gt_title gt_font_normal">Desempenho acumulado fora da amostra</td>
+</tr>
+<tr class="gt_heading even">
+<td colspan="6" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">A cobertura só se torna informativa depois de algumas dezenas de semanas</td>
+</tr>
+<tr class="gt_col_headings header">
+<th id="Variedade" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Variedade</th>
+<th id="N-semanas" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">N semanas</th>
+<th id="MAE" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">MAE</th>
+<th id="Cobertura-60%-(%)" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Cobertura 60% (%)</th>
+<th id="N-(80%)" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">N (80%)</th>
+<th id="Cobertura-80%-(%)" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Cobertura 80% (%)</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left">palmer</td>
+<td class="gt_row gt_right">4</td>
+<td class="gt_row gt_right">0.23</td>
+<td class="gt_row gt_right">75.00</td>
+<td class="gt_row gt_right">0</td>
+<td class="gt_row gt_right"><na></na></td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left">tommy</td>
+<td class="gt_row gt_right">4</td>
+<td class="gt_row gt_right">0.35</td>
+<td class="gt_row gt_right">75.00</td>
+<td class="gt_row gt_right">0</td>
+<td class="gt_row gt_right"><na></na></td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+</div>
+</section>
 </section>
 <section id="próximos-passos" class="level2">
 <h2 class="anchored" data-anchor-id="próximos-passos">11. Próximos passos</h2>
 <ol type="1">
-<li><del><strong>Câmbio: nível vs. diferença.</strong></del> <strong>Resolvido</strong> — adotado <em>câmbio misto</em>: AutoARIMA usa nível, XGBoost usa diferença semanal. Ganho: combinação de previsões Palmer −4,7% de RMSE (ver §4.5).</li>
-<li><del><strong>Variáveis climáticas (lag 16).</strong></del> <strong>Resolvido</strong> — <code>hot_days_lag16</code> na Palmer e <code>cold_days_lag16 + rainfall_lag16</code> na Tommy, validados no rolling-origin. Ganho adicional: Palmer −1,4%, Tommy −2,5% de RMSE (ver §3.1).</li>
-<li><strong>Antracnose em horizonte curto.</strong> Reavaliar a chuva (janela 3–6) num modelo de <span class="math inline">\(h\le 4\)</span>, onde o sinal de doença é previsível.</li>
-<li><del><strong>Cobweb (preço lag 52 como exógena explícita no AutoARIMA)</strong></del> <span class="citation" data-cites="ezekiel1938 nerlove1958">(<a href="#ref-ezekiel1938" role="doc-biblioref">Ezekiel 1938</a>; <a href="#ref-nerlove1958" role="doc-biblioref">Nerlove 1958</a>)</span>. <strong>Testado e descartado.</strong> Em comparação limpa (mesmo dataset de 702 semanas, XGBoost idêntico nos dois cenários), a adição de <code>y_lag52</code> no AutoARIMA gerou ganho de apenas +0,2% de RMSE na Palmer e +0,3% na Tommy — dentro do ruído de variação entre janelas. Um resultado anterior de +2,9% era espúrio (datasets de tamanhos diferentes contaminavam a comparação). O mecanismo cobweb pode voltar a ser testado se a série crescer ou se houver indicativo teórico mais forte para uma variedade específica.</li>
-<li><del><strong>Modelos por regime / quantílicos para as viradas.</strong></del> <strong>Testados e descartados — com reformulação do diagnóstico.</strong> Classificando cada janela do rolling-origin como <em>virada</em> (momentum pré-origem com sinal oposto ao pós-origem) ou <em>tendência</em>, descobriu-se que 13/20 (Palmer) e 14/20 (Tommy) das janelas contêm viradas — e que a acurácia direcional <strong>nas viradas já é boa</strong> (69% Palmer, 71% Tommy), superior à das janelas de tendência na Palmer (59%). O ponto fraco real não é antecipar a inflexão, mas <strong>reconhecer a persistência da tendência</strong> — o modelo às vezes prevê a virada <em>cedo demais</em> (ex.: semana 29/2026, queda prevista em plena alta). As variantes testadas no mesmo rolling-origin não superaram a especificação atual: <em>momentum</em> explícito no XGBoost (médias móveis 4/8 + EWM) piorou o RMSE em −9,8% (Palmer) e −5,5% (Tommy); XGBoost quantílico (mediana) deu +1,2% na Palmer mas −3,7% na Tommy (dentro do ruído); e o Theta dinâmico (DOT) como terceiro membro do ensemble degradou fortemente (−40% RMSE isolado na Tommy). <strong>Alvo aberto para trabalho futuro:</strong> melhorar a acurácia direcional nas janelas de tendência da Palmer (59%).</li>
-<li><strong>Redes neurais — testadas e descartadas.</strong> Um NHITS (<code>neuralforecast</code>; arquitetura descrita no §4.3) foi avaliado no mesmo rolling-origin (20 origens, refit em cada uma) e ficou atrás de todos os modelos, inclusive do XGBoost: RMSE 0,98 na Palmer e 1,13 na Tommy (vs. 0,77 e 0,85 do AutoARIMA), com MAPE acima de 38%. Com ~2,7 milhões de parâmetros para ~750 observações por série, a rede sobreajusta — confirma a leitura do §5.1 (viés × variância) de que, em série curta e ruidosa, modelos simples e regularizados vencem. Redes neurais voltam a fazer sentido se, no futuro, o painel crescer (mais variedades/ mercados) para treinar um modelo global compartilhando padrões entre séries.</li>
-<li><strong>Quebras estruturais.</strong> O §2 lista quebras de regime (novos pomares, mercados de exportação) como fonte de erro, mas a hipótese nunca foi testada formalmente. O procedimento de Bai-Perron <span class="citation" data-cites="bai2003">(<a href="#ref-bai2003" role="doc-biblioref">Bai e Perron 2003</a>)</span> permite datar quebras múltiplas na relação preço-sazonalidade; se houver quebra relevante, vale testar janela de estimação encurtada ou pesos decrescentes no tempo.</li>
+<li><p><del><strong>Câmbio: nível vs. diferença.</strong></del> <strong>Resolvido</strong> — adotado <em>câmbio misto</em>: AutoARIMA usa nível, XGBoost usa diferença semanal. Ganho: combinação de previsões Palmer −4,7% de RMSE (ver §4.5).</p></li>
+<li><p><del><strong>Variáveis climáticas (lag 16).</strong></del> <strong>Resolvido</strong> — <code>hot_days_lag16</code> na Palmer e <code>cold_days_lag16 + rainfall_lag16</code> na Tommy, validados no rolling-origin. Ganho adicional: Palmer −1,4%, Tommy −2,5% de RMSE (ver §3.1).</p></li>
+<li><p><strong>Antracnose em horizonte curto.</strong> Reavaliar a chuva (janela 3–6) num modelo de <span class="math inline">\(h\le 4\)</span>, onde o sinal de doença é previsível.</p></li>
+<li><p><del><strong>Cobweb (preço lag 52 como exógena explícita no AutoARIMA)</strong></del> <span class="citation" data-cites="ezekiel1938 nerlove1958">(<a href="#ref-ezekiel1938" role="doc-biblioref">Ezekiel 1938</a>; <a href="#ref-nerlove1958" role="doc-biblioref">Nerlove 1958</a>)</span>. <strong>Testado e descartado.</strong> Em comparação limpa (mesmo dataset de 702 semanas, XGBoost idêntico nos dois cenários), a adição de <code>y_lag52</code> no AutoARIMA gerou ganho de apenas +0,2% de RMSE na Palmer e +0,3% na Tommy — dentro do ruído de variação entre janelas. Um resultado anterior de +2,9% era espúrio (datasets de tamanhos diferentes contaminavam a comparação). O mecanismo cobweb pode voltar a ser testado se a série crescer ou se houver indicativo teórico mais forte para uma variedade específica.</p></li>
+<li><p><del><strong>Modelos por regime / quantílicos para as viradas.</strong></del> <strong>Testados e descartados — com reformulação do diagnóstico.</strong> Classificando cada janela do rolling-origin como <em>virada</em> (momentum pré-origem com sinal oposto ao pós-origem) ou <em>tendência</em>, descobriu-se que 13/20 (Palmer) e 14/20 (Tommy) das janelas contêm viradas — e que a acurácia direcional <strong>nas viradas já é boa</strong> (69% Palmer, 71% Tommy), superior à das janelas de tendência na Palmer (59%). O ponto fraco real não é antecipar a inflexão, mas <strong>reconhecer a persistência da tendência</strong> — o modelo às vezes prevê a virada <em>cedo demais</em> (ex.: semana 29/2026, queda prevista em plena alta). As variantes testadas no mesmo rolling-origin não superaram a especificação atual: <em>momentum</em> explícito no XGBoost (médias móveis 4/8 + EWM) piorou o RMSE em −9,8% (Palmer) e −5,5% (Tommy); XGBoost quantílico (mediana) deu +1,2% na Palmer mas −3,7% na Tommy (dentro do ruído); e o Theta dinâmico (DOT) como terceiro membro do ensemble degradou fortemente (−40% RMSE isolado na Tommy). <strong>Alvo aberto para trabalho futuro:</strong> melhorar a acurácia direcional nas janelas de tendência da Palmer (59%).</p></li>
+<li><p><strong>Redes neurais — testadas e descartadas.</strong> Um NHITS (<code>neuralforecast</code>; arquitetura descrita no §4.3) foi avaliado no mesmo rolling-origin (20 origens, refit em cada uma) e ficou atrás de todos os modelos, inclusive do XGBoost: RMSE 0,98 na Palmer e 1,13 na Tommy (vs. 0,77 e 0,85 do AutoARIMA), com MAPE acima de 38%. Com ~2,7 milhões de parâmetros para ~750 observações por série, a rede sobreajusta — confirma a leitura do §5.1 (viés × variância) de que, em série curta e ruidosa, modelos simples e regularizados vencem. Redes neurais voltam a fazer sentido se, no futuro, o painel crescer (mais variedades/ mercados) para treinar um modelo global compartilhando padrões entre séries.</p></li>
+<li><p><strong>Quebras estruturais.</strong> O §2 lista quebras de regime (novos pomares, mercados de exportação) como fonte de erro, mas a hipótese nunca foi testada formalmente. O procedimento de Bai-Perron <span class="citation" data-cites="bai2003">(<a href="#ref-bai2003" role="doc-biblioref">Bai e Perron 2003</a>)</span> permite datar quebras múltiplas na relação preço-sazonalidade; se houver quebra relevante, vale testar janela de estimação encurtada ou pesos decrescentes no tempo.</p></li>
+<li><p><del><strong>Dummy da janela de exportação para os EUA (semanas 31–46).</strong></del> <strong>Testada e descartada — o efeito já está no Fourier.</strong> A hipótese era que a abertura do mercado norte-americano para a Tommy Atkins (variedade que suporta o tratamento hidrotérmico exigido no protocolo) elevasse a demanda e sustentasse o preço nesse trecho do ano. O teste foi feito em duas etapas.</p>
+<p><em>Etapa 1 — a janela deixa resíduo na base sazonal?</em> Ajustando apenas os termos de Fourier (<span class="math inline">\(K=2\)</span>) sobre as 759 semanas da série, o resíduo médio <strong>dentro</strong> da janela é +0,031 R$/kg na Tommy contra −0,013 <strong>fora</strong> — diferença de 4 centavos, não distinguível de zero (<span class="math inline">\(t=0{,}64\)</span>; <span class="math inline">\(p=0{,}52\)</span>; 225 semanas dentro da janela). Na Palmer a diferença é −0,009 (<span class="math inline">\(p=0{,}92\)</span>). Mais informativo que o teste: o perfil semana a semana do resíduo <strong>não é retangular</strong> — oscila (−0,37; −0,04; +0,15; +0,23; …; +0,22; +0,09), enquanto uma dummy impõe degrau constante. A maior deriva da janela ocorre justamente na semana 31 e é <strong>negativa</strong>, contrariando a hipótese de alta na abertura.</p>
+<p><em>Etapa 2 — teste fora da amostra.</em> Rolling-origin A/B com e sem a dummy como exógena do AutoARIMA, ampliado para <strong>52 janelas</strong> (~208 semanas, quatro passagens pela janela — as 20 janelas usuais cobririam apenas uma). Ganhos de +0,1% (Tommy) e −0,3% (Palmer) no RMSE geral, e +0,4%/+0,0% no RMSE restrito às semanas 31–46: mesma ordem de grandeza do cobweb (item 4), isto é, ruído. A acurácia direcional da Tommy na janela subiu 2,1 pp no AutoARIMA, mas não se sustentou no ensemble (+0,0 pp), o que aponta flutuação amostral.</p>
+<p><strong>Interpretação.</strong> O resultado não nega o canal de exportação — mostra que seu <strong>padrão médio de calendário já é captado pela sazonalidade de Fourier</strong>, e que uma dummy apenas reparametriza informação existente (o mesmo argumento do §3.3 sobre competição doméstica). O que permanece fora do modelo é a <strong>variação de intensidade entre anos</strong> — quanto se embarca em cada temporada, função do câmbio, das origens concorrentes e dos estoques nos EUA. <strong>Alvo aberto:</strong> testar uma <em>anomalia</em> de volume exportado (volume do mês relativo à sua média histórica, defasado <span class="math inline">\(\ge h\)</span>), análoga à anomalia de temperatura do Peru já em uso.</p></li>
 </ol>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -4231,13 +4587,13 @@ Nota
 <p><strong>Ambiente.</strong> Este documento usa o kernel <code>manga-nixtla</code> (Python 3.12 isolado em <code>LOCALAPPDATA</code>, criado com <code>uv</code>). O Python 3.14 do sistema não tem wheels para o ecossistema científico. As bases são geradas por <code>python gerar_clima.py --aplicar</code> (clima) e <code>python gerar_exogenas.py --aplicar</code> (câmbio + Niño + anomalia Peru). O XGBoost usa <code>random_state=42</code>; as versões abaixo garantem reprodutibilidade.</p>
 </div>
 </div>
-<div id="cbc6d721" class="cell" data-execution_count="12">
+<div id="9786e6f5" class="cell" data-execution_count="14">
 <details class="code-fold">
 <summary>Código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys, statsforecast, mlforecast, plotnine, statsmodels, scipy</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;Python       </span><span class="sc">{</span>sys<span class="sc">.</span>version<span class="sc">.</span>split()[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">&quot;</span>)</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> pacote <span class="kw">in</span> (np, pd, statsforecast, mlforecast, xgb, plotnine, statsmodels, scipy):</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="sc">{</span>pacote<span class="sc">.</span><span class="va">__name__</span><span class="sc">:&lt;12}</span><span class="ss"> </span><span class="sc">{</span>pacote<span class="sc">.</span>__version__<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys, statsforecast, mlforecast, plotnine, statsmodels, scipy</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;Python       </span><span class="sc">{</span>sys<span class="sc">.</span>version<span class="sc">.</span>split()[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> pacote <span class="kw">in</span> (np, pd, statsforecast, mlforecast, xgb, plotnine, statsmodels, scipy):</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="sc">{</span>pacote<span class="sc">.</span><span class="va">__name__</span><span class="sc">:&lt;12}</span><span class="ss"> </span><span class="sc">{</span>pacote<span class="sc">.</span>__version__<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Python       3.12.13

@@ -1,0 +1,21 @@
+origem_fecha,alvo_fecha,h,variedade,previsto,lo60,hi60,lo80,hi80,igpdi_base,spec
+2026-06-27,2026-07-04,1,palmer,2.81,2.54,3.08,,,1202.299,AutoARIMA+XGB com exogenas h=8 (legado)
+2026-06-27,2026-07-04,1,tommy,4.68,4.11,5.25,,,1202.299,AutoARIMA+XGB com exogenas h=8 (legado)
+2026-07-11,2026-07-18,1,palmer,3.21,2.98,3.44,,,1202.299,AutoARIMA+XGB com exogenas h=8 (legado)
+2026-07-11,2026-07-18,1,tommy,4.29,3.96,4.62,,,1202.299,AutoARIMA+XGB com exogenas h=8 (legado)
+2026-07-18,2026-07-25,1,palmer,3.61,3.41,3.81,,,1202.299,AutoARIMA+XGB com exogenas h=8 (legado)
+2026-07-18,2026-07-25,1,tommy,3.475,3.04,3.91,,,1202.299,AutoARIMA+XGB com exogenas h=8 (legado)
+2026-07-25,2026-08-01,1,palmer,3.815,3.57,4.06,,,1202.299,AutoARIMA+XGB com exogenas h=8 (legado)
+2026-07-25,2026-08-01,1,tommy,3.145,2.79,3.5,,,1202.299,AutoARIMA+XGB com exogenas h=8 (legado)
+2026-08-01,2026-08-08,1,palmer,3.7723,3.5486,3.996,3.5006,4.0439,1202.299,AutoARIMA+XGB com exogenas h=6
+2026-08-01,2026-08-08,1,tommy,2.0419,1.8175,2.2663,1.5713,2.5124,1202.299,AutoARIMA+XGB com exogenas h=6
+2026-08-01,2026-08-15,2,palmer,3.6666,3.3154,4.0179,3.1817,4.1516,1202.299,AutoARIMA+XGB com exogenas h=6
+2026-08-01,2026-08-15,2,tommy,1.9845,1.3308,2.6381,1.147,2.822,1202.299,AutoARIMA+XGB com exogenas h=6
+2026-08-01,2026-08-22,3,palmer,3.5992,3.1365,4.062,3.0007,4.1977,1202.299,AutoARIMA+XGB com exogenas h=6
+2026-08-01,2026-08-22,3,tommy,1.9522,1.116,2.7885,0.6669,3.2375,1202.299,AutoARIMA+XGB com exogenas h=6
+2026-08-01,2026-08-29,4,palmer,3.5103,2.833,4.1875,2.4293,4.5912,1202.299,AutoARIMA+XGB com exogenas h=6
+2026-08-01,2026-08-29,4,tommy,1.9577,1.0379,2.8775,0.4764,3.439,1202.299,AutoARIMA+XGB com exogenas h=6
+2026-08-01,2026-09-05,5,palmer,3.4393,2.7498,4.1288,2.2281,4.6506,1202.299,AutoARIMA+XGB com exogenas h=6
+2026-08-01,2026-09-05,5,tommy,1.9945,1.2923,2.6968,0.451,3.5381,1202.299,AutoARIMA+XGB com exogenas h=6
+2026-08-01,2026-09-12,6,palmer,3.3577,2.6986,4.0167,2.1628,4.5526,1202.299,AutoARIMA+XGB com exogenas h=6
+2026-08-01,2026-09-12,6,tommy,1.9286,1.2321,2.6251,0.7049,3.1523,1202.299,AutoARIMA+XGB com exogenas h=6

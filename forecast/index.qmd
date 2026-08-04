@@ -1075,6 +1075,107 @@ for uid in ["palmer", "tommy"]:
  .fmt_number(columns=["Cobertura 60% (%)", "Cobertura 80% (%)"], decimals=1))
 ```
 
+### 10.2 Acompanhamento contínuo (previsto × observado, semana a semana)
+
+A calibração da §10.1 é **interna ao rolling-origin**: mede cobertura sobre
+janelas retiradas da própria amostra histórica. É necessária, mas não
+substitui o teste mais duro — confrontar a previsão **publicada** com o preço
+que de fato ocorreu depois, sem qualquer chance de contaminação.
+
+Esta seção mantém esse registro. A cada render o documento grava sua própria
+previsão em `forecast/historico_previsoes.csv` (origem, semana-alvo,
+horizonte, ponto e bandas) e só então procura o observado. Uma previsão
+gravada **nunca é recalculada**: quando o preço chega, é comparado ao que
+estava registrado.
+
+*Origem do histórico inicial:* as primeiras linhas foram recuperadas dos
+HTMLs arquivados semanalmente em `forecast/` (`index_DDMMYYYY.html`), que
+preservam as previsões efetivamente publicadas. Elas vêm da especificação
+**anterior** (AutoARIMA + XGBoost com exógenas, $h=8$) e estão marcadas como
+tal — misturá-las com as novas exige cautela na leitura, mas descartá-las
+seria jogar fora o único registro fora da amostra que já existe. As bandas de
+80% não constavam da tabela publicada e ficam vazias nessas linhas.
+
+```{python}
+#| warning: false
+import os
+HIST = "forecast/historico_previsoes.csv"
+
+ult_igp = float(igpdi["igpdi"].iloc[-1])
+novas = []
+for uid in ["palmer", "tommy"]:
+    g = fc[fc["unique_id"] == uid]
+    origem = df[df["unique_id"] == uid]["fecha"].max()
+    for _, r in g.iterrows():
+        novas.append({"origem_fecha": origem.strftime("%Y-%m-%d"),
+                      "alvo_fecha": r["fecha"].strftime("%Y-%m-%d"),
+                      "h": int(r["h"]), "variedade": uid,
+                      "previsto": round(float(r["Ensemble"]), 4),
+                      "lo60": round(float(r["Ens-lo-60"]), 4),
+                      "hi60": round(float(r["Ens-hi-60"]), 4),
+                      "lo80": round(float(r["Ens-lo-80"]), 4),
+                      "hi80": round(float(r["Ens-hi-80"]), 4),
+                      "igpdi_base": ult_igp,
+                      "spec": "AutoARIMA+XGB com exogenas h=6"})
+hist = pd.concat([pd.read_csv(HIST), pd.DataFrame(novas)], ignore_index=True) \
+       if os.path.exists(HIST) else pd.DataFrame(novas)
+hist = hist.drop_duplicates(subset=["origem_fecha", "alvo_fecha", "variedade"],
+                            keep="first").sort_values(["alvo_fecha", "variedade", "h"])
+hist.to_csv(HIST, index=False)
+
+obs = df[["unique_id", "fecha", "y"]].dropna(subset=["y"]).copy()
+obs["alvo_fecha"] = obs["fecha"].dt.strftime("%Y-%m-%d")
+obs = obs.rename(columns={"unique_id": "variedade", "y": "observado"})
+av = hist.merge(obs[["variedade", "alvo_fecha", "observado"]],
+                on=["variedade", "alvo_fecha"], how="left")
+av["observado"] = av["observado"] * (av["igpdi_base"] / ult_igp)
+av = av.dropna(subset=["observado"])
+
+if len(av) == 0:
+    print("Ainda não há semana-alvo com preço observado; o registro começa na "
+          "próxima atualização.")
+else:
+    av["erro"] = av["observado"] - av["previsto"]
+    av["dentro60"] = (av["observado"] >= av["lo60"]) & (av["observado"] <= av["hi60"])
+    # bandas de 80% podem nao existir nas linhas historicas recuperadas dos
+    # HTMLs arquivados (a tabela publicada so trazia a de 60%). Comparar com
+    # NaN devolveria False e contaria como "fora"; marcamos como ausente para
+    # que a media simplesmente ignore essas linhas.
+    m80 = av["lo80"].notna() & av["hi80"].notna()
+    av["dentro80"] = np.nan
+    av.loc[m80, "dentro80"] = ((av.loc[m80, "observado"] >= av.loc[m80, "lo80"]) &
+                               (av.loc[m80, "observado"] <= av.loc[m80, "hi80"])).astype(float)
+    tabela = av.sort_values(["alvo_fecha", "variedade"]).copy()
+    tabela["Faixa 60%"] = [f"{a:.2f} – {b:.2f}" for a, b in zip(tabela["lo60"], tabela["hi60"])]
+    tabela["Acerto"] = np.where(tabela["dentro60"], "dentro", "FORA")
+    # display() explicito: expressao dentro de bloco if/else NAO e auto-exibida
+    display((GT(tabela[["alvo_fecha", "variedade", "h", "previsto", "Faixa 60%",
+                "observado", "erro", "Acerto"]]
+        .rename(columns={"alvo_fecha": "Semana-alvo", "variedade": "Variedade",
+                         "previsto": "Previsto", "observado": "Observado",
+                         "erro": "Erro"}))
+     .tab_header(title="Previsto × observado — histórico acumulado",
+                 subtitle="Cada linha foi registrada ANTES de o preço ser conhecido")
+     .fmt_number(columns=["Previsto", "Observado", "Erro"], decimals=2)))
+```
+
+```{python}
+if len(av) > 0:
+    resumo_ac = (av.groupby("variedade")
+                 .agg(**{"N semanas": ("erro", "size"),
+                         "MAE": ("erro", lambda s: s.abs().mean()),
+                         "Cobertura 60% (%)": ("dentro60", lambda s: 100 * s.mean()),
+                         "N (80%)": ("dentro80", "count"),
+                         "Cobertura 80% (%)": ("dentro80", lambda s: 100 * s.mean())})
+                 .reset_index().rename(columns={"variedade": "Variedade"}))
+    display((GT(resumo_ac)
+             .tab_header(title="Desempenho acumulado fora da amostra",
+                         subtitle="A cobertura só se torna informativa depois de "
+                                  "algumas dezenas de semanas")
+             .fmt_number(columns=["MAE", "Cobertura 60% (%)", "Cobertura 80% (%)"],
+                         decimals=2)))
+```
+
 ## 11. Próximos passos
 
 1. ~~**Câmbio: nível vs. diferença.**~~ **Resolvido** — adotado *câmbio misto*:
@@ -1121,6 +1222,38 @@ for uid in ["palmer", "tommy"]:
    O procedimento de Bai-Perron [@bai2003] permite datar quebras múltiplas na
    relação preço-sazonalidade; se houver quebra relevante, vale testar janela de
    estimação encurtada ou pesos decrescentes no tempo.
+8. ~~**Dummy da janela de exportação para os EUA (semanas 31–46).**~~ **Testada e
+   descartada — o efeito já está no Fourier.** A hipótese era que a abertura do
+   mercado norte-americano para a Tommy Atkins (variedade que suporta o tratamento
+   hidrotérmico exigido no protocolo) elevasse a demanda e sustentasse o preço nesse
+   trecho do ano. O teste foi feito em duas etapas.
+
+   *Etapa 1 — a janela deixa resíduo na base sazonal?* Ajustando apenas os termos de
+   Fourier ($K=2$) sobre as 759 semanas da série, o resíduo médio **dentro** da janela
+   é +0,031 R\$/kg na Tommy contra −0,013 **fora** — diferença de 4 centavos, não
+   distinguível de zero ($t=0{,}64$; $p=0{,}52$; 225 semanas dentro da janela). Na
+   Palmer a diferença é −0,009 ($p=0{,}92$). Mais informativo que o teste: o perfil
+   semana a semana do resíduo **não é retangular** — oscila (−0,37; −0,04; +0,15;
+   +0,23; …; +0,22; +0,09), enquanto uma dummy impõe degrau constante. A maior
+   deriva da janela ocorre justamente na semana 31 e é **negativa**, contrariando a
+   hipótese de alta na abertura.
+
+   *Etapa 2 — teste fora da amostra.* Rolling-origin A/B com e sem a dummy como
+   exógena do AutoARIMA, ampliado para **52 janelas** (~208 semanas, quatro passagens
+   pela janela — as 20 janelas usuais cobririam apenas uma). Ganhos de +0,1% (Tommy)
+   e −0,3% (Palmer) no RMSE geral, e +0,4%/+0,0% no RMSE restrito às semanas 31–46:
+   mesma ordem de grandeza do cobweb (item 4), isto é, ruído. A acurácia direcional
+   da Tommy na janela subiu 2,1 pp no AutoARIMA, mas não se sustentou no ensemble
+   (+0,0 pp), o que aponta flutuação amostral.
+
+   **Interpretação.** O resultado não nega o canal de exportação — mostra que seu
+   **padrão médio de calendário já é captado pela sazonalidade de Fourier**, e que
+   uma dummy apenas reparametriza informação existente (o mesmo argumento do §3.3
+   sobre competição doméstica). O que permanece fora do modelo é a **variação de
+   intensidade entre anos** — quanto se embarca em cada temporada, função do câmbio,
+   das origens concorrentes e dos estoques nos EUA. **Alvo aberto:** testar uma
+   *anomalia* de volume exportado (volume do mês relativo à sua média histórica,
+   defasado $\ge h$), análoga à anomalia de temperatura do Peru já em uso.
 
 ::: {.callout-note}
 **Ambiente.** Este documento usa o kernel `manga-nixtla` (Python 3.12 isolado em
