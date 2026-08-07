@@ -33,3 +33,4 @@ Saída: `dashboard.html` (estático, pronto para GitHub Pages).
 | Tabs internas | Não nativo | `### Column {.tabset}` |
 
 O código analítico em R continua **idêntico** — só muda a apresentação.
+
