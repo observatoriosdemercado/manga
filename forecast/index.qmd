@@ -1254,6 +1254,57 @@ if len(av) > 0:
    das origens concorrentes e dos estoques nos EUA. **Alvo aberto:** testar uma
    *anomalia* de volume exportado (volume do mês relativo à sua média histórica,
    defasado $\ge h$), análoga à anomalia de temperatura do Peru já em uso.
+9. ~~**Clima dos concorrentes externos (México, Equador e Peru).**~~ **Testado e
+   descartado — forte dentro da amostra, nulo fora dela.** Este foi o teste mais
+   extenso do projeto e o que melhor ilustra por que o rolling-origin existe.
+
+   *Mecanismo e calendário.* Quebras de safra no México e no Equador desviam a
+   demanda norte-americana para o Brasil. O calendário competitivo, mapeado por
+   conhecimento de mercado, atribui a cada trecho do ano um concorrente marginal
+   distinto: **México** nas semanas 21–31 (safra deles terminando quando a
+   brasileira começa), **Equador** nas 38–46 (entram na 38) e **Peru** nas 47–52
+   mais 1–20 (safra de novembro a meados de maio, competindo sobretudo na Europa,
+   para onde o Brasil exporta o ano inteiro). Coletou-se clima diário da NASA
+   POWER para seis estados mexicanos (Chiapas a Sinaloa) e usou-se o Equador
+   (Guayas) já disponível.
+
+   *Cuidados metodológicos.* As anomalias usam **climatologia em janela
+   expansiva** — a referência de cada ponto vem apenas das ocorrências anteriores
+   daquela semana do ano. Uma média de amostra cheia vazaria informação futura e,
+   com o aquecimento gradual do período, transformaria tendência em anomalia
+   positiva sistemática no fim da série. A especificação é de **interação**
+   (anomalia × indicador da sub-janela), não exógena de coeficiente constante:
+   o mecanismo só opera no trecho em que aquele país é o concorrente marginal.
+
+   *Colinearidade — a suspeita não se confirmou.* Esperava-se que o Equador
+   repetisse o caso da anomalia peruana, redundante com o ENSO. As correlações
+   com Niño 1+2 e 3.4 ficaram todas abaixo de 0,26: as variáveis carregam
+   informação genuinamente nova.
+
+   *O contraste que dá nome ao achado.* No Equador, a anomalia de temperatura
+   (lag 26) correlaciona-se com o preço a $r=-0{,}495$ (Tommy) e $-0{,}391$
+   (Palmer), $p<0{,}001$, com sinais coerentes entre as duas variedades. No
+   rolling-origin de 52 janelas, o ganho é de $-0{,}1\%$ — e **negativo dentro da
+   própria sub-janela** onde deveria atuar. Nenhuma das 32 especificações
+   testadas (México, Equador e Peru) passou no Diebold-Mariano com ganho positivo.
+
+   *O caso mexicano e o teste placebo.* A chuva anômala no México (lag 30,
+   janela 21–31) chegou a exibir $+0{,}8\%$ de RMSE na Palmer com $p=0{,}015$ —
+   o único resultado aparentemente promissor. Um **teste limpo** o desfez: levando
+   todas as defasagens ao A/B sem pré-seleção, apenas a de 30 semanas ganhava,
+   enquanto a de 26 — igualmente compatível com a floração de dezembro a
+   fevereiro — dava $-0{,}40\%$; na Tommy, as defasagens fora da faixa teórica
+   renderam tanto quanto as de dentro ($+0{,}48\%$ contra $+0{,}41\%$); e um
+   **placebo** aplicando a mesma variável às semanas 1–10, onde não há mecanismo,
+   produziu $+0{,}35\%$ — magnitude equivalente à do efeito "real". O resultado
+   original vinha de selecionar a defasagem e avaliá-la na mesma amostra.
+
+   **Interpretação.** A proxy climática precisa atravessar uma cadeia longa e
+   ruidosa — clima, floração, safra, volume exportado, oferta nos EUA, preço no
+   Brasil — e cada elo dissipa sinal. O mecanismo econômico pode ser real sem que
+   a temperatura em Sinaloa seja um instrumento útil para medi-lo. **Alvo aberto:**
+   usar **volume exportado** diretamente (base mensal disponível desde 2012),
+   que encurta a cadeia e fica muito mais próximo do fenômeno.
 
 ::: {.callout-note}
 **Ambiente.** Este documento usa o kernel `manga-nixtla` (Python 3.12 isolado em
