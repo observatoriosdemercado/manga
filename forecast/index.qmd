@@ -954,13 +954,18 @@ das bandas individuais, que não teria garantia formal.
 
 Coerente com a discussão do §6 — o modelo não acerta o ponto, e fingir que acerta
 ("o preço da semana 752 será R\$ 2,05") é uma falsa precisão. Por isso a entrega
-abaixo é o **intervalo**, não o ponto. O gráfico apresenta duas faixas: a **banda
-interna (60%)** é a **faixa central da distribuição** de previsão — em três de
-cada cinco semanas históricas análogas, o preço real ficou dentro dessa faixa; a
-**banda externa (80%)** é mais conservadora e cobre quatro em cada cinco
-realizações históricas. Em preços de perecíveis, intervalos de 95% tendem a ser
-tão amplos que perdem utilidade prática para a tomada de decisão. A tabela abaixo
-reporta a faixa de 60% por modelo.
+abaixo é o **intervalo**, não o ponto. O gráfico apresenta a **faixa central de
+60%**: em três de cada cinco semanas históricas análogas, o preço real ficou
+dentro dela.
+
+**Só a banda de 60% é reportada.** Faixas mais largas (80%, 95%) são
+progressivamente mais fáceis de cumprir e progressivamente menos úteis para
+decidir — em preço de perecível, ficam tão amplas que deixam de restringir
+qualquer escolha. O critério de avaliação do projeto (§10.2) usa apenas
+**direção** e **cobertura de 60%**, e a apresentação segue esse critério. Os
+limites de 80% continuam sendo calculados e gravados no histórico — custam
+nada e preservam a opção de revisitar —, mas não entram em gráfico nem em
+tabela. A §10.1 verifica se a cobertura de 60% se cumpre de fato.
 
 ```{python}
 fc = pd.concat(previsoes, ignore_index=True)
@@ -986,8 +991,6 @@ prev.columns = ["unique_id", "fecha", "valor", "lo60", "hi60", "lo80", "hi80"]
 
 plot = (
     p9.ggplot()
-    + p9.geom_ribbon(prev, p9.aes(x="fecha", ymin="lo80", ymax="hi80"),
-                     alpha=0.15, fill="steelblue")
     + p9.geom_ribbon(prev, p9.aes(x="fecha", ymin="lo60", ymax="hi60"),
                      alpha=0.35, fill="steelblue")
     + p9.geom_line(hist, p9.aes("fecha", "valor"))
@@ -995,7 +998,7 @@ plot = (
     + p9.facet_wrap("unique_id", scales="free_y", ncol=1)
     + p9.scale_x_date(date_breaks="2 months", date_labels="%b/%y")
     + p9.labs(title=f"Combinação de previsões — próximas {H} semanas",
-              caption="Banda interna: faixa central 60%  |  Banda externa: faixa central 80%  (intervalos conformais)",
+              caption="Faixa central de 60% (intervalo conformal)",
               x="", y="R$/kg")
     + p9.theme(axis_text_x=p9.element_text(angle=45, hjust=1))
 )
@@ -1066,13 +1069,12 @@ cob = []
 for uid in ["palmer", "tommy"]:
     for m in ["AutoARIMA", "XGBoost", "Ensemble"]:
         cob.append({"Variedade": uid, "Modelo": m,
-                    "Cobertura 60% (%)": cobertura_loo(cvs[uid], m, 60),
-                    "Cobertura 80% (%)": cobertura_loo(cvs[uid], m, 80)})
+                    "Cobertura 60% (%)": cobertura_loo(cvs[uid], m, 60)})
 
 (GT(pd.DataFrame(cob))
  .tab_header(title="Cobertura empírica dos intervalos conformais (leave-one-window-out)",
-             subtitle="Valores próximos de 60 e 80 indicam intervalos bem calibrados")
- .fmt_number(columns=["Cobertura 60% (%)", "Cobertura 80% (%)"], decimals=1))
+             subtitle="Valor próximo de 60 indica intervalo bem calibrado")
+ .fmt_number(columns=["Cobertura 60% (%)"], decimals=1))
 ```
 
 ### 10.2 Acompanhamento contínuo (previsto × observado, semana a semana)
@@ -1081,6 +1083,27 @@ A calibração da §10.1 é **interna ao rolling-origin**: mede cobertura sobre
 janelas retiradas da própria amostra histórica. É necessária, mas não
 substitui o teste mais duro — confrontar a previsão **publicada** com o preço
 que de fato ocorreu depois, sem qualquer chance de contaminação.
+
+**Os dois critérios de sucesso.** A avaliação semanal deste projeto não
+persegue a estimativa pontual exata — em preço de perecível, isso seria
+prometer o que o fenômeno não permite (§6). O que se cobra do modelo são duas
+coisas, e só elas:
+
+1. **Direção** — o preço subiu ou caiu em relação à semana em que a previsão
+   foi feita, e o modelo apontou o sentido certo?
+2. **Cobertura de 60%** — o preço observado caiu dentro da banda interna?
+
+O MAE continua sendo reportado, como informação secundária; a banda de 80%
+não é reportada (ver §10). A consequência prática é que **errar a magnitude
+sem errar a direção nem a banda não conta como falha**: o modelo pode
+subestimar o tamanho de uma queda e ainda assim ter cumprido seu papel, que é
+orientar a decisão de quando vender.
+
+Vale lembrar o que a segunda métrica implica: uma banda de 60% **deve** deixar
+o preço de fora em cerca de 40% das semanas. O alvo é a convergência da
+cobertura observada para o nominal, não a ausência de falhas — uma sequência
+sem nenhum erro indicaria banda larga demais, ou seja, intervalo mal calibrado
+e inútil para decidir.
 
 Esta seção mantém esse registro. A cada render o documento grava sua própria
 previsão em `forecast/historico_previsoes.csv` (origem, semana-alvo,
@@ -1094,7 +1117,8 @@ preservam as previsões efetivamente publicadas. Elas vêm da especificação
 **anterior** (AutoARIMA + XGBoost com exógenas, $h=8$) e estão marcadas como
 tal — misturá-las com as novas exige cautela na leitura, mas descartá-las
 seria jogar fora o único registro fora da amostra que já existe. As bandas de
-80% não constavam da tabela publicada e ficam vazias nessas linhas.
+80% não constavam da tabela publicada e ficam vazias nessas linhas — o que hoje
+é irrelevante, já que só a de 60% é avaliada.
 
 ```{python}
 #| warning: false
@@ -1129,7 +1153,15 @@ obs = obs.rename(columns={"unique_id": "variedade", "y": "observado"})
 av = hist.merge(obs[["variedade", "alvo_fecha", "observado"]],
                 on=["variedade", "alvo_fecha"], how="left")
 av["observado"] = av["observado"] * (av["igpdi_base"] / ult_igp)
-av = av.dropna(subset=["observado"])
+
+# valor na ORIGEM: preco observado na semana em que a previsao foi feita, na
+# mesma base de deflator — e a referencia contra a qual se define "subiu" ou
+# "caiu", tanto para o previsto quanto para o realizado.
+orig = (obs[["variedade", "alvo_fecha", "observado"]]
+        .rename(columns={"alvo_fecha": "origem_fecha", "observado": "origem"}))
+av = av.merge(orig, on=["variedade", "origem_fecha"], how="left")
+av["origem"] = av["origem"] * (av["igpdi_base"] / ult_igp)
+av = av.dropna(subset=["observado", "origem"])
 
 if len(av) == 0:
     print("Ainda não há semana-alvo com preço observado; o registro começa na "
@@ -1137,20 +1169,17 @@ if len(av) == 0:
 else:
     av["erro"] = av["observado"] - av["previsto"]
     av["dentro60"] = (av["observado"] >= av["lo60"]) & (av["observado"] <= av["hi60"])
-    # bandas de 80% podem nao existir nas linhas historicas recuperadas dos
-    # HTMLs arquivados (a tabela publicada so trazia a de 60%). Comparar com
-    # NaN devolveria False e contaria como "fora"; marcamos como ausente para
-    # que a media simplesmente ignore essas linhas.
-    m80 = av["lo80"].notna() & av["hi80"].notna()
-    av["dentro80"] = np.nan
-    av.loc[m80, "dentro80"] = ((av.loc[m80, "observado"] >= av.loc[m80, "lo80"]) &
-                               (av.loc[m80, "observado"] <= av.loc[m80, "hi80"])).astype(float)
+    # direcao: sentido do movimento em relacao ao preco da semana de ORIGEM
+    av["dir_prev"] = np.where(av["previsto"]  > av["origem"], "alta", "queda")
+    av["dir_real"] = np.where(av["observado"] > av["origem"], "alta", "queda")
+    av["acertou_dir"] = av["dir_prev"] == av["dir_real"]
     tabela = av.sort_values(["alvo_fecha", "variedade"]).copy()
     tabela["Faixa 60%"] = [f"{a:.2f} – {b:.2f}" for a, b in zip(tabela["lo60"], tabela["hi60"])]
     tabela["Acerto"] = np.where(tabela["dentro60"], "dentro", "FORA")
+    tabela["Direcao"] = np.where(tabela["acertou_dir"], "OK", "errou")
     # display() explicito: expressao dentro de bloco if/else NAO e auto-exibida
     display((GT(tabela[["alvo_fecha", "variedade", "h", "previsto", "Faixa 60%",
-                "observado", "erro", "Acerto"]]
+                "observado", "erro", "Direcao", "Acerto"]]
         .rename(columns={"alvo_fecha": "Semana-alvo", "variedade": "Variedade",
                          "previsto": "Previsto", "observado": "Observado",
                          "erro": "Erro"}))
@@ -1161,19 +1190,34 @@ else:
 
 ```{python}
 if len(av) > 0:
-    resumo_ac = (av.groupby("variedade")
-                 .agg(**{"N semanas": ("erro", "size"),
-                         "MAE": ("erro", lambda s: s.abs().mean()),
-                         "Cobertura 60% (%)": ("dentro60", lambda s: 100 * s.mean()),
-                         "N (80%)": ("dentro80", "count"),
-                         "Cobertura 80% (%)": ("dentro80", lambda s: 100 * s.mean())})
-                 .reset_index().rename(columns={"variedade": "Variedade"}))
-    display((GT(resumo_ac)
+    # h=1 e a checagem semanal (a previsao que se confronta toda segunda-feira);
+    # horizontes maiores sao acompanhados a parte para nao diluir esse numero.
+    def _resumo(d, rot):
+        r = (d.groupby("variedade")
+             .agg(**{"N": ("erro", "size"),
+                     "Direcao correta (%)": ("acertou_dir", lambda s: 100 * s.mean()),
+                     "Dentro do 60% (%)": ("dentro60", lambda s: 100 * s.mean()),
+                     "MAE (R$/kg)": ("erro", lambda s: s.abs().mean())})
+             .reset_index().rename(columns={"variedade": "Variedade"}))
+        r.insert(1, "Horizonte", rot)
+        return r
+
+    partes = [_resumo(av[av["h"] == 1], "h=1 (proxima semana)")]
+    if (av["h"] > 1).any():
+        partes.append(_resumo(av[av["h"] > 1], "h>=2 (demais)"))
+    display((GT(pd.concat(partes, ignore_index=True))
              .tab_header(title="Desempenho acumulado fora da amostra",
-                         subtitle="A cobertura só se torna informativa depois de "
-                                  "algumas dezenas de semanas")
-             .fmt_number(columns=["MAE", "Cobertura 60% (%)", "Cobertura 80% (%)"],
-                         decimals=2)))
+                         subtitle="Criterios do projeto: direcao e cobertura de 60%; "
+                                  "h=1 e a checagem semanal")
+             .fmt_number(columns=["Direcao correta (%)", "Dentro do 60% (%)",
+                                  "MAE (R$/kg)"], decimals=1)))
+
+    a1 = av[av["h"] == 1]
+    print(chr(10) + "Checagem semanal (h=1), " + str(len(a1)) + " confrontos: "
+          "direcao correta em " + str(int(a1["acertou_dir"].sum())) + "/" + str(len(a1))
+          + " (" + format(a1["acertou_dir"].mean() * 100, ".0f") + "%) e observado "
+          "dentro da banda de 60% em " + str(int(a1["dentro60"].sum())) + "/"
+          + str(len(a1)) + " (" + format(a1["dentro60"].mean() * 100, ".0f") + "%).")
 ```
 
 ## 11. Próximos passos
@@ -1305,6 +1349,32 @@ if len(av) > 0:
    a temperatura em Sinaloa seja um instrumento útil para medi-lo. **Alvo aberto:**
    usar **volume exportado** diretamente (base mensal disponível desde 2012),
    que encurta a cadeia e fica muito mais próximo do fenômeno.
+
+10. **Origem robusta — a ancoragem do `lag_1` quando a última semana é o
+    outlier.** *Aberto; teste marcado para a rodada seguinte.* O confronto fora
+    da amostra expôs um padrão específico na Tommy. Na origem de 01/08/2026 o
+    modelo previu R\$ 2,04 para a semana seguinte e o preço veio R\$ 3,15 — erro
+    de +35%, fora até da banda de 80%. Nas duas semanas seguintes a previsão
+    voltou ao normal (3,30 contra 3,25 observado; depois 3,12 contra 2,81, com a
+    direção certa). O que distingue a semana que falhou não é o alvo ter sido
+    atípico, e sim **a origem**: o preço tinha desabado de 3,71 para 2,55 e o
+    `lag_1` do XGBoost ancorou nesse fundo, projetando a continuidade de um
+    movimento que era ele próprio o ponto fora da curva — o preço apenas
+    ricocheteou.
+
+    Isso é mais preciso do que o diagnóstico geral de "erra viradas" (§6, item 5
+    acima): a falha não ocorre em toda inflexão, mas quando **a última observação
+    é o valor anômalo**. E, sendo mais preciso, é acionável. Duas variantes a
+    levar ao rolling-origin, ambas mexendo apenas no valor de ancoragem e não na
+    estrutura do modelo: (i) substituir `lag_1` pela **mediana das três últimas
+    semanas**, e (ii) manter `lag_1` mas com **winsorização** da variação
+    semanal, limitando o quanto uma única semana pode deslocar a âncora. A
+    primeira é mais simples e perde reatividade a viradas genuínas; a segunda
+    preserva a reatividade e só apara o extremo — a comparação entre as duas é
+    justamente o que o teste precisa resolver. Como toda variável nova, isso
+    "paga aluguel" no rolling-origin: só entra na especificação se o ganho
+    sobreviver ao Diebold-Mariano, e a métrica que decide é a acurácia
+    direcional em $h=1$, não o RMSE médio.
 
 ::: {.callout-note}
 **Ambiente.** Este documento usa o kernel `manga-nixtla` (Python 3.12 isolado em
