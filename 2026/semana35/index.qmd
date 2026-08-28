@@ -319,7 +319,7 @@ Os dados utilizados nesta análise são semanais e disponibilizados pelo **CEPEA
 
 O preço médio de **Palmer** na semana `r strftime(today, format = "%V de %Y")` foi R\$ `r fmt(palmer_atual)` `r faixa(palmer_atual, palmer_max, palmer_min)`. A média histórica dos dados deflacionados, desde 2012 até 2025, para esta semana, é R\$ `r fmt(palmer_hist)`.  Em 2024, o preço deflacionado é de R\$ `r fmt(palmer_2024)` para a semana `r strftime(today, format = "%V")` e, em 2025, o preço é R\$ `r fmt(palmer_2025)`. Em relação à semana `r strftime(last, format = "%V")`, os preços `r var_verb(palmer_var)` `r fmt(abs(palmer_var))`%.
 
-No caso da **Tommy**, na semana `r strftime(today, format = "%V de %Y")`, os preços médios foram de R\$ `r fmt(tommy_atual)`, `r faixa(tommy_atual, tommy_max, tommy_min)`. Este valor é `r comp_palavra(tommy_atual, tommy_hist)` do que a média histórica para esta semana (R\$ `r fmt(tommy_hist)`), é `r comp_palavra(tommy_atual, tommy_2024)` do que o preço em 2024 (R\$ `r fmt(tommy_2024)`) e do que o valor de 2025 (R\$ `r fmt(tommy_2025)`). Em relação à semana anterior, os preços `r var_verb(tommy_var)` `r fmt(abs(tommy_var))`%.
+No caso da **Tommy**, na semana `r strftime(today, format = "%V de %Y")`, os preços médios foram de R\$ `r fmt(tommy_atual)`, `r faixa(tommy_atual, tommy_max, tommy_min)`. Este valor é `r comp_palavra(tommy_atual, tommy_hist)` do que a média histórica para esta semana (R\$ `r fmt(tommy_hist)`), é `r comp_palavra(tommy_atual, tommy_2024)` do que o preço em 2024 (R\$ `r fmt(tommy_2024)`) e é `r comp_palavra(tommy_atual, tommy_2025)` do que o valor de 2025 (R\$ `r fmt(tommy_2025)`). Em relação à semana anterior, os preços `r var_verb(tommy_var)` `r fmt(abs(tommy_var))`%.
 
 `r texto_export`
 
