@@ -222,7 +222,7 @@ texp_max <- NA; texp_min <- NA   # Tommy exportação Europa
 # Faixa das demais exportações — preencha quando a variedade tiver cotação na
 # semana; deixe NA/NA para a frase sair sem "variando entre". Se não houver
 # preço no CSV para a semana, a variedade nem aparece no parágrafo.
-keitt_max <- NA; keitt_min <- NA   # Keitt exportação
+keitt_max <- 3.5; keitt_min <- 2.9   # Keitt exportação
 kent_max <- NA; kent_min <- NA    # Kent exportação
 teua_max <- 3.6; teua_min <- 3.0    # Tommy exportação EUA
 
