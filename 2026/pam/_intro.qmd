@@ -1,0 +1,9 @@
+Os dados utilizados são da Pesquisa Agrícola Municipal (PAM) do IBGE e são anuais relativos ao período de `r txt$ini` a `r txt$fim`.
+
+Em `r txt$fim`, a área plantada no Brasil foi de aproximadamente `r txt$area_br` mil hectares (ha). As duas regiões que concentram a produção nacional são `r txt$area_regioes`. Os estados com maiores áreas são `r txt$area_estados` e representam, respectivamente, `r txt$area_estados_pct` do total nacional. `r txt$area_vale` `r txt$area_cidade`
+
+Em termos de volumes, em `r txt$fim`, o Brasil colheu cerca de `r txt$quanti_br` toneladas (t), com o Nordeste participando com aproximadamente `r txt$quanti_ne`% de todo este volume e o Vale do São Francisco, sozinho, representando `r txt$quanti_vale_pct`% do total nacional. As quatro cidades com maiores volumes de produção são, respectivamente, `r txt$quanti_cidades`. Os volumes somados representam cerca de `r txt$quanti_cidades_pct`% de toda a produção do Nordeste. `r txt$quanti_vale`
+
+Sobre a produtividade, a média, em `r txt$fim`, da região Nordeste (`r txt$prod_ne` t/ha) é `r txt$prod_comp` do que a média nacional (`r txt$prod_br` t/ha). Segundo o IBGE, o estado de `r txt$prod_estado1` possui a maior produtividade média (`r txt$prod_estados[1]`), seguido de `r txt$prod_seguido`. `r txt$prod_cidade` `r txt$prod_vale``r txt$prod_vale_expl`
+
+A manga gerou cerca de `r txt$valor_br` bilhões de reais em valor da produção no Brasil, em `r txt$fim`, sendo que cerca de `r txt$valor_vale_pct`% deste total, `r txt$valor_vale` bilhões de reais, teve origem no Vale do Submédio São Francisco.
