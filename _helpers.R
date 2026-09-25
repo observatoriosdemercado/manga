@@ -117,6 +117,27 @@ fmt_brl <- function(x, casas = 2) {
                        nsmall = casas))
 }
 
+#' Formata área em hectares (valor bruto) como "XX,X Mil ha" — usado nos
+#' valueboxes de Área Plantada (Brasil / Vale do São Francisco).
+fmt_area_mil_ha <- function(x) {
+  paste0(format(round(x / 1000, 1), decimal.mark = ",", nsmall = 1), " Mil ha")
+}
+
+#' Formata produtividade (t/ha) como "XX t/ha".
+fmt_produtividade <- function(x) {
+  paste0(formatC(round(x), format = "d"), " t/ha")
+}
+
+#' Formata volume produzido em toneladas (valor bruto) como "X,XX Mi t".
+fmt_volume_mi_t <- function(x) {
+  paste0(format(round(x / 1e6, 2), decimal.mark = ",", nsmall = 2), " Mi t")
+}
+
+#' Formata VBP em mil R$ (unidade do IBGE/PAM) como "R$ X,X Bi".
+fmt_vbp_bi <- function(x) {
+  paste0("R$ ", format(round(x / 1e6, 1), decimal.mark = ",", nsmall = 1), " Bi")
+}
+
 #' Remove artefatos que o ggplotly insere nos nomes dos traces:
 #'   - sufixos ",1", ",2", ",NA" gerados quando uma variavel esta
 #'     mapeada em mais de uma estetica (ex: color + linetype + fill)
