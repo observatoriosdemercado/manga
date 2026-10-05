@@ -1050,6 +1050,50 @@ outras 19 janelas** (por horizonte) e testado nos erros da janela excluída —
 nenhuma janela participa da própria calibração. Cobertura empírica próxima da
 nominal valida o mecanismo conformal usado no §10.
 
+::: {.callout-important}
+## A cobertura média está certa e ainda assim a banda é mal calibrada
+
+A validação desta seção entrega ~59–60% de cobertura, exatamente o nominal. Ela
+agrupa, porém, as 20 janelas, que cobrem preços de 0,84 a 5,79 R\$/kg. Uma banda
+pode ter cobertura média exata e ser **larga demais quando o preço está baixo e
+estreita demais quando está alto**, com os dois erros se cancelando. Foi o que
+se verificou ao repetir a mesma validação separando as janelas em terços pelo
+preço na origem:
+
+| Cobertura por terço de preço (ideal 60,0) | baixo | médio | alto |
+|:---|---:|---:|---:|
+| Palmer | 66,7% | 77,8% | **35,7%** |
+| Tommy | 76,2% | 58,3% | **45,2%** |
+
+São 42 pontos de amplitude na Palmer por trás de uma média de 59,2%. A causa é
+**mecânica, não estatística**: o conformal aditivo produz banda de largura
+praticamente idêntica em reais nos três terços (1,08 / 1,08 / 1,05 na Palmer;
+1,26 / 1,23 / 1,21 na Tommy). Ela não encolhe quando o preço encolhe, por
+construção. Com a manga a 4,82 isso equivale a 0,40 vez o preço; a 1,09,
+equivale a 0,56 vez.
+
+**Consequência prática para a leitura das previsões publicadas em setembro de
+2026**, com a série no fundo histórico: estamos no regime de sobre-cobertura, e
+a banda reportada é **mais larga do que a incerteza real justifica**.
+
+**O conformal em log foi testado e não resolve.** O intervalo multiplicativo
+$[\hat{y}e^{-q},\ \hat{y}e^{+q}]$ mantém a cobertura agregada, é mais largo que
+o aditivo na Tommy, e na quebra condicional melhora a Palmer (amplitude de 42
+para 25 pontos) mas **não melhora a Tommy** (31 para 34, com padrão errático).
+Uma transformação que conserta uma variedade e não a outra não se adota. A
+correção candidata — conformal localmente adaptativo — está no §11.
+
+*Sobre o limite inferior negativo:* ele ocorre, mas é raro e quase todo na banda
+de **80%**, que não é reportada desde agosto de 2026. Na banda de 60% houve um
+único caso (Tommy, semana 38/2026, $h=4$, em −0,0154); nos 240 intervalos desta
+validação, nenhum. Se voltar a ocorrer, a correção proporcional é truncar em
+zero, não trocar a escala do conformal.
+
+*Precisão:* são ~7 janelas independentes por terço, então as coberturas
+condicionais são indicativas. O que é sólido, por ser mecânico, é a largura
+constante em reais.
+:::
+
 ```{python}
 def cobertura_loo(cv, modelo, nivel):
     err   = np.abs(cv[modelo] - cv["y"]).values
@@ -1372,6 +1416,36 @@ if len(av) > 0:
     "paga aluguel" no rolling-origin: só entra na especificação se o ganho
     sobreviver ao Diebold-Mariano, e a métrica que decide é a acurácia
     direcional em $h=1$, não o RMSE médio.
+
+    **Atualização (28/09/2026):** medido na série, o que acontece depois de um
+    tombo **depende da época do ano**. Após uma queda de 25% ou mais, a semana
+    seguinte da Tommy tem mediana de −21,4% e sobe em apenas 2 de 13 casos
+    quando o tombo ocorre **dentro das semanas 36–41**; fora dessa janela, a
+    mediana é −5,9% e sobe em 12 de 39 — praticamente moeda ao ar. A semana 32,
+    que motivou este item, está **fora** da janela, e de fato repicou; a semana
+    37/2026 está **dentro**, e a continuidade da queda se confirmou. Uma origem
+    robusta **incondicional** teria consertado a primeira e quebrado a segunda.
+    O teste precisa ser condicional à janela sazonal, ou no mínimo avaliado
+    separadamente dentro e fora dela.
+
+11. **Conformal localmente adaptativo — a frente com o defeito mais bem
+    documentado.** A §10.1 mostra que o conformal aditivo em uso produz banda de
+    largura praticamente constante **em reais**, o que gera cobertura de 66,7%
+    no terço de preço baixo contra 35,7% no terço alto (Palmer), com a média de
+    59,2% escondendo 42 pontos de amplitude. A transformação em log foi testada
+    e **descartada**: conserta a Palmer e não a Tommy, e nas duas culturas
+    entrega intervalo igual ou mais largo com a mesma cobertura agregada.
+
+    O caminho é **normalizar o erro por uma estimativa de escala antes de tomar
+    o quantil**, remultiplicando na hora de montar o intervalo — o chamado
+    conformal normalizado. O log é o caso particular em que a escala é
+    $\hat{y}$, e esse caso particular já se mostrou insuficiente; o candidato a
+    testar é a escala vinda de uma **volatilidade móvel recente** da própria
+    série, que responde ao regime e não apenas ao nível.
+
+    O critério de sucesso aqui **não é a cobertura média** — essa já está certa
+    e foi justamente o que escondeu o problema. É a **redução da amplitude entre
+    os terços**, mantida a cobertura agregada em ≈60%.
 
 ::: {.callout-note}
 **Ambiente.** Este documento usa o kernel `manga-nixtla` (Python 3.12 isolado em
