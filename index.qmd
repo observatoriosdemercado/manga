@@ -427,8 +427,8 @@ dados |>
 ```{r trabalho-setup}
 # === AJUSTAR MENSALMENTE ===
 ref_caged <- list(
-  mes_nome = "julho",   # nome do mês sem acento (ex: marco, abril, maio...)
-  mes_num  = 7,
+  mes_nome = "agosto",   # nome do mês sem acento (ex: marco, abril, maio...)
+  mes_num  = 8,
   ano      = 2026
 )
 caged_dir <- "C:/Users/Lenovo/Dropbox/tempecon/dados_caged"
