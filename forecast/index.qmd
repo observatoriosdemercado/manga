@@ -1207,6 +1207,52 @@ av = av.merge(orig, on=["variedade", "origem_fecha"], how="left")
 av["origem"] = av["origem"] * (av["igpdi_base"] / ult_igp)
 av = av.dropna(subset=["observado", "origem"])
 
+# Congelamento de observado/origem (09/11/2026): o IGP-DI e mensal e entra
+# repetido nas semanas do mes corrente; quando o indice oficial sai, as
+# semanas daquele mes mudam de patamar e observado/origem acima mudam com
+# elas, mesmo sem nada ter mudado no mercado. Isso ja trocou veredictos
+# publicados (ver prosa ao final da secao). O igpdi_base gravado por linha
+# protege contra mudanca de BASE, nao contra revisao do indice em datas
+# passadas. Solucao: fixar observado/origem na primeira vez que cada
+# semana-alvo e medida, em colunas proprias, e avaliar sempre contra elas.
+CONG = ["observado_congelado", "origem_congelada"]
+CHAVE = ["origem_fecha", "alvo_fecha", "variedade"]
+for c in CONG:
+    if c not in hist.columns:
+        hist[c] = np.nan
+# av herda as colunas congeladas de hist no merge anterior; descarte antes de
+# trazê-las de volta, senão o pandas cria _x/_y e o código abaixo quebra.
+av = av.drop(columns=[c for c in CONG if c in av.columns]) \
+       .merge(hist[CHAVE + CONG], on=CHAVE, how="left")
+primeira_vez = av["observado_congelado"].isna()
+av.loc[primeira_vez, "observado_congelado"] = av.loc[primeira_vez, "observado"]
+av.loc[primeira_vez, "origem_congelada"]    = av.loc[primeira_vez, "origem"]
+
+# devolve ao histórico em disco; combine_first nunca sobrescreve o que já está
+# congelado — uma vez fixado, o valor não volta a se mexer.
+_novos = av.set_index(CHAVE)[CONG]
+_novos = _novos[~_novos.index.duplicated(keep="first")]
+hist = hist.set_index(CHAVE)
+for c in CONG:
+    hist[c] = hist[c].combine_first(_novos[c])
+hist = hist.reset_index().sort_values(["alvo_fecha", "variedade", "h"])
+hist.to_csv(HIST, index=False)
+
+# a partir daqui, avaliar SEMPRE pelos congelados
+av["observado_corrente"] = av["observado"]
+av["origem_corrente"]    = av["origem"]
+av["observado"] = av["observado_congelado"]
+av["origem"]    = av["origem_congelada"]
+
+_d = (np.where(av["previsto"] > av["origem"], 1, 0) !=
+      np.where(av["previsto"] > av["origem_corrente"], 1, 0)).sum()
+_b = (((av["observado"] >= av["lo60"]) & (av["observado"] <= av["hi60"])) !=
+      ((av["observado_corrente"] >= av["lo60"]) &
+       (av["observado_corrente"] <= av["hi60"]))).sum()
+print(f"Congelamento: {int(primeira_vez.sum())} linha(s) fixada(s) nesta rodada; "
+      f"{len(av)} avaliadas. Divergência entre o veredicto congelado e o que o "
+      f"deflator corrente produziria hoje: {_d} em direção, {_b} em banda.")
+
 if len(av) == 0:
     print("Ainda não há semana-alvo com preço observado; o registro começa na "
           "próxima atualização.")
@@ -1260,6 +1306,27 @@ if len(av) > 0:
           "dentro da banda de 60% em " + str(int(a1["dentro60"].sum())) + "/"
           + str(len(a1)) + " (" + format(a1["dentro60"].mean() * 100, ".0f") + "%).")
 ```
+
+**Nota sobre o deflator e o placar (09/11/2026).** O `igpdi_base` gravado em
+cada linha do histórico protege contra mudança da *base* de deflação — ele
+garante que previsto e observado sejam comparados em reais da mesma data de
+referência. Ele **não** protege contra a revisão do próprio índice em datas
+passadas: o IGP-DI é mensal e entra na série semanal repetido (as semanas do
+mês corrente carregam provisoriamente o índice do mês anterior) até o número
+oficial sair; quando sai, o preço real daquelas semanas é recalculado. Como a
+previsão gravada nunca muda, essa assimetria já trocou veredictos **depois de
+publicados** — um movimento de centavos no deflator basta para inverter
+"previu alta" em "previu queda", ou tirar/colocar o observado dentro da banda
+de 60%, sem que nada tenha mudado no mercado. A partir desta seção, o placar
+usa `observado_congelado`/`origem_congelada` — fixados na primeira vez que
+cada semana-alvo é medida e nunca mais recalculados — em vez dos valores
+correntes. Os valores correntes continuam disponíveis no
+`historico_previsoes.csv` (colunas `observado_corrente`/`origem_corrente`)
+só para auditoria. Ressalva: o congelamento inicial das linhas já observadas
+antes desta mudança usa o deflator vigente no dia em que esta seção passou a
+gravá-las, não o que valia da primeira vez que cada uma foi medida — esses
+valores originais não ficaram registrados em lugar nenhum. Dali em diante o
+congelamento é genuíno.
 
 ## 11. Próximos passos
 
