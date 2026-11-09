@@ -1,0 +1,1091 @@
+---
+title: "OBSERVATÓRIO DO MERCADO DE MANGA DA EMBRAPA SEMIÁRIDO"
+author: "João Ricardo F. de Lima"
+date: "today"
+editor: source
+lang: pt
+language: 
+  toc-title-document: '<a href="https://observatoriosdemercado.github.io/manga/" target="_blank"><img src="https://github.com/observatoriosdemercado/manga/blob/main/logo_embrapa.jpg?raw=true" alt="Logotipo Embrapa" width="150"></a>'
+format: 
+  html:
+    toc: true
+    toc_float:
+      collapsed: yes
+      smooth_scroll: yes
+    toc-location: left
+    code-fold: false
+    embed-resources: true
+    page-layout: full
+#    fig-asp: 0.618
+    fig-width: 10
+    fig-height: 8
+    fig-align: center
+    df-print: paged
+theme:
+  light: flatly
+execute:
+  echo: false
+  message: false
+  warning: false
+---
+
+```{r setup, include=FALSE}
+library(lubridate)
+anterior <- as.Date("2025-02-01")
+atual <-  as.Date("2025-03-01") #ultimo mes disponibilizado
+today <- as.Date("2025-04-11") #data para o IGPI - ultima semana do preço
+mes <- 3
+```
+
+<hr>
+
+```{r tratamento_base}
+#Direcionado o R para o Diretorio a ser trabalhado
+#setwd('c:/Users/Joao Ricardo Lima/Dropbox/tempecon/dados_manga')
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
+
+#Inicio do Script
+#Pacotes a serem utilizados 
+library(mFilter)
+library(forecast)
+library(tsutils)
+library(seasonal)
+library(ggplot2)
+library(uroot)
+library(tseries)
+library(ggthemes)
+library(dplyr)
+library(quantmod)
+library(scales)
+library(kableExtra)# complex tables
+library(lmtest)
+library(FinTS)
+library(rbcb)
+library(plotly)
+library(DT)
+library(magrittr)
+library(rmarkdown)
+library(reshape2)
+library(rbcb)
+library(tidyverse)
+library(lubridate)
+library(zoo)
+
+#checkX13()
+
+options(digits=4)
+
+#Entrando dados no R
+dados1 <- read.csv2('exportacoes_2012_2025.csv', header=T, sep=";", dec = ".")
+dados1 <- dados1/1000
+dados1[,1] <- seq(2012, 2025, by = 1)
+colnames(dados1) = c('Ano', 'Valor', 'Toneladas')
+dados1 <- tibble(dados1)
+
+
+#Entrando dados no R
+dados2 <- read.csv2('total_exporta_br.csv', header=T, sep=";", dec = ".")
+#dados <- dados[,-c(9:10)] #retirar as ultimas colunas
+colnames(dados2)[1]<-'ano'
+
+
+#Entrando dados no R
+dados3 <- read.csv2('destinos_2025.csv', header=T, sep=";", dec = ".")
+colnames(dados3)[1]<-'Paises'
+
+#Entrando dados no R
+dados4 <- read.csv2('via_2025.csv', header=T, sep=";", dec = ".")
+colnames(dados4)[1]<-'Vias'
+
+dados5 <- read.csv2('uf_2025.csv', header=T, sep=";" , dec = ".")
+colnames(dados5)[1]<-'UF'
+
+#Ajusta para Valor
+#Analise de Serie Temporal
+exporta_manga_valor <- dados2[,3]
+exporta_manga_valor<-exporta_manga_valor/1000000
+exporta_manga_valor <- ts(exporta_manga_valor, start=c(2012,1), freq=12)
+
+#Tendencia
+trend_valor <- cmav(exporta_manga_valor, outplot=F)
+date <- seq(as.Date('2012-01-01'),to=atual,by='1 month')
+trend_valor <- tibble(date, trend_valor)
+
+#Sazonalidade
+decompa<-decompose(exporta_manga_valor, type = 'multiplicative')
+sazonal_valor <- decompa$figure
+#meses <- seq(1:12)
+meses <- seq(as.Date("2021/1/1"), by = "month", length.out = 12) 
+sazonal_graph <- tibble(meses, sazonal_valor)
+
+#Comparações com os anos e entre as médias/max/min
+
+exporta_manga_valor_2024 <- window(exporta_manga_valor, end=c(2024,12))
+seas24 <- seasplot(exporta_manga_valor_2024, trend=F, outplot = F)
+medias24 <- colMeans(seas24$season)
+
+#exporta_manga_valor_2021 <- window(exporta_manga_valor, end=c(2021,12))
+exporta_manga_valor_2023 <- window(exporta_manga_valor, end=c(2023,12))
+#seas21<-seasplot(preco_palmer_2021, trend=F, outplot = F)
+#medias21 <- colMeans(seas21$season)
+
+exporta_manga_valor_25 <- as.matrix(tail(exporta_manga_valor,mes)) #ajustar mensalmente
+exporta_manga_valor_2025 <- matrix(NA, nrow=12, ncol=1)
+
+for(i in 1:mes){
+  exporta_manga_valor_2025[i,1] = exporta_manga_valor_25[i,1]
+}
+  
+#Como só se tem até a semana 12
+medias24 <- medias24[1:12]
+
+matrix = matrix(NA, nrow=12, ncol=2)
+
+for(i in 1:12){
+  matrix[i,1] = min(seas24$season[,i])
+  matrix[i,2] = max(seas24$season[,i])
+}
+
+#time <- c("Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", #"Dezembro")
+#time <-seq(1:12)
+table <- data.frame(meses, matrix[,1], round(medias24,3), matrix[,2], round(tail(exporta_manga_valor_2023,12),3), round(tail(exporta_manga_valor_2024,12),3), exporta_manga_valor_2025[,1])
+colnames(table) = c('Meses', 'Mínimo', 'Média', 'Máximo', '2023', '2024', '2025')
+
+tablea <- table[,-c(5:7)]
+tableb <- table[,-c(2,3,4)]
+
+tablea2 <- melt(tablea, id.var='Meses')
+tableb2 <- melt(tableb, id.var='Meses')
+mycolors <- c("lightblue3", "gray44", "gold")
+
+#Ajusta para Volume
+#Analise de Serie Temporal
+exporta_manga_volume <- dados2[,4]
+exporta_manga_volume<-exporta_manga_volume/1000  #passando de quilo para tonelada
+
+#Ajuste para a variação Mensal do Volume
+
+
+variacao_volume_23 <-  dados2 %>% filter(ano=='2023')
+variacao_volume_24 <-  dados2 %>% filter(ano=='2024')
+variacao_volume_25 <-  dados2 %>% filter(ano=='2025')
+
+variacao_volume_23 <-  variacao_volume_23[,4]/1000
+variacao_volume_24 <-  variacao_volume_24[,4]/1000
+variacao_volume_25 <-  variacao_volume_25[,4]/1000
+
+#Setando como uma série temporal
+exporta_manga_volume <- ts(exporta_manga_volume, start=c(2012,1), freq=12)
+
+#Tendencia
+trend_volume <- cmav(exporta_manga_volume, outplot=F)
+trend_volume <- tibble(date, trend_volume)
+
+#Sazonalidade
+decompa<-decompose(exporta_manga_volume, type = 'multiplicative')
+sazonal_volume <- decompa$figure
+sazonal_graph_volume <- tibble(meses, sazonal_volume)
+
+#Comparações com os anos e entre as médias/max/min
+
+exporta_manga_volume_2024 <- window(exporta_manga_volume, end=c(2024,12))
+seas24_vol <- seasplot(exporta_manga_volume_2024, trend=F, outplot = F)
+medias24_vol <- colMeans(seas24_vol$season)
+
+#exporta_manga_volume_2021 <- window(exporta_manga_volume, end=c(2021,12))
+
+exporta_manga_volume_2023 <- window(exporta_manga_volume, end=c(2023,12))
+
+exporta_manga_volume_25 <- as.matrix(tail(exporta_manga_volume,mes)) #ajustar mensalmente
+exporta_manga_volume_2025 <- matrix(NA, nrow=12, ncol=1)
+
+for(i in 1:mes){
+  exporta_manga_volume_2025[i,1] = exporta_manga_volume_25[i,1]
+}
+  
+#Como só se tem até a semana 12
+medias24_vol <- medias24_vol[1:12]
+
+matrix_vol = matrix(NA, nrow=12, ncol=2)
+
+for(i in 1:12){
+  matrix_vol[i,1] = min(seas24_vol$season[,i])
+  matrix_vol[i,2] = max(seas24_vol$season[,i])
+}
+
+#time <- c("Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", #"Dezembro")
+#time <-seq(1:12)
+table_volume <- data.frame(meses, round(matrix_vol[,1],0), round(medias24_vol,0), round(matrix_vol[,2],0), round(tail(exporta_manga_volume_2023,12),0),
+round(tail(exporta_manga_volume_2024,12),0), round(exporta_manga_volume_2025[,1],0))
+colnames(table_volume) = c('Meses', 'Mínimo', 'Média', 'Máximo', '2023', '2024', '2025')
+
+tablea_vol <- table_volume[,-c(5:7)]
+tableb_vol <- table_volume[,-c(2,3,4)]
+
+tablea2_vol <- melt(tablea_vol, id.var='Meses')
+tableb2_vol <- melt(tableb_vol, id.var='Meses')
+
+
+#Variação Mensal 2021
+
+variacao_volume_2023 <- as.matrix(variacao_volume_23)
+variacao_volume_2024 <- as.matrix(variacao_volume_24)
+variacao_volume_2025 <- matrix(NA, nrow=12, ncol=1)
+variacao_volume_25 <- as.matrix(variacao_volume_25)
+
+for(i in 1:mes){
+  variacao_volume_2025[i,1] = variacao_volume_25[i,1] 
+}
+
+
+variacao_24 <- ((variacao_volume_2024/variacao_volume_2023) - 1)*100
+variacao_25 <- ((variacao_volume_2025/variacao_volume_2024) - 1)*100
+
+variacao <- data.frame(meses, variacao_24, variacao_25)
+colnames(variacao) = c('Meses', 'Variação 2024 e 2023', 'Variação 2025 e 2024')
+
+variacaom <- melt(variacao, id.var='Meses')
+
+mycolors2 <- c("orange", "lightblue3")
+
+#Preço Exportação
+
+#Entrando dados no R
+dadosexp <- read.csv2('manga_export_medias_deflacionados.csv', header=T, sep=";", dec=".")
+#colnames(dadosexp)[1]<-'Palmer'
+
+#Entrando dados no R - Deflator
+igpdi <- read.csv2('igpdi.csv', 
+                   header=T, sep=";",
+                   dec=".")
+colnames(igpdi)[1]<-'Ano'
+
+igpdi2 <- igpdi %>% filter (Ano >= 2021) 
+igpdi2$date <- seq(as.Date('2021-01-05'),to=today,by='1 week') 
+igpdi2 <- igpdi2 %>% filter(date > "2021-07-27")
+
+dadosexp_comb<-cbind(dadosexp, igpdi2)
+dadosexp_comb<-dadosexp_comb[,-c(1:2)]
+
+#Deflacionar a serie de manga de exportação
+dadosexp_comb$Palmer <- dadosexp_comb[,1]*(tail(dadosexp_comb[,8],1)/dadosexp_comb[,8])
+dadosexp_comb$Tommy_USA <- dadosexp_comb[,2]*(tail(dadosexp_comb[,8],1)/dadosexp_comb[,8])
+dadosexp_comb$Tommy_Europa <- dadosexp_comb[,3]*(tail(dadosexp_comb[,8],1)/dadosexp_comb[,8])
+dadosexp_comb$Kent <- dadosexp_comb[,4]*(tail(dadosexp_comb[,8],1)/dadosexp_comb[,8])
+dadosexp_comb$Keitt <- dadosexp_comb[,5]*(tail(dadosexp_comb[,8],1)/dadosexp_comb[,8])
+
+dadosexp_table <- dadosexp_comb %<>%
+  select(c(date, Palmer, Tommy_USA, Tommy_Europa, Kent, Keitt))
+
+dadosexp_comb <- melt(dadosexp_comb, id.var='date')
+
+#Cambio Baixando os dados para o R
+dados6 <- get_market_expectations("monthly", "Câmbio", start_date = "2025-01-01")
+dados6 <- dados6 %>% filter (baseCalculo == 0, DataReferencia == '12/2025') 
+dados6 <- data.frame(dates=dados6$Data, cambio=dados6$Media)
+```
+
+# O COMPORTAMENTO DAS EXPORTAÇÕES DE MANGA DO BRASIL: `r strftime(atual, format = "%B de %Y")`.
+
+<hr>
+
+O objetivo desta análise foi verificar o comportamento das exportações de manga do Brasil. Os dados utilizados são mensais e disponibilizados pelo **Comexstat (MDIC)** para o período de *Janeiro de 2012 a `r strftime(atual, format = "%B de %Y")`*.
+
+Em relação aos volumes, em `r strftime(atual, format = "%B")` foram exportadas cerca de 18 mil toneladas (t) de mangas pelo Brasil. Este valor é maior do que a média histórica (11,1 mil t), mais alto do que os volumes de 2023 (14,4 mil t), mas menor do que o volume de 2024 (21 mil t). No ano, foram exportadas 39,6 mil t, queda de 13% em relação à 2024.
+
+Em termos dos valores das exportações, em `r strftime(atual, format = "%B")` foram, aproximadamente, US\$ 19 milhões. Este valor supera a média histórica (US\$ 13,2 milhões), o valor de 2023 (US\$ 13,6 milhões), mas é menor do que o valor de 2024, US\$ 36,1 milhões. No ano, as receitas chegam a US\$ 38,5 milhões, redução de 46% em relação à 2024.
+
+As exportações se concentraram, principalmente, nas variedades Palmer e Tommy. Em relação aos principais destinos, no ano, 49,84% das mangas foram enviadas para a Holanda, 28,77% para a Espanha e 9,2% para Portugal. 
+
+A principal via de envio foi a marítima (85,94%), com 80,4% do total despachado pela alfândega de Fortaleza e 6,97% pelo Aeroporto de Guarulhos-SP.
+
+A maior parte das frutas teve origem em Pernambuco (58,96%) e na Bahia (26,06%). Os estados de São Paulo (6,17%) e Rio Grande do Norte (5,30%), também contribuíram para os resultados obtidos com as exportações de manga.
+
+<hr>
+
+# 1. Receita de Exportação e Volume Exportado de Manga: 2012 a 2025
+
+<br>
+
+::: panel-tabset
+### GRÁFICO
+
+```{r exporta1}
+
+#Gráfico com Ggplot2
+
+mycolor1 <- "gold"
+mycolor2 <- "red"
+
+g1 <- ggplot(data=dados1) +  #estetica vai valer para todos os geom's
+  geom_col(aes(x=Ano, y=Toneladas, fill="Mil Toneladas"), lwd=1)+
+    scale_fill_manual(values=mycolor1)+
+  geom_line(aes(x=Ano, y=Valor, colour="Milhões de Dólares"), size=2)+
+  scale_colour_manual(values=mycolor2)+
+  labs(y= "US$ Milhões / Mil Ton", x= "Anos", title='',
+       caption = "") +
+  scale_y_continuous(limits=c(0, 360), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
+  scale_x_continuous(breaks = seq(2012, 2025, by = 1))+
+  theme_classic()+ #Definindo tema
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=14, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=1, size=14, margin = margin(l=20)),
+        axis.title.x = element_text(size=14, face = "bold", margin = margin(b=20)),
+        axis.title.y = element_text(size=14, face = "bold", margin = margin(l=20)),
+        plot.title = element_text(hjust = 0.5, size=16, face="italic"),
+        plot.caption = element_text(hjust = 0, size=12),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g1) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.25, 
+                      y=-0.35,
+                      title=''))
+```
+
+Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+Obs: Dados até o mês de `r strftime(atual, format = "%B de %Y")`.
+
+### TABELA
+
+**VISUALIZAÇÃO DOS DADOS EM TABELA**
+
+```{r exporta2}
+#tableP <-table[,-1]
+#rmarkdown::paged_table(round(tableD,2))
+dados1t <- dados1*1000
+dados1t[,1] <- seq(2012, 2025, by = 1)
+datatable(round(dados1t), option = list(
+  autoWidth = TRUE,
+  pageLength = 14,
+  lengthMenu = c(14, 15),
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+```
+
+Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+Obs: Dados até o mês de `r strftime(atual, format = "%B de %Y")`.
+:::
+
+<br>
+
+# 2. Análise das Receitas das Exportações
+
+<br>
+
+## Evolução da Tendência do Valor das Exportações de Manga do Brasil: 2012 a 2025.
+
+```{r exporta3}
+#, results='', fig.cap='', fig.width=10, fig.height=6
+
+g2 <- ggplot(data=trend_valor)+
+  geom_line(aes(x=date, y=trend_valor), color="blue", size=1.5)+
+  scale_y_continuous(limits=c(0,35), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
+  scale_x_date(date_breaks = "1 year",
+               labels = date_format("%Y"))+
+  labs(y= "Tendência", x= "Meses de cada Ano", title='',
+       caption = "")+
+  theme_classic()+ #Definindo tema
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=14, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=14, margin = margin(l=20)),
+        axis.title.x = element_text(size=14, face = "bold", margin = margin(b=20)),
+        axis.title.y = element_text(size=14, face = "bold", margin = margin(l=20)),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0, size=12),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g2) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.25, 
+                      y=-0.2,
+                      title=''))
+```
+
+Fonte: Observatório de Mercado de Manga da Embrapa
+
+<br>
+
+## Evolução da Sazonalidade do Valor das Exportações de Manga do Brasil: 2012 a 2025.
+
+<br>
+
+```{r exporta4}
+
+#Decompor a Série
+
+g3 <- ggplot(data=sazonal_graph)+
+  geom_line(aes(x=meses, y=sazonal_valor), color="blue", size=1.5)+
+  scale_y_continuous(limits=c(-1,3), n.breaks = 5, expand = expansion(add=c(0,0.5)), 
+                     labels=number_format(accuracy = 0.1)) +
+    scale_x_date(date_breaks = "1 month",
+               labels = date_format("%B"))+
+  labs(y= "", x= "Meses de cada Ano", title='',
+       caption = "")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=45, hjust=0.5, size=14, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=14, margin = margin(l=20)),
+        axis.title.y = element_text(size=14, face = "bold"),
+        axis.title.x = element_text(size=14, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0, size=14),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g3) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.25, 
+                      y=-0.2,
+                      title=''))
+```
+
+Fonte: Observatório de Mercado de Manga da Embrapa
+
+<br> <br>
+
+## Valor das Exportações de Manga do Brasil: `r strftime(atual, format = "%B de %Y")` em comparação com as informações entre 2012-2024
+
+<br>
+
+::: panel-tabset
+### GRÁFICO
+
+```{r exporta5}
+
+g4 <- ggplot()+
+  geom_col(data=tableb2, aes(x=Meses, y=value, fill=variable), lwd=1,
+           position = "dodge")+
+  scale_fill_manual(values=mycolors)+
+  geom_line(data=tablea2, aes(x=Meses, y=value, colour=variable), linetype = "solid",
+            size = 1)+
+    scale_colour_manual(values = c("red", "chocolate", "darkgreen")) +
+    scale_y_continuous(limits = c(0, 75), n.breaks = 10)+
+    scale_x_date(date_breaks = "1 month",
+               labels = date_format("%B"))+
+  labs(y= "US$ Milhões", x= "Meses do Ano", title='',
+       caption = "")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=25, hjust=0.5, size=11, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=14, margin = margin(l=20)),
+        axis.title.y = element_text(size=14, face = "bold"),
+        axis.title.x = element_text(size=14, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0, size=14),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g4) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.1, 
+                      y=-0.35,
+                      title=''))
+```
+
+Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+Obs: Dados até o mês de `r strftime(atual, format = "%B de %Y")`.
+
+### TABELA
+
+**VISUALIZAÇÃO DOS DADOS EM TABELA (US\$ MILHÕES)**
+
+```{r exporta6}
+
+table_valor<-table[,-1]
+datatable(round(table_valor,3), option = list(
+  autoWidth = TRUE,
+  pageLength = 12,
+  lengthMenu = c(12, 15),
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+```
+
+Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+Obs: Dados até o mês de `r strftime(atual, format = "%B de %Y")`.
+:::
+
+<br>
+
+# 3. Análise do Volume das Exportações
+
+<br>
+
+## Evolução da Tendência do Volume Exportado de Manga do Brasil: 2012 a 2025.
+
+```{r exporta7}
+
+g5 <- ggplot(data=trend_volume)+
+  geom_line(aes(x=date, y=trend_volume), color="blue", size=1.5)+
+  scale_y_continuous(limits=c(0,25000), n.breaks = 10, 
+                     expand = expansion(add=c(0,0.5)))+
+  scale_x_date(date_breaks = "1 year",
+               labels = date_format("%Y"))+
+  labs(y= "Tendência", x= "Meses de cada Ano", title='',
+       caption = "")+
+  theme_classic()+ #Definindo tema
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=14, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=14, margin = margin(l=20)),
+        axis.title.x = element_text(size=14, face = "bold", margin = margin(b=20)),
+        axis.title.y = element_text(size=14, face = "bold", margin = margin(l=20)),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0, size=12),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g5) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.25, 
+                      y=-0.2,
+                      title=''))
+
+```
+
+Fonte: Observatório de Mercado de Manga da Embrapa
+
+<br>
+
+## Evolução da Sazonalidade do Volume das Exportações de Manga do Brasil: 2012 a 2025.
+
+<br>
+
+```{r exporta8}
+
+#Decompor a Série
+
+g6 <- ggplot(data=sazonal_graph_volume)+
+  geom_line(aes(x=meses, y=sazonal_volume), color="blue", size=1.5)+
+  scale_y_continuous(limits=c(-1,3), n.breaks = 5, expand = expansion(add=c(0,0.5)), 
+                     labels=number_format(accuracy = 0.1)) +
+    scale_x_date(date_breaks = "1 month",
+               labels = date_format("%B"))+
+  labs(y= "", x= "Meses de cada Ano", title='',
+       caption = "")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=45, hjust=0.5, size=14, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=14, margin = margin(l=20)),
+        axis.title.y = element_text(size=14, face = "bold"),
+        axis.title.x = element_text(size=14, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0, size=14),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g6) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.25, 
+                      y=-0.2,
+                      title=''))
+```
+
+Fonte: Observatório de Mercado de Manga da Embrapa
+
+<br>
+
+## Volume das Exportações de Manga do Brasil: `r strftime(atual, format = "%B de %Y")` em comparação com as informações entre 2012-2024
+
+<br>
+
+::: panel-tabset
+### GRÁFICO
+
+```{r exporta9}
+g7 <- ggplot()+
+  geom_col(data=tableb2_vol, aes(x=Meses, y=value, fill=variable), lwd=1,
+           position = "dodge")+
+  scale_fill_manual(values=mycolors)+
+  geom_line(data=tablea2_vol, aes(x=Meses, y=value, colour=variable), linetype = "solid",
+            size = 1)+
+    scale_colour_manual(values = c("red", "chocolate", "darkgreen")) +
+    scale_y_continuous(limits = c(0, 52000), n.breaks = 10)+
+    scale_x_date(date_breaks = "1 month",
+               labels = date_format("%B"))+
+  labs(y= "Toneladas", x= "Meses do Ano", title='',
+       caption = "")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=25, hjust=0.5, size=11, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=14, margin = margin(l=20)),
+        axis.title.y = element_text(size=14, face = "bold"),
+        axis.title.x = element_text(size=14, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0, size=14),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g7) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.1, 
+                      y=-0.35,
+                      title=''))
+```
+
+Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa.
+
+Obs: Dados até o mês de `r strftime(atual, format = "%B de %Y")`.
+
+### TABELA
+
+**VISUALIZAÇÃO DOS DADOS EM TABELA (TONELADAS)**
+
+```{r exporta10}
+
+table_volume<-table_volume[,-1]
+datatable(round(table_volume,3), option = list(
+  autoWidth = TRUE,
+  pageLength = 12,
+  lengthMenu = c(12, 15),
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+```
+
+Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa.
+
+Obs: Dados até o mês de `r strftime(atual, format = "%B de %Y")`.
+:::
+
+<br>
+
+## Crescimento do Volume Mensal de Exportação: 2025/2024 e 2024/2023.
+
+<br>
+
+::: panel-tabset
+### GRÁFICO
+
+```{r exporta11}
+
+g8 <- ggplot()+
+  geom_col(data=variacaom, aes(x=Meses, y=value, fill=variable), lwd=1, position = "dodge")+
+  scale_fill_manual(values=mycolors2)+
+  scale_y_continuous(labels = number_format(accuracy = 0.01, decimal.mark = ","))+
+  scale_x_date(date_breaks = "1 month",
+               labels = date_format("%B"))+
+  labs(y= "Variação Percentual", x= "Meses do Ano", title='',
+       caption = "")+
+  theme_minimal()+
+   theme(axis.text.x=element_text(angle=25, hjust=0, size=10, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=14, margin = margin(l=20)),
+        axis.title.y = element_text(size=14, face = "bold"),
+        axis.title.x = element_text(size=14, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0, size=14),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+  ggplotly(g8) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.25, 
+                      y=-0.35,
+                      title=''))
+```
+
+Fonte: Observatório de Mercado de Manga da Embrapa
+
+### TABELA
+
+**VISUALIZAÇÃO DOS DADOS EM TABELA (VARIAÇÃO PERCENTUAL)**
+
+```{r exporta12}
+
+variacaot<-variacao[,-1]
+datatable(round(variacaot,1), option = list(
+  autoWidth = TRUE,
+  pageLength = 12,
+  lengthMenu = c(12, 15),
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+```
+
+Fonte: Observatório de Mercado de Manga da Embrapa
+:::
+
+<br>
+
+# 4. Evolução semanal de preços de manga exportação (ME) ao produtor no Vale do São Francisco
+
+<br>
+
+::: panel-tabset
+### GRÁFICO
+
+```{r exporta13}
+#Gráfico com Ggplot2
+
+mycolors3 <- c("orange", "lightblue3", "red", "darkgreen", "blue")
+
+g9 <- ggplot()+
+  geom_col(data=dadosexp_comb, aes(x=date, y=value, fill=variable), size=2, 
+           width = 5, position = "dodge")+
+  scale_fill_manual(values=mycolors3)+
+  scale_y_continuous(limits = c(0, 6), n.breaks = 4, labels = number_format(accuracy = 0.01,
+                                                                            decimal.mark = ","))+
+  scale_x_date(breaks = date_breaks("3 weeks"), expand=c(0,0),
+               labels = date_format("%W-%y"))+
+  labs(y= "Preços R$", x= "Semanas do Ano", title='',
+       caption = "")+
+  theme_minimal()+
+  theme(axis.text.x=element_text(angle=45, hjust=0.5, size=11, margin = margin(b=10)),
+        axis.text.y=element_text(hjust=0.5, size=14, margin = margin(l=20)),
+        axis.title.y = element_text(size=14, face = "bold"),
+        axis.title.x = element_text(size=14, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0, size=14),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g9) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.20, 
+                      y=-0.35,
+                      title=''))
+```
+
+Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+### TABELA
+
+**VISUALIZAÇÃO DOS DADOS EM TABELA (R\$)**
+
+```{r exporta14}
+
+dadosexpt<-dadosexp_table[,-1]
+datatable(round(dadosexpt,2), option = list(
+  autoWidth = TRUE,
+  pageLength = 12,
+  lengthMenu = c(10, 25, 50, 100),
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+```
+
+Fonte: CEPEA reprocessado pelo Observatório de Mercado de Manga da Embrapa
+:::
+
+<br>
+
+# 5. Principais destinos de exportação da Manga do Brasil em 2025.
+
+<br>
+
+::: panel-tabset
+### GRÁFICO
+
+```{r exporta15}
+
+#Gráfico com Ggplot2
+
+mycolor1 <- "gold"
+
+g10 <- ggplot(data=dados3) +  #estetica vai valer para todos os geom's
+  geom_col(aes(x = reorder(Paises, -Participacao), y= Participacao, fill="% do Total"), lwd=1)+
+    scale_fill_manual(values=mycolor1) +
+  labs(y= "% do Volume Total Exportados", x= "Países", title='',
+       caption = "")+
+  scale_y_continuous(limits=c(0, 50), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
+   theme_classic()+ #Definindo tema
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=8, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=1, size=14, margin = margin(l=20)),
+        axis.title.x = element_text(size=14, face = "bold", margin = margin(b=20)),
+        axis.title.y = element_text(size=14, face = "bold", margin = margin(l=40)),
+        plot.title = element_text(hjust = 0.5, size=16, face="italic"),
+        plot.caption = element_text(hjust = 0, size=12),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g10) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.4, 
+                      y=-0.35,
+                      title=''))
+```
+
+Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+### TABELA
+
+**VISUALIZAÇÃO DOS DADOS EM TABELA (% PARTICIPAÇÃO NO TOTAL EXPORTADO)**
+
+```{r exporta16}
+
+datatable(dados3, option = list(
+  autoWidth = TRUE,
+  pageLength = 12,
+  lengthMenu = c(10, 25, 50, 100),
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+```
+
+Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
+:::
+
+<br>
+
+# 6. Principais vias de exportação da Manga do Brasil em 2025.
+
+<br>
+
+::: panel-tabset
+### GRÁFICO
+
+```{r exporta17}
+
+#Gráfico com Ggplot2
+
+g11 <- ggplot(data=dados4) +  #estetica vai valer para todos os geom's
+  geom_col(aes(x = reorder(Vias, -Participacao), y= Participacao, fill="% do Total"), lwd=1)+
+    scale_fill_manual(values=mycolor1) +
+  labs(y= "% de Exportação", x= "Vias", title='',
+       caption = "")+
+  scale_y_continuous(limits=c(0, 90), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
+   theme_classic()+ #Definindo tema
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=1, size=14, margin = margin(l=20)),
+        axis.title.x = element_text(size=14, face = "bold", margin = margin(b=20)),
+        axis.title.y = element_text(size=14, face = "bold", margin = margin(l=40)),
+        plot.title = element_text(hjust = 0.5, size=16, face="italic"),
+        plot.caption = element_text(hjust = 0, size=12),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g11) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.4, 
+                      y=-0.35,
+                      title=''))
+```
+
+Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+### TABELA
+
+**VISUALIZAÇÃO DOS DADOS EM TABELA (% VIAS DE EXPORTAÇÃO)**
+
+```{r exporta18}
+
+datatable(dados4, option = list(
+  autoWidth = TRUE,
+  pageLength = 12,
+  lengthMenu = c(10, 25, 50, 100),
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+```
+
+Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
+:::
+
+<br>
+
+# 7. Unidade da RFB de Despacho Aduaneiro da Manga - 2025.
+
+```{r exporta20z1}
+#Direcionado o R para o Diretorio a ser trabalhado
+setwd('/Users/jricardofl/Dropbox/tempecon/dados_manga')
+
+#Inicio do Script
+#Pacotes a serem utilizados 
+library(reshape2)
+
+#Entrando dados no R
+dados21 <- read.csv2('urf_manga.csv', header=T, sep=";", dec = ".")
+
+# Set the custom order for 'regiao' using factor
+dados21$URF <- factor(dados21$URF, levels = c("ALF-Fortaleza", "Aeroporto de GRU","IRF Natal",  "ALF-Salvador", "Aeroporto de VCP", "ALF-Foz do Iguaçu", "ALF-Belo Horizonte", "Outros"))
+
+dados21a <- melt(dados21, id.var='URF')
+
+mycolors <- "gold"
+
+g8 <- ggplot() +
+  geom_col(data=dados21a, aes(x=URF, y=value, fill=variable), size=2, width = 0.7, position = position_dodge(width = .5, preserve = "total"))+
+  scale_fill_manual(values=mycolors) +
+  scale_y_continuous(n.breaks = 10)+
+  labs(y= "Percentual Despachado (%)", x= "Unidade da Receita Federal do Brasil",
+       caption = "Fonte: COMEXSTAT reprocessado pelos Observatórios de Manga da Embrapa, 2025.")+
+  geom_text(data=dados21a, aes(y=value, x=URF, group=variable, label=value), 
+    position = position_dodge(width = .5, preserve = "total"), 
+    size=4, 
+    hjust=0.5, 
+    vjust=-1.4)+
+  theme_minimal() + #Definindo tema
+  theme(axis.text.x = element_text(angle=45, hjust=1, margin = margin(b=10), size=10), 
+        axis.text.y = element_text(margin = margin(b=10), size=14), 
+        axis.title.x = element_text(size=14, face = "bold", margin = margin(b=10)),
+        axis.title.y = element_text(size=14, face = "bold", margin = margin(l=20)),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), # retirando as linhas
+        plot.caption = element_text(hjust = 0, size=14), #ajuste Fonte
+        legend.title = element_blank(),
+        legend.text=element_text(size=14),
+        legend.position = "none")  # Define legend 
+
+ggplotly(g8) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.4, 
+                      y=-0.2,
+                      title=''))
+```
+
+Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+<br>
+
+# 8. Unidade da Federação da Manga exportada do Brasil em 2025.
+
+::: panel-tabset
+### GRÁFICO
+
+```{r exporta19}
+
+#Gráfico com Ggplot2
+
+g12 <- ggplot(data=dados5) +  #estetica vai valer para todos os geom's
+  geom_col(aes(x = reorder(UF, -Participacao), y= Participacao, fill="% do Total"), lwd=1)+
+    scale_fill_manual(values=mycolor1) +
+  labs(y= "% Exportação", x= "Unidade da Federação", title='',
+       caption = "")+
+  scale_y_continuous(limits=c(0, 65), n.breaks = 10, expand = expansion(add=c(0,0.5)))+
+   theme_classic()+ #Definindo tema
+  theme(axis.text.x=element_text(angle=0, hjust=0.5, size=12, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=1, size=14, margin = margin(l=20)),
+        axis.title.x = element_text(size=14, face = "bold", margin = margin(b=20)),
+        axis.title.y = element_text(size=14, face = "bold", margin = margin(l=40)),
+        plot.title = element_text(hjust = 0.5, size=16, face="italic"),
+        plot.caption = element_text(hjust = 0, size=12),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g12) %>%
+  layout(legend = list(
+                      orientation = "h", 
+                      x=0.4, 
+                      y=-0.35,
+                      title=''))
+```
+
+Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+### TABELA
+
+**VISUALIZAÇÃO DOS DADOS EM TABELA (% UNIDADE FEDERAÇÃO)**
+
+```{r exporta20}
+
+datatable(dados5, option = list(
+  autoWidth = TRUE,
+  pageLength = 12,
+  lengthMenu = c(10, 25, 50, 100),
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+```
+
+Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
+:::
+
+<br>
+
+# 9. Evolução da Taxa de Câmbio Esperada para Dezembro de 2025
+
+<br>
+
+::: panel-tabset
+### GRÁFICO
+
+```{r exporta21}
+#dados6 <- dados6 %>%
+#     mutate(dates = floor_date(dates, unit = "week")) %>%
+#     group_by(dates) %>%
+#     summarise(
+#         cambio = mean(cambio))
+#dados6$dates <- dados6$dates + 1
+#dados6$cambio <- round(dados6$cambio,2)
+
+g13 <- ggplot(data=dados6)+
+  geom_line(aes(x=dates, y=cambio), color="blue", size=1.5)+
+    scale_x_date(date_breaks = "1 week",
+               labels = date_format("%d-%b"))+
+  labs(y= "Câmbio Esperado para Dezembro/2025", x= "Semanas do Ano", title='',
+       caption = "")+
+  theme_classic()+
+  theme(axis.text.x=element_text(angle=35, hjust=0.5, size=11, margin = margin(b=20)),
+        axis.text.y=element_text(hjust=0.5, size=14, margin = margin(l=20)),
+        axis.title.y = element_text(size=12, face = "bold"),
+        axis.title.x = element_text(size=14, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0, size=14),
+        legend.position = "bottom", legend.title = element_blank(),
+        legend.text=element_text(size=12)) # Definindo posição da legenda
+
+ggplotly(g13)
+```
+
+Fonte: FOCUS/BCB reprocessado pelo Observatório de Mercado de Manga da Embrapa
+
+### TABELA
+
+**VISUALIZAÇÃO DOS DADOS EM TABELA**
+
+```{r exporta22}
+
+cambiot <- dados6
+data_cambio <-format(as.Date(cambiot$dates),'%d/%m/%Y')
+cambiot <- cambiot[,-1]
+cambiot <- tibble(data_cambio, round(cambiot,2))
+colnames(cambiot) = c('Data', 'Taxa de Câmbio R$/US$')
+
+datatable(cambiot, option = list(
+  autoWidth = TRUE,
+  pageLength = 12,
+  lengthMenu = c(10, 25, 50, 100),
+  columnDefs = list(list(className = 'dt-center', targets = "_all"))))
+```
+
+Fonte: COMEXSTAT reprocessado pelo Observatório de Mercado de Manga da Embrapa
+:::
+
+<br>
+
+# INFORMAÇÕES E APOIO
+
+<br> <br>
+
+<center>![](logo_manga.png){width="10cm"}</center>
+
+<br> <br>
+
+<center>João Ricardo F. de Lima</center>
+
+<center>Email Coordenador: joao.ricardo\@embrapa.br</center>
+
+<br>
+
+<center><https://www.embrapa.br/observatorio-da-manga></center>
+
+<center>[Dashboard Mercado de Manga](https://bit.ly/3JzWtDZ)</center>
+
+<br>
+
+<center>Telefones:</center>
+
+<center>87-3866-3667</center>
+
+<center>87-99961-5799</center>
+
+<br>
+
+<center>![](apoio1.png){width="7cm"}</center>
+
+<br>
